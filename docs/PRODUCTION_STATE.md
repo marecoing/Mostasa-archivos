@@ -43,15 +43,42 @@
 - Debug overlay F1
 - Escape vuelve al título
 
+### HITO 006 — Sistema de input abstracto (teclado) ✅
+- `InputActions.ts`: enum unificado de acciones de input
+- `InputBindings.ts`: bindings por defecto teclado + gamepad (Xbox-like)
+- `InputManager.ts`: snapshot por frame, `justPressed`/`justReleased`, remapeo, localStorage
+- `GameScene.ts` actualizado para usar `InputManager` (reemplaza `this.keys` inline)
+
+### HITO 007 — Soporte gamepad + remapeo ✅
+- `InputManager` soporta gamepad vía `Phaser.Input.Gamepad.GamepadPlugin`
+- Bindings gamepad: stick analógico + botones con nombres A/B/X/Y/L1/L2/R1/R2
+- Remapeo de teclado persiste en `localStorage` (`mostasa_keybindings_v1`)
+- Detección automática de conexión/desconexión de gamepad
+
+### HITO 008 — Física Z determinista con tests ✅
+- 24 tests unitarios en `tests/unit/Physics25D.test.ts`
+- Fixed timestep 60 Hz con acumulador garantiza determinismo
+- Gravedad (-1800 px/s²), fricción, salto, colisión con suelo
+
+### HITO 009 — Límites y pushboxes ✅
+- `Pushbox.ts`: `pushboxOverlap`, `resolvePushboxes`, `clampEntityToLane`
+- `buildPlayerPushbox` / `buildEnemyPushbox` con dimensiones estándar
+- 17 tests unitarios en `tests/unit/Pushbox.test.ts`
+- `GameScene.ts` usa `clampEntityToLane` y `buildPlayerPushbox` (reemplaza `clampToBounds`)
+
+### HITO 010 — Cámara avanzada (follow, combat locks, shake) ✅
+- `CameraSystem.ts`: seguimiento suave con lerp, `lock`/`unlock`, `snapTo`
+- Perfiles de shake: `SHAKE_LIGHT`, `SHAKE_MEDIUM`, `SHAKE_HEAVY`, `SHAKE_BOSS`
+- `updateConfig(lane)` para actualizar bounds al cambiar de zona
+- 18 tests unitarios en `tests/unit/CameraSystem.test.ts`
+- `GameScene.ts` usa `CameraSystem` (reemplaza `this.cameraX` inline)
+
 ---
 
 ## HITOS PENDIENTES
 
-- HITO 006 — Input completo (gamepad, remapeo)
-- HITO 007 — Física Z determinista con tests
-- HITO 008 — Límites y pushboxes
-- HITO 009 — Cámara avanzada (combat locks, shake)
-- HITO 010 — Máquina de estados del jugador
+- HITO 011 — Máquina de estados del jugador
+- HITO 012 — Debug overlay y volúmenes F2
 - HITO 011 — Debug overlay y volúmenes F2
 - HITO 012 — AttackDefinition data-driven
 - ... (hitos 013-060)
@@ -90,12 +117,22 @@ Ver `docs/adr/` para Architecture Decision Records.
 
 ---
 
+## ESTADO DEL TEST SUITE
+
+| Archivo                         | Tests | Estado |
+|---------------------------------|-------|--------|
+| Physics25D.test.ts              | 24    | ✅ OK  |
+| CameraSystem.test.ts            | 18    | ✅ OK  |
+| Pushbox.test.ts                 | 17    | ✅ OK  |
+| **Total**                       | **59**| ✅ OK  |
+
+---
+
 ## LIMITACIONES DE LA BUILD ACTUAL
 
 1. Sin sprites finales (placeholders rectangulares)
 2. Sin audio (SFX ni música)
 3. Sin combate funcional (solo movimiento)
 4. Sin enemigos
-5. Sin máquina de estados completa del jugador
+5. Sin máquina de estados del jugador
 6. Sin waves ni sistema de combate
-7. Control de input preparado pero sin gamepad implementado

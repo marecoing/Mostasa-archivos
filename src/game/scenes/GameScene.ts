@@ -2,16 +2,19 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, SCENE_KEYS } from '../config/GameConfig';
 import {
   Vec3,
-  Bounds2D,
   GRAVITY,
   GROUND_Z,
   FIXED_TIMESTEP,
   MAX_DELTA,
   worldToScreen,
   applyFriction,
-  clampToBounds,
   isOnGround,
 } from '../core/Physics25D';
+import { clampEntityToLane, buildPlayerPushbox } from '../core/Pushbox';
+import type { StageLane } from '../core/Pushbox';
+import { CameraSystem, createDefaultCameraConfig, SHAKE_LIGHT } from '../systems/CameraSystem';
+import { InputManager } from '../systems/input/InputManager';
+import { INPUT_ACTIONS } from '../systems/input/InputActions';
 
 const WALK_SPEED_X = 280;
 const WALK_SPEED_Y = 210;
@@ -19,25 +22,12 @@ const RUN_SPEED_X = 390;
 const JUMP_VELOCITY_Z = 720;
 const FRICTION = 1600;
 
-const STAGE_BOUNDS: Bounds2D = {
+const STAGE_LANE: StageLane = {
   minX: 80,
   maxX: 2400,
   minY: 380,
   maxY: 590,
 };
-
-const SAFE_ZONE_X_LEFT = 200;
-
-interface InputState {
-  left: boolean;
-  right: boolean;
-  up: boolean;
-  down: boolean;
-  jump: boolean;
-  run: boolean;
-  lightAttack: boolean;
-  heavyAttack: boolean;
-}
 
 export class GameScene extends Phaser.Scene {
   private playerPos: Vec3 = { x: 400, y: 480, z: 0 };
@@ -47,26 +37,10 @@ export class GameScene extends Phaser.Scene {
   private playerShadow!: Phaser.GameObjects.Graphics;
   private groundGraphics!: Phaser.GameObjects.Graphics;
   private debugText!: Phaser.GameObjects.Text;
-  private cameraX = 0;
+  private camera!: CameraSystem;
+  private input2d!: InputManager;
   private accumulator = 0;
   private isDebugVisible = false;
-  private keys!: {
-    left: Phaser.Input.Keyboard.Key;
-    right: Phaser.Input.Keyboard.Key;
-    up: Phaser.Input.Keyboard.Key;
-    down: Phaser.Input.Keyboard.Key;
-    wKey: Phaser.Input.Keyboard.Key;
-    aKey: Phaser.Input.Keyboard.Key;
-    sKey: Phaser.Input.Keyboard.Key;
-    dKey: Phaser.Input.Keyboard.Key;
-    jump: Phaser.Input.Keyboard.Key;
-    run: Phaser.Input.Keyboard.Key;
-    lightAttack: Phaser.Input.Keyboard.Key;
-    heavyAttack: Phaser.Input.Keyboard.Key;
-    special: Phaser.Input.Keyboard.Key;
-    f1: Phaser.Input.Keyboard.Key;
-    escape: Phaser.Input.Keyboard.Key;
-  };
 
   constructor() {
     super({ key: SCENE_KEYS.GAME });
@@ -78,7 +52,7 @@ export class GameScene extends Phaser.Scene {
     this.createPlayerSprite();
     this.createHUD();
     this.createDebugUI();
-    this.setupKeys();
+    this.setupInput();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
     const noticeText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT * 0.15, '[ NIVEL 1 — ONCE: LA NOCHE DE LOS TRAPITOS ]', {
@@ -98,6 +72,11 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private setupInput(): void {
+    this.input2d = new InputManager(this);
+    this.camera = new CameraSystem(createDefaultCameraConfig(STAGE_LANE.maxX, GAME_WIDTH, GAME_HEIGHT));
+  }
+
   private createGround(): void {
     this.groundGraphics = this.add.graphics();
     this.drawGround();
@@ -108,8 +87,8 @@ export class GameScene extends Phaser.Scene {
     g.clear();
 
     const stageWidth = 2800;
-    const laneMinY = STAGE_BOUNDS.minY;
-    const laneMaxY = STAGE_BOUNDS.maxY;
+    const laneMinY = STAGE_LANE.minY;
+    const laneMaxY = STAGE_LANE.maxY;
 
     g.fillStyle(0x111122, 1);
     g.fillRect(0, 0, stageWidth, laneMinY);
@@ -170,11 +149,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updatePlayerSpritePosition(): void {
+    const camX = this.camera?.worldX ?? 0;
     const { screenX, screenY } = worldToScreen(
       this.playerPos.x,
       this.playerPos.y,
       this.playerPos.z,
-      this.cameraX,
+      camX,
       0,
     );
 
@@ -182,7 +162,7 @@ export class GameScene extends Phaser.Scene {
       this.playerPos.x,
       this.playerPos.y,
       GROUND_Z,
-      this.cameraX,
+      camX,
       0,
     );
 
@@ -194,10 +174,8 @@ export class GameScene extends Phaser.Scene {
     const depth = this.playerPos.y;
     this.playerShadow.setDepth(depth - 1);
 
-    const facing = this.playerFacing;
     const w = 40;
     const h = 72;
-    const bx = screenX - w / 2 * facing;
 
     this.playerSprite.clear();
 
@@ -218,9 +196,6 @@ export class GameScene extends Phaser.Scene {
     this.playerSprite.strokeRect(screenX - w / 2, screenY - h, w, h);
 
     this.playerSprite.setDepth(depth);
-
-    void bx;
-    void facing;
   }
 
   private createHUD(): void {
@@ -301,96 +276,35 @@ export class GameScene extends Phaser.Scene {
       .setVisible(false);
   }
 
-  private setupKeys(): void {
-    if (!this.input.keyboard) return;
-
-    const kb = this.input.keyboard;
-    const KC = Phaser.Input.Keyboard.KeyCodes;
-
-    this.keys = {
-      left: kb.addKey(KC.LEFT),
-      right: kb.addKey(KC.RIGHT),
-      up: kb.addKey(KC.UP),
-      down: kb.addKey(KC.DOWN),
-      wKey: kb.addKey(KC.W),
-      aKey: kb.addKey(KC.A),
-      sKey: kb.addKey(KC.S),
-      dKey: kb.addKey(KC.D),
-      jump: kb.addKey(KC.SPACE),
-      run: kb.addKey(KC.SHIFT),
-      lightAttack: kb.addKey(KC.J),
-      heavyAttack: kb.addKey(KC.K),
-      special: kb.addKey(KC.L),
-      f1: kb.addKey(KC.F1),
-      escape: kb.addKey(KC.ESC),
-    };
-
-    this.keys.f1.on('down', () => {
-      this.isDebugVisible = !this.isDebugVisible;
-      this.debugText.setVisible(this.isDebugVisible);
-    });
-
-    this.keys.escape.on('down', () => {
-      this.cameras.main.fadeOut(300, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start(SCENE_KEYS.TITLE);
-      });
-    });
-  }
-
-  private gatherInput(): InputState {
-    if (!this.keys) {
-      return {
-        left: false,
-        right: false,
-        up: false,
-        down: false,
-        jump: false,
-        run: false,
-        lightAttack: false,
-        heavyAttack: false,
-      };
-    }
-    const { left, right, up, down, wKey, aKey, sKey, dKey, jump, run, lightAttack, heavyAttack } =
-      this.keys;
-
-    return {
-      left: left.isDown || aKey.isDown,
-      right: right.isDown || dKey.isDown,
-      up: up.isDown || wKey.isDown,
-      down: down.isDown || sKey.isDown,
-      jump: jump.isDown,
-      run: run.isDown,
-      lightAttack: Phaser.Input.Keyboard.JustDown(lightAttack),
-      heavyAttack: Phaser.Input.Keyboard.JustDown(heavyAttack),
-    };
-  }
-
-  private fixedUpdate(input: InputState): void {
+  private fixedUpdate(): void {
+    const snap = this.input2d.getSnapshot();
     const dt = FIXED_TIMESTEP;
-    const speedX = input.run ? RUN_SPEED_X : WALK_SPEED_X;
-    const speedY = input.run ? 285 : WALK_SPEED_Y;
 
-    if (input.left) {
+    const isRunning = snap[INPUT_ACTIONS.RUN].held;
+    const speedX = isRunning ? RUN_SPEED_X : WALK_SPEED_X;
+    const speedY = isRunning ? 285 : WALK_SPEED_Y;
+
+    if (snap[INPUT_ACTIONS.MOVE_LEFT].held) {
       this.playerVel.x = -speedX;
       this.playerFacing = -1;
-    } else if (input.right) {
+    } else if (snap[INPUT_ACTIONS.MOVE_RIGHT].held) {
       this.playerVel.x = speedX;
       this.playerFacing = 1;
     } else {
       this.playerVel.x = applyFriction(this.playerVel, FRICTION, dt).x;
     }
 
-    if (input.up) {
+    if (snap[INPUT_ACTIONS.MOVE_UP].held) {
       this.playerVel.y = -speedY;
-    } else if (input.down) {
+    } else if (snap[INPUT_ACTIONS.MOVE_DOWN].held) {
       this.playerVel.y = speedY;
     } else {
       this.playerVel.y = applyFriction(this.playerVel, FRICTION, dt).y;
     }
 
-    if (input.jump && isOnGround(this.playerPos)) {
+    if (snap[INPUT_ACTIONS.JUMP].justPressed && isOnGround(this.playerPos)) {
       this.playerVel.z = JUMP_VELOCITY_Z;
+      this.camera.triggerShake(SHAKE_LIGHT);
     }
 
     if (!isOnGround(this.playerPos) || this.playerVel.z > 0) {
@@ -406,30 +320,42 @@ export class GameScene extends Phaser.Scene {
       if (this.playerVel.z < 0) this.playerVel.z = 0;
     }
 
-    this.playerPos = clampToBounds(this.playerPos, STAGE_BOUNDS);
-  }
-
-  private updateCamera(): void {
-    const targetX = this.playerPos.x - SAFE_ZONE_X_LEFT;
-    const maxCameraX = STAGE_BOUNDS.maxX - GAME_WIDTH + 120;
-    const clampedTarget = Math.max(0, Math.min(maxCameraX, targetX));
-    this.cameraX += (clampedTarget - this.cameraX) * 0.08;
+    const pb = buildPlayerPushbox(this.playerPos.x, this.playerPos.y);
+    const clamped = clampEntityToLane(this.playerPos.x, this.playerPos.y, pb.halfW, pb.halfD, STAGE_LANE);
+    this.playerPos.x = clamped.x;
+    this.playerPos.y = clamped.y;
   }
 
   update(_time: number, delta: number): void {
-    const dt = Math.min(delta / 1000, MAX_DELTA);
-    this.accumulator += dt;
+    const dtSec = Math.min(delta / 1000, MAX_DELTA);
 
-    const input = this.gatherInput();
+    this.input2d.update();
 
+    const snap = this.input2d.getSnapshot();
+
+    if (snap[INPUT_ACTIONS.DEBUG_TOGGLE].justPressed) {
+      this.isDebugVisible = !this.isDebugVisible;
+      this.debugText.setVisible(this.isDebugVisible);
+    }
+
+    if (snap[INPUT_ACTIONS.PAUSE].justPressed) {
+      this.cameras.main.fadeOut(300, 0, 0, 0);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start(SCENE_KEYS.TITLE);
+      });
+    }
+
+    this.accumulator += dtSec;
     while (this.accumulator >= FIXED_TIMESTEP) {
-      this.fixedUpdate(input);
+      this.fixedUpdate();
       this.accumulator -= FIXED_TIMESTEP;
     }
 
-    this.updateCamera();
+    this.camera.follow(this.playerPos.x, this.playerPos.y);
+    this.camera.update(delta);
+
     this.updatePlayerSpritePosition();
-    this.groundGraphics.setX(-this.cameraX);
+    this.groundGraphics.setX(-this.camera.worldX);
 
     if (this.isDebugVisible) {
       this.updateDebugText();
@@ -442,12 +368,12 @@ export class GameScene extends Phaser.Scene {
         `FPS: ${Math.round(this.game.loop.actualFps)}`,
         `POS  X:${Math.round(this.playerPos.x)} Y:${Math.round(this.playerPos.y)} Z:${Math.round(this.playerPos.z)}`,
         `VEL  X:${Math.round(this.playerVel.x)} Y:${Math.round(this.playerVel.y)} Z:${Math.round(this.playerVel.z)}`,
-        `CAM  X:${Math.round(this.cameraX)}`,
+        `CAM  X:${Math.round(this.camera.worldX)} LOCKED:${this.camera.isLocked}`,
         `FACE: ${this.playerFacing > 0 ? 'RIGHT' : 'LEFT'}`,
         `GROUND: ${isOnGround(this.playerPos) ? 'YES' : 'NO'}`,
-        `F1=DEBUG  F2=HITBOX  ESC=TITLE`,
+        `PAD: ${this.input2d.isGamepadActive ? 'YES' : 'NO'}`,
+        `F1=DEBUG  ESC=TITLE`,
       ].join('\n'),
     );
   }
-
 }
