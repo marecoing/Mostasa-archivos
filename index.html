@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="MOSTASA'S RAGE: CIUDAD DE LA FURIA — Beat'em up 2.5D" />
+    <title>Mostasa's Rage: Ciudad de la Furia</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: monospace;
+      }
+
+      #game-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      #game-container canvas {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      #loading-screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #000;
+        color: #e8c046;
+        z-index: 10;
+        transition: opacity 0.5s ease;
+      }
+
+      #loading-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #loading-title {
+        font-size: clamp(18px, 4vw, 32px);
+        font-weight: bold;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+        text-shadow: 0 0 20px #e8c046;
+      }
+
+      #loading-bar-wrapper {
+        width: min(400px, 80vw);
+        height: 12px;
+        border: 2px solid #e8c046;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      #loading-bar {
+        height: 100%;
+        width: 0%;
+        background: #e8c046;
+        transition: width 0.1s ease;
+      }
+
+      #loading-text {
+        margin-top: 12px;
+        font-size: clamp(10px, 2vw, 14px);
+        color: #888;
+        letter-spacing: 0.1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="loading-screen">
+        <div id="loading-title">Mostasa's Rage</div>
+        <div id="loading-bar-wrapper">
+          <div id="loading-bar"></div>
+        </div>
+        <div id="loading-text">Cargando...</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

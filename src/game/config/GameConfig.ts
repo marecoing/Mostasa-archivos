@@ -1,0 +1,52 @@
+import Phaser from 'phaser';
+import { BootScene } from '../scenes/BootScene';
+import { PreloadScene } from '../scenes/PreloadScene';
+import { TitleScene } from '../scenes/TitleScene';
+import { GameScene } from '../scenes/GameScene';
+
+export const GAME_WIDTH = 1280;
+export const GAME_HEIGHT = 720;
+
+export const SCENE_KEYS = {
+  BOOT: 'BootScene',
+  PRELOAD: 'PreloadScene',
+  TITLE: 'TitleScene',
+  GAME: 'GameScene',
+} as const;
+
+export type SceneKey = (typeof SCENE_KEYS)[keyof typeof SCENE_KEYS];
+
+export function createGameConfig(parent: string): Phaser.Types.Core.GameConfig {
+  return {
+    type: Phaser.WEBGL,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+    parent,
+    backgroundColor: '#000000',
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT,
+    },
+    render: {
+      antialias: false,
+      pixelArt: false,
+      roundPixels: true,
+    },
+    fps: {
+      target: 60,
+      forceSetTimeOut: false,
+    },
+    input: {
+      keyboard: true,
+      gamepad: true,
+    },
+    audio: {
+      disableWebAudio: false,
+    },
+    title: "Mostasa's Rage: Ciudad de la Furia",
+    version: '0.1.0',
+    scene: [BootScene, PreloadScene, TitleScene, GameScene],
+  };
+}
