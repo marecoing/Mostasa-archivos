@@ -14,6 +14,9 @@ export const PLAYER_STATE = {
   LIGHT_3: 'light_3',
   HEAVY: 'heavy',
   AIR_ATTACK: 'air_attack',
+  GRAB: 'grab',
+  THROW: 'throw',
+  SPECIAL: 'special',
   HURT: 'hurt',
   DOWN: 'down',
   GET_UP: 'get_up',
@@ -25,13 +28,16 @@ export const LAND_FRAMES = 6;
 export const HURT_FRAMES = 14;
 export const DOWN_FRAMES = 40;
 export const GET_UP_FRAMES = 20;
+export const GRAB_HOLD_FRAMES = 20;
+export const THROW_FRAMES = 15;
+export const SPECIAL_TOTAL_FRAMES = 45;
 
 export interface PlayerContext {
   isOnGround: boolean;
   velZ: number;
 }
 
-export type FSMEvent = 'jump' | 'land' | 'shake_light' | 'shake_medium';
+export type FSMEvent = 'jump' | 'land' | 'shake_light' | 'shake_medium' | 'grab_attempt' | 'throw' | 'special_radial';
 
 export interface FSMResult {
   velZSet: number | null;
@@ -63,6 +69,10 @@ export class PlayerStateMachine {
     );
   }
 
+  isGrabbing(): boolean {
+    return this.state === PLAYER_STATE.GRAB || this.state === PLAYER_STATE.THROW;
+  }
+
   locksMovement(): boolean {
     return !this.canMove();
   }
@@ -73,12 +83,27 @@ export class PlayerStateMachine {
       this.state === PLAYER_STATE.LIGHT_2 ||
       this.state === PLAYER_STATE.LIGHT_3 ||
       this.state === PLAYER_STATE.HEAVY ||
-      this.state === PLAYER_STATE.AIR_ATTACK
+      this.state === PLAYER_STATE.AIR_ATTACK ||
+      this.state === PLAYER_STATE.SPECIAL
     );
   }
 
   isAirborne(): boolean {
     return this.state === PLAYER_STATE.JUMP || this.state === PLAYER_STATE.AIR_ATTACK;
+  }
+
+  triggerGrab(): boolean {
+    if (this.state !== PLAYER_STATE.IDLE && this.state !== PLAYER_STATE.WALK && this.state !== PLAYER_STATE.RUN) return false;
+    this.enterState(PLAYER_STATE.GRAB);
+    this.frame = 1;
+    return true;
+  }
+
+  triggerSpecial(): boolean {
+    if (this.state !== PLAYER_STATE.IDLE && this.state !== PLAYER_STATE.WALK && this.state !== PLAYER_STATE.RUN) return false;
+    this.enterState(PLAYER_STATE.SPECIAL);
+    this.frame = 1;
+    return true;
   }
 
   forceHurt(): void {
@@ -147,6 +172,12 @@ export class PlayerStateMachine {
         return this.processHeavy();
       case PLAYER_STATE.AIR_ATTACK:
         return this.processAirAttack(ctx);
+      case PLAYER_STATE.GRAB:
+        return this.processGrab();
+      case PLAYER_STATE.THROW:
+        return this.processThrow();
+      case PLAYER_STATE.SPECIAL:
+        return this.processSpecial();
       case PLAYER_STATE.HURT:
         return this.processHurt();
       case PLAYER_STATE.DOWN:
@@ -300,6 +331,43 @@ export class PlayerStateMachine {
 
     if (this.frame >= getTotalFrames(def)) {
       this.enterState(PLAYER_STATE.JUMP);
+    }
+    return result;
+  }
+
+  private processGrab(): FSMResult {
+    const result = this.emptyResult();
+    if (this.frame === 1) {
+      result.events.push('grab_attempt');
+    }
+    if (this.frame >= GRAB_HOLD_FRAMES) {
+      this.enterState(PLAYER_STATE.THROW);
+    }
+    return result;
+  }
+
+  private processThrow(): FSMResult {
+    const result = this.emptyResult();
+    if (this.frame === 1) {
+      result.events.push('throw');
+    }
+    if (this.frame >= THROW_FRAMES) {
+      this.lightQueued = false;
+      this.heavyQueued = false;
+      this.enterState(PLAYER_STATE.IDLE);
+    }
+    return result;
+  }
+
+  private processSpecial(): FSMResult {
+    const result = this.emptyResult();
+    if (this.frame === 1) {
+      result.events.push('special_radial');
+    }
+    if (this.frame >= SPECIAL_TOTAL_FRAMES) {
+      this.lightQueued = false;
+      this.heavyQueued = false;
+      this.enterState(PLAYER_STATE.IDLE);
     }
     return result;
   }

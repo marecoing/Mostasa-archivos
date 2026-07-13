@@ -6,6 +6,9 @@ import {
   HURT_FRAMES,
   DOWN_FRAMES,
   GET_UP_FRAMES,
+  GRAB_HOLD_FRAMES,
+  THROW_FRAMES,
+  SPECIAL_TOTAL_FRAMES,
 } from '../../src/game/player/PlayerStateMachine';
 import { makeEmptySnapshot } from '../../src/game/systems/input/InputActions';
 import { INPUT_ACTIONS } from '../../src/game/systems/input/InputActions';
@@ -346,5 +349,132 @@ describe('event emission', () => {
     for (let i = 0; i < 5; i++) fsm.tick(empty, AIRBORNE);
     const result = fsm.tick(empty, LANDED);
     expect(result.events).toContain('land');
+  });
+});
+
+describe('GRAB / THROW states', () => {
+  it('triggerGrab() from IDLE enters GRAB state', () => {
+    const fsm = new PlayerStateMachine();
+    const ok = fsm.triggerGrab();
+    expect(ok).toBe(true);
+    expect(fsm.currentState).toBe(PLAYER_STATE.GRAB);
+  });
+
+  it('triggerGrab() returns false when attacking', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.tick(pressLight(), GROUNDED);
+    const ok = fsm.triggerGrab();
+    expect(ok).toBe(false);
+    expect(fsm.currentState).toBe(PLAYER_STATE.LIGHT_1);
+  });
+
+  it('triggerGrab() from WALK enters GRAB', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.tick(holdLeft(), GROUNDED);
+    const ok = fsm.triggerGrab();
+    expect(ok).toBe(true);
+    expect(fsm.currentState).toBe(PLAYER_STATE.GRAB);
+  });
+
+  it('emits grab_attempt event on first GRAB frame', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    const result = fsm.tick(empty, GROUNDED);
+    expect(result.events).toContain('grab_attempt');
+  });
+
+  it('GRAB does not emit grab_attempt on subsequent frames', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    fsm.tick(empty, GROUNDED); // frame 1 — emits grab_attempt
+    const result = fsm.tick(empty, GROUNDED); // frame 2
+    expect(result.events).not.toContain('grab_attempt');
+  });
+
+  it('GRAB → THROW after GRAB_HOLD_FRAMES', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    for (let i = 0; i < GRAB_HOLD_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    expect(fsm.currentState).toBe(PLAYER_STATE.THROW);
+  });
+
+  it('emits throw event on first THROW frame', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    for (let i = 0; i < GRAB_HOLD_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    const result = fsm.tick(empty, GROUNDED);
+    expect(result.events).toContain('throw');
+  });
+
+  it('THROW → IDLE after THROW_FRAMES', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    for (let i = 0; i < GRAB_HOLD_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    for (let i = 0; i < THROW_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    expect(fsm.currentState).toBe(PLAYER_STATE.IDLE);
+  });
+
+  it('isGrabbing() is true during GRAB and THROW', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    expect(fsm.isGrabbing()).toBe(true);
+    for (let i = 0; i < GRAB_HOLD_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    expect(fsm.isGrabbing()).toBe(true);
+  });
+
+  it('GRAB locks movement', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerGrab();
+    expect(fsm.locksMovement()).toBe(true);
+  });
+});
+
+describe('SPECIAL state', () => {
+  it('triggerSpecial() from IDLE enters SPECIAL', () => {
+    const fsm = new PlayerStateMachine();
+    const ok = fsm.triggerSpecial();
+    expect(ok).toBe(true);
+    expect(fsm.currentState).toBe(PLAYER_STATE.SPECIAL);
+  });
+
+  it('triggerSpecial() returns false when jumping', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.tick(pressJump(), GROUNDED);
+    const ok = fsm.triggerSpecial();
+    expect(ok).toBe(false);
+  });
+
+  it('emits special_radial event on first SPECIAL frame', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerSpecial();
+    const result = fsm.tick(empty, GROUNDED);
+    expect(result.events).toContain('special_radial');
+  });
+
+  it('does not emit special_radial on subsequent frames', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerSpecial();
+    fsm.tick(empty, GROUNDED);
+    const result = fsm.tick(empty, GROUNDED);
+    expect(result.events).not.toContain('special_radial');
+  });
+
+  it('SPECIAL → IDLE after SPECIAL_TOTAL_FRAMES', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerSpecial();
+    for (let i = 0; i < SPECIAL_TOTAL_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    expect(fsm.currentState).toBe(PLAYER_STATE.IDLE);
+  });
+
+  it('isAttacking() is true during SPECIAL', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerSpecial();
+    expect(fsm.isAttacking()).toBe(true);
+  });
+
+  it('SPECIAL locks movement', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.triggerSpecial();
+    expect(fsm.locksMovement()).toBe(true);
   });
 });

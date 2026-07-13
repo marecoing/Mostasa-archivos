@@ -105,13 +105,47 @@
 - RUN: estado diferenciado de WALK con velocidad mayor (390 vs 280)
 - Estado visual: tinte del sprite cambia según estado (ataque, hurt)
 
+### HITO 016 — Entidades enemigas con IA básica ✅
+- `EnemyData.ts`: `EnemyStats` + 5 tipos (grunt/speedster/tank/zoner/miniboss)
+- `EnemyStateMachine.ts`: IDLE/WALK/HURT/DOWN/GET_UP/GRABBED con hitstun countdown
+- `EnemyEntity.ts`: física propia (gravedad, bounce, fricción), IA de persecución, hitThisSwing
+- `GameScene.ts` spawnea ola inicial de 3 enemigos; debug keys para spawn adicional
+- 35 tests en `tests/unit/EnemyStateMachine.test.ts`
+
+### HITO 017 — Colisión jugador-enemigo y sistema de daño ✅
+- `CombatSystem.ts`: `checkPlayerHitsEnemies`, `checkGrabRange`, `getRadialHits` (funciones puras)
+- Hitbox detection: sameDepth(36), |dZ|<50, overlap de volúmenes
+- `EnemyEntity.applyHit`: HP, knockback, hitstun/knockdown FSM transition
+- Renderizado de enemigos con barra de HP dinámica
+- 26 tests en `tests/unit/CombatSystem.test.ts`
+
+### HITO 018 — Hitstop y feedback de golpe ✅
+- Hitstop global: `hitstopFrames` en GameScene congela toda la simulación N frames
+- `hitThisSwing` previene múltiples hits en el mismo frame de ataque
+- `hitThisSwing` se resetea entre swings (cuando no hay activeAttack)
+- Shake de cámara en cada hit confirmado
+
+### HITO 019 — Garras y lanzamiento ✅
+- FSM amplía: GRAB (20 frames pin) → THROW (15 frames) → IDLE
+- `triggerGrab()` / `triggerSpecial()`: métodos externos que setean frame=1
+- `grab_attempt` / `throw` / `special_radial` en FSMEvent
+- `EnemyEntity.applyGrab()` / `applyThrow(velX, velZ, facing)`
+- Enemigo se pega a jugador durante GRAB; lanzado con THROW_VEL_X=500, Z=220
+- 17 tests adicionales en `tests/unit/PlayerStateMachine.test.ts`
+
+### HITO 020 — Medidor de Bronca y ataque especial radial ✅
+- Bronca meter (0-100): +18 por hit confirmado; HUD bar dinámica animada
+- `triggerSpecial()` requiere bronca≥100, consume meter a 0
+- `getRadialHits` impacta todos los enemigos en radio 200px, sameDepth(50)
+- `EnemyEntity.applySpecialHit()`: 30 daño, knockback radial, knockdown FSM
+- `isGrabbing()` y `isAttacking()` incluyen estados nuevos; sprite tinted por estado
+- Debug: F (fill bronca), kill enemies, spawn todos los tipos
+
 ## HITOS PENDIENTES
 
-- HITO 016 — Hitboxes, hurtboxes, sameDepth, colisión jugador-enemigo
-- HITO 017 — Daño, hitstun, hitstop, knockback
-- HITO 011 — Debug overlay y volúmenes F2
-- HITO 012 — AttackDefinition data-driven
-- ... (hitos 013-060)
+- HITO 021 — Sprites animados (sprite sheets) para Mostasa y enemigos
+- HITO 022 — Audio (SFX: golpes, salto, hurt; música: loop)
+- ... (hitos 023-060)
 
 ---
 
@@ -149,14 +183,16 @@ Ver `docs/adr/` para Architecture Decision Records.
 
 ## ESTADO DEL TEST SUITE
 
-| Archivo                         | Tests | Estado |
-|---------------------------------|-------|--------|
-| Physics25D.test.ts              | 24    | ✅ OK  |
-| CameraSystem.test.ts            | 18    | ✅ OK  |
-| Pushbox.test.ts                 | 17    | ✅ OK  |
-| PlayerStateMachine.test.ts      | 36    | ✅ OK  |
-| AttackData.test.ts              | 14    | ✅ OK  |
-| **Total**                       | **109**| ✅ OK |
+| Archivo                         | Tests  | Estado |
+|---------------------------------|--------|--------|
+| Physics25D.test.ts              | 24     | ✅ OK  |
+| CameraSystem.test.ts            | 18     | ✅ OK  |
+| Pushbox.test.ts                 | 17     | ✅ OK  |
+| AttackData.test.ts              | 14     | ✅ OK  |
+| PlayerStateMachine.test.ts      | 53     | ✅ OK  |
+| EnemyStateMachine.test.ts       | 35     | ✅ OK  |
+| CombatSystem.test.ts            | 26     | ✅ OK  |
+| **Total**                       | **187**| ✅ OK  |
 
 ---
 
