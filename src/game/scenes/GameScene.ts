@@ -15,11 +15,14 @@ import type { StageLane } from '../core/Pushbox';
 import { CameraSystem, createDefaultCameraConfig, SHAKE_LIGHT } from '../systems/CameraSystem';
 import { InputManager } from '../systems/input/InputManager';
 import { INPUT_ACTIONS } from '../systems/input/InputActions';
+import { PlayerStateMachine, PLAYER_STATE } from '../player/PlayerStateMachine';
+import { DebugOverlay } from '../systems/DebugOverlay';
+import type { AttackDef } from '../data/AttackData';
 
 const WALK_SPEED_X = 280;
 const WALK_SPEED_Y = 210;
 const RUN_SPEED_X = 390;
-const JUMP_VELOCITY_Z = 720;
+const RUN_SPEED_Y = 285;
 const FRICTION = 1600;
 
 const STAGE_LANE: StageLane = {
@@ -39,6 +42,9 @@ export class GameScene extends Phaser.Scene {
   private debugText!: Phaser.GameObjects.Text;
   private camera!: CameraSystem;
   private input2d!: InputManager;
+  private fsm!: PlayerStateMachine;
+  private debugOverlay!: DebugOverlay;
+  private activeAttack: AttackDef | null = null;
   private accumulator = 0;
   private isDebugVisible = false;
 
@@ -52,15 +58,19 @@ export class GameScene extends Phaser.Scene {
     this.createPlayerSprite();
     this.createHUD();
     this.createDebugUI();
-    this.setupInput();
+    this.setupSystems();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
-    const noticeText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT * 0.15, '[ NIVEL 1 — ONCE: LA NOCHE DE LOS TRAPITOS ]', {
-      fontFamily: 'monospace',
-      fontSize: '13px',
-      color: '#e8c046',
-      align: 'center',
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(200);
+    const noticeText = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.15, '[ NIVEL 1 — ONCE: LA NOCHE DE LOS TRAPITOS ]', {
+        fontFamily: 'monospace',
+        fontSize: '13px',
+        color: '#e8c046',
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(200);
 
     this.time.delayedCall(3000, () => {
       this.tweens.add({
@@ -72,9 +82,11 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private setupInput(): void {
+  private setupSystems(): void {
     this.input2d = new InputManager(this);
     this.camera = new CameraSystem(createDefaultCameraConfig(STAGE_LANE.maxX, GAME_WIDTH, GAME_HEIGHT));
+    this.fsm = new PlayerStateMachine();
+    this.debugOverlay = new DebugOverlay(this);
   }
 
   private createGround(): void {
@@ -170,16 +182,18 @@ export class GameScene extends Phaser.Scene {
     const shadowAlpha = Math.max(0.1, 0.5 - this.playerPos.z * 0.001);
     this.playerShadow.fillStyle(0x000000, shadowAlpha);
     this.playerShadow.fillEllipse(shadowX, shadowY + 4, 44, 14);
-
-    const depth = this.playerPos.y;
-    this.playerShadow.setDepth(depth - 1);
+    this.playerShadow.setDepth(this.playerPos.y - 1);
 
     const w = 40;
     const h = 72;
 
-    this.playerSprite.clear();
+    // Tint changes based on state
+    const isAttacking = this.fsm.isAttacking();
+    const isHurt = this.fsm.currentState === PLAYER_STATE.HURT;
+    const bodyColor = isHurt ? 0xff4444 : isAttacking ? 0x2d7a5a : 0x1a3d2b;
 
-    this.playerSprite.fillStyle(0x1a3d2b, 1);
+    this.playerSprite.clear();
+    this.playerSprite.fillStyle(bodyColor, 1);
     this.playerSprite.fillRect(screenX - w / 2, screenY - h, w, h);
 
     this.playerSprite.fillStyle(0xf4c89a, 1);
@@ -188,14 +202,16 @@ export class GameScene extends Phaser.Scene {
     this.playerSprite.fillStyle(0x0d2218, 1);
     this.playerSprite.fillRect(screenX - 11, screenY - h + 2, 22, 8);
 
+    // Arms extend during attacks
+    const armExtend = isAttacking ? this.playerFacing * 12 : 0;
     this.playerSprite.fillStyle(0xc8a060, 1);
     this.playerSprite.fillRect(screenX - w / 2 - 8, screenY - h + 22, 8, 28);
-    this.playerSprite.fillRect(screenX + w / 2, screenY - h + 22, 8, 28);
+    this.playerSprite.fillRect(screenX + w / 2 + armExtend, screenY - h + 22, 8, 28);
 
     this.playerSprite.lineStyle(2, 0x2d7a50, 0.6);
     this.playerSprite.strokeRect(screenX - w / 2, screenY - h, w, h);
 
-    this.playerSprite.setDepth(depth);
+    this.playerSprite.setDepth(this.playerPos.y);
   }
 
   private createHUD(): void {
@@ -207,20 +223,12 @@ export class GameScene extends Phaser.Scene {
     g.setScrollFactor(0).setDepth(300);
 
     this.add
-      .text(18, 14, 'MOSTASA', {
-        fontFamily: 'monospace',
-        fontSize: '11px',
-        color: '#e8c046',
-      })
+      .text(18, 14, 'MOSTASA', { fontFamily: 'monospace', fontSize: '11px', color: '#e8c046' })
       .setScrollFactor(0)
       .setDepth(301);
 
     this.add
-      .text(18, 30, 'AGUANTE', {
-        fontFamily: 'monospace',
-        fontSize: '9px',
-        color: '#888888',
-      })
+      .text(18, 30, 'AGUANTE', { fontFamily: 'monospace', fontSize: '9px', color: '#888888' })
       .setScrollFactor(0)
       .setDepth(301);
 
@@ -234,11 +242,7 @@ export class GameScene extends Phaser.Scene {
     hpBg.setScrollFactor(0).setDepth(301);
 
     this.add
-      .text(18, 58, 'BRONCA', {
-        fontFamily: 'monospace',
-        fontSize: '9px',
-        color: '#888888',
-      })
+      .text(18, 58, 'BRONCA', { fontFamily: 'monospace', fontSize: '9px', color: '#888888' })
       .setScrollFactor(0)
       .setDepth(301);
 
@@ -252,18 +256,14 @@ export class GameScene extends Phaser.Scene {
     broncaBg.setScrollFactor(0).setDepth(301);
 
     this.add
-      .text(18, 84, '♦ 0  ★ 000000  ♥ 3', {
-        fontFamily: 'monospace',
-        fontSize: '9px',
-        color: '#aaaaaa',
-      })
+      .text(18, 84, '♦ 0  ★ 000000  ♥ 3', { fontFamily: 'monospace', fontSize: '9px', color: '#aaaaaa' })
       .setScrollFactor(0)
       .setDepth(301);
   }
 
   private createDebugUI(): void {
     this.debugText = this.add
-      .text(8, GAME_HEIGHT - 140, '', {
+      .text(8, GAME_HEIGHT - 160, '', {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#00ff88',
@@ -280,62 +280,91 @@ export class GameScene extends Phaser.Scene {
     const snap = this.input2d.getSnapshot();
     const dt = FIXED_TIMESTEP;
 
-    const isRunning = snap[INPUT_ACTIONS.RUN].held;
-    const speedX = isRunning ? RUN_SPEED_X : WALK_SPEED_X;
-    const speedY = isRunning ? 285 : WALK_SPEED_Y;
+    const ctx = {
+      isOnGround: isOnGround(this.playerPos),
+      velZ: this.playerVel.z,
+    };
 
-    if (snap[INPUT_ACTIONS.MOVE_LEFT].held) {
-      this.playerVel.x = -speedX;
-      this.playerFacing = -1;
-    } else if (snap[INPUT_ACTIONS.MOVE_RIGHT].held) {
-      this.playerVel.x = speedX;
-      this.playerFacing = 1;
+    const fsmResult = this.fsm.tick(snap, ctx);
+    this.activeAttack = fsmResult.activeAttack;
+
+    if (fsmResult.velZSet !== null) {
+      this.playerVel.z = fsmResult.velZSet;
+    }
+    if (fsmResult.newFacing !== null) {
+      this.playerFacing = fsmResult.newFacing;
+    }
+
+    // Handle movement
+    if (this.fsm.canMove()) {
+      const isRunning = snap[INPUT_ACTIONS.RUN].held;
+      const speedX = isRunning ? RUN_SPEED_X : WALK_SPEED_X;
+      const speedY = isRunning ? RUN_SPEED_Y : WALK_SPEED_Y;
+
+      if (snap[INPUT_ACTIONS.MOVE_LEFT].held) {
+        this.playerVel.x = -speedX;
+        this.playerFacing = -1;
+      } else if (snap[INPUT_ACTIONS.MOVE_RIGHT].held) {
+        this.playerVel.x = speedX;
+        this.playerFacing = 1;
+      } else {
+        this.playerVel.x = applyFriction(this.playerVel, FRICTION, dt).x;
+      }
+
+      if (snap[INPUT_ACTIONS.MOVE_UP].held) {
+        this.playerVel.y = -speedY;
+      } else if (snap[INPUT_ACTIONS.MOVE_DOWN].held) {
+        this.playerVel.y = speedY;
+      } else {
+        this.playerVel.y = applyFriction(this.playerVel, FRICTION, dt).y;
+      }
     } else {
-      this.playerVel.x = applyFriction(this.playerVel, FRICTION, dt).x;
+      // Lock movement during attacks, land recovery, hurt, down
+      this.playerVel.x = 0;
+      this.playerVel.y = 0;
     }
 
-    if (snap[INPUT_ACTIONS.MOVE_UP].held) {
-      this.playerVel.y = -speedY;
-    } else if (snap[INPUT_ACTIONS.MOVE_DOWN].held) {
-      this.playerVel.y = speedY;
-    } else {
-      this.playerVel.y = applyFriction(this.playerVel, FRICTION, dt).y;
-    }
-
-    if (snap[INPUT_ACTIONS.JUMP].justPressed && isOnGround(this.playerPos)) {
-      this.playerVel.z = JUMP_VELOCITY_Z;
-      this.camera.triggerShake(SHAKE_LIGHT);
-    }
-
+    // Gravity (always — Z is independent)
     if (!isOnGround(this.playerPos) || this.playerVel.z > 0) {
       this.playerVel.z += GRAVITY * dt;
     }
 
+    // Integrate
     this.playerPos.x += this.playerVel.x * dt;
     this.playerPos.y += this.playerVel.y * dt;
     this.playerPos.z += this.playerVel.z * dt;
 
+    // Ground clamp
     if (this.playerPos.z <= GROUND_Z) {
       this.playerPos.z = GROUND_Z;
       if (this.playerVel.z < 0) this.playerVel.z = 0;
     }
 
+    // Lane clamp via pushbox
     const pb = buildPlayerPushbox(this.playerPos.x, this.playerPos.y);
     const clamped = clampEntityToLane(this.playerPos.x, this.playerPos.y, pb.halfW, pb.halfD, STAGE_LANE);
     this.playerPos.x = clamped.x;
     this.playerPos.y = clamped.y;
+
+    // FSM events → camera fx
+    for (const ev of fsmResult.events) {
+      if (ev === 'jump' || ev === 'land') this.camera.triggerShake(SHAKE_LIGHT);
+    }
   }
 
   update(_time: number, delta: number): void {
     const dtSec = Math.min(delta / 1000, MAX_DELTA);
 
     this.input2d.update();
-
     const snap = this.input2d.getSnapshot();
 
     if (snap[INPUT_ACTIONS.DEBUG_TOGGLE].justPressed) {
       this.isDebugVisible = !this.isDebugVisible;
       this.debugText.setVisible(this.isDebugVisible);
+    }
+
+    if (snap[INPUT_ACTIONS.DEBUG_HITBOX].justPressed) {
+      this.debugOverlay.toggle();
     }
 
     if (snap[INPUT_ACTIONS.PAUSE].justPressed) {
@@ -357,6 +386,17 @@ export class GameScene extends Phaser.Scene {
     this.updatePlayerSpritePosition();
     this.groundGraphics.setX(-this.camera.worldX);
 
+    this.debugOverlay.render(
+      this.playerPos.x,
+      this.playerPos.y,
+      this.playerPos.z,
+      this.playerFacing,
+      this.camera,
+      this.activeAttack,
+      this.fsm.currentState,
+      this.fsm.currentFrame,
+    );
+
     if (this.isDebugVisible) {
       this.updateDebugText();
     }
@@ -366,13 +406,14 @@ export class GameScene extends Phaser.Scene {
     this.debugText.setText(
       [
         `FPS: ${Math.round(this.game.loop.actualFps)}`,
+        `STATE: ${this.fsm.currentState}  F:${this.fsm.currentFrame}`,
         `POS  X:${Math.round(this.playerPos.x)} Y:${Math.round(this.playerPos.y)} Z:${Math.round(this.playerPos.z)}`,
         `VEL  X:${Math.round(this.playerVel.x)} Y:${Math.round(this.playerVel.y)} Z:${Math.round(this.playerVel.z)}`,
         `CAM  X:${Math.round(this.camera.worldX)} LOCKED:${this.camera.isLocked}`,
         `FACE: ${this.playerFacing > 0 ? 'RIGHT' : 'LEFT'}`,
         `GROUND: ${isOnGround(this.playerPos) ? 'YES' : 'NO'}`,
         `PAD: ${this.input2d.isGamepadActive ? 'YES' : 'NO'}`,
-        `F1=DEBUG  ESC=TITLE`,
+        `F1=DEBUG  F2=HITBOX  ESC=TITLE`,
       ].join('\n'),
     );
   }

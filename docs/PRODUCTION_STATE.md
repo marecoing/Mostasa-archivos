@@ -75,10 +75,40 @@
 
 ---
 
+### HITO 011 — Máquina de estados del jugador ✅
+- `PlayerStateMachine.ts`: FSM con 13 estados (IDLE, WALK, RUN, JUMP, LAND, LIGHT_1/2/3, HEAVY, AIR_ATTACK, HURT, DOWN, GET_UP)
+- `tick(input, ctx)` → FSMResult (velZSet, newFacing, events[], activeAttack)
+- `canMove()`, `locksMovement()`, `isAttacking()`, `isAirborne()` para query de estado
+- `forceHurt()` / `forceDown()` para daño externo
+- `GameScene.ts` usa FSM para manejar toda la lógica de estado del jugador
+
+### HITO 012 — Debug overlay con F1/F2 ✅
+- `DebugOverlay.ts`: pushbox (verde), hurtbox (azul), hitbox activo (rojo)
+- F1 = overlay de texto (FPS, estado FSM, pos/vel/cam)
+- F2 = overlay de volúmenes de colisión (nuevo)
+- Renderizado en screen space con proyección worldToScreen
+
+### HITO 013 — AttackDefinition data-driven ✅
+- `AttackData.ts`: `AttackDef` con startup/active/recovery frames, daño, hitstun, hitstop, knockback, hitbox offset/halfW/halfD
+- 5 ataques definidos: `light_1`, `light_2`, `light_3`, `heavy`, `air_attack`
+- Helpers: `getTotalFrames`, `isActiveFrame`, `isStartupFrame`, `isRecoveryFrame`
+
+### HITO 014 — Combo ligero de tres golpes ✅
+- Sistema de buffer de input: J durante cualquier frame de LIGHT_1/2 → encadena al siguiente
+- LIGHT_1 → LIGHT_2 → LIGHT_3 (no encadena más)
+- Cada golpe tiene más daño y hitbox más grande
+- 36 tests en `tests/unit/PlayerStateMachine.test.ts`
+
+### HITO 015 — Golpe fuerte, carrera, ataque aéreo ✅
+- HEAVY: 8 startup + 6 active + 20 recovery; mayor daño y knockback
+- AIR_ATTACK: accesible desde JUMP; vuelve a JUMP si no aterriza
+- RUN: estado diferenciado de WALK con velocidad mayor (390 vs 280)
+- Estado visual: tinte del sprite cambia según estado (ataque, hurt)
+
 ## HITOS PENDIENTES
 
-- HITO 011 — Máquina de estados del jugador
-- HITO 012 — Debug overlay y volúmenes F2
+- HITO 016 — Hitboxes, hurtboxes, sameDepth, colisión jugador-enemigo
+- HITO 017 — Daño, hitstun, hitstop, knockback
 - HITO 011 — Debug overlay y volúmenes F2
 - HITO 012 — AttackDefinition data-driven
 - ... (hitos 013-060)
@@ -124,7 +154,9 @@ Ver `docs/adr/` para Architecture Decision Records.
 | Physics25D.test.ts              | 24    | ✅ OK  |
 | CameraSystem.test.ts            | 18    | ✅ OK  |
 | Pushbox.test.ts                 | 17    | ✅ OK  |
-| **Total**                       | **59**| ✅ OK  |
+| PlayerStateMachine.test.ts      | 36    | ✅ OK  |
+| AttackData.test.ts              | 14    | ✅ OK  |
+| **Total**                       | **109**| ✅ OK |
 
 ---
 
