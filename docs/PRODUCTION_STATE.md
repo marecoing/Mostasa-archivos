@@ -158,10 +158,28 @@
   animan, combate conecta (Bronca sube con hits), sin errores de runtime
 - 10 tests en `tests/unit/AnimationData.test.ts` (integridad de filas/columnas)
 
+### HITO 022 — Corrección del grid de frames y filas de animación ✅
+- **Hallazgo clave**: las hojas subidas NO son un grid uniforme 140×140.
+  Dimensiones reales de frame medidas (ancho siempre 140 = 1120/8 columnas):
+  - Mostasa (1120×1680): **8 filas × 210px**
+  - Comunes 001-008 (1120×1400): **8 filas × 175px**
+  - Miniboss 009 (1120×1540): **10 filas × 154px**
+  - Boss 010 (1120×1680): **8 filas × 210px**
+- El código cargaba las hojas a 140×140 → cada frame no-idle se renderizaba
+  partido (pies arriba, cabeza abajo) porque el personaje (~175-210px) cruzaba
+  los límites de celda. Verificado end-to-end en navegador.
+- `AnimationData.ts`: `CHARACTER_GRIDS` con la geometría por-hoja + `gridFor()`;
+  mapeos de fila reescritos al layout real (común 8 filas:
+  idle/walk/run/puñetazo/patada/arma/knockdown/tirado; miniboss 10 filas)
+- `CharacterAnimator.ts`: carga cada hoja con su `frameWidth/frameHeight`;
+  registro de animaciones respeta las columnas del grid
+- `GameScene.ts`: origen del sprite 0.95 (pies al fondo del frame alto) y
+  escala por-personaje derivada de `frameHeight` y la altura del arquetipo
+- 24 tests en `AnimationData.test.ts` (incluye validación de que cada grid
+  tesela su hoja exactamente)
+
 ## HITOS PENDIENTES
 
-- HITO 022 — Ajuste fino de filas de animación por enemigo (hurt/down/get_up)
-  y escalas por arquetipo
 - HITO 023 — Fondos parallax de los 5 paneles del Escenario 1 (biblia §14, §17)
 - HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
 - ... (hitos 025-060)
@@ -211,8 +229,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | PlayerStateMachine.test.ts      | 53     | ✅ OK  |
 | EnemyStateMachine.test.ts       | 35     | ✅ OK  |
 | CombatSystem.test.ts            | 26     | ✅ OK  |
-| AnimationData.test.ts           | 10     | ✅ OK  |
-| **Total**                       | **197**| ✅ OK  |
+| AnimationData.test.ts           | 24     | ✅ OK  |
+| **Total**                       | **211**| ✅ OK  |
 
 ---
 

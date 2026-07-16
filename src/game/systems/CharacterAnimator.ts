@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import {
-  SPRITE_FRAME,
   MOSTASA_ANIMS,
-  ENEMY_ANIMS,
+  enemyAnimsFor,
   clipFrames,
+  gridFor,
 } from '../data/AnimationData';
 import type { AnimClip } from '../data/AnimationData';
 
@@ -22,12 +22,13 @@ export const CHARACTER_SHEETS: { key: string; file: string }[] = [
   { key: 'enemy_010', file: 'assets/characters/enemy_010.png' },
 ];
 
-/** Load all character sheets as 140×140 spritesheets. Call in preload(). */
+/** Load all character sheets, each with its own measured frame size. */
 export function loadCharacterSheets(scene: Phaser.Scene): void {
   for (const sheet of CHARACTER_SHEETS) {
+    const g = gridFor(sheet.key);
     scene.load.spritesheet(sheet.key, sheet.file, {
-      frameWidth: SPRITE_FRAME,
-      frameHeight: SPRITE_FRAME,
+      frameWidth: g.frameWidth,
+      frameHeight: g.frameHeight,
     });
   }
 }
@@ -38,6 +39,7 @@ function registerAnims(
   config: Record<string, AnimClip>,
 ): void {
   if (!scene.textures.exists(textureKey)) return;
+  const grid = gridFor(textureKey);
   const totalFrames = scene.textures.get(textureKey).frameTotal - 1; // -1 for __BASE
 
   for (const [state, c] of Object.entries(config)) {
@@ -45,7 +47,7 @@ function registerAnims(
     if (scene.anims.exists(animKey)) continue;
 
     // Clamp frames that fall outside the actual sheet (guards short sheets)
-    const frames = clipFrames(c).filter((f) => f < totalFrames);
+    const frames = clipFrames(c, grid.cols).filter((f) => f < totalFrames);
     if (frames.length === 0) continue;
 
     scene.anims.create({
@@ -61,7 +63,8 @@ function registerAnims(
 export function registerAllCharacterAnims(scene: Phaser.Scene): void {
   registerAnims(scene, 'mostasa', MOSTASA_ANIMS);
   for (let i = 1; i <= 10; i++) {
-    registerAnims(scene, `enemy_${String(i).padStart(3, '0')}`, ENEMY_ANIMS);
+    const key = `enemy_${String(i).padStart(3, '0')}`;
+    registerAnims(scene, key, enemyAnimsFor(key));
   }
 }
 

@@ -1,17 +1,48 @@
 /**
  * Animation data for character sprite sheets.
  *
- * All Escenario 1 sheets use 140×140 frames, 8 columns per row.
- * Row layout follows the Biblia Maestra §6 (Mostasa canonical sheet):
- *   0 idle | 1 walk | 2 run | 3 punch_combo_1 | 4 punch_combo_2 |
- *   5 kick | 6 jump | 7 grab | 8 throw | 9 hit | 10 knockdown_getup |
- *   11 special_rage
+ * IMPORTANT: the uploaded Escenario 1 sheets are NOT a uniform 140×140 grid.
+ * Measured frame sizes (width is always 140 = 1120/8 columns):
+ *   Mostasa   1120×1680 → 8 rows × 210px
+ *   Common    1120×1400 → 8 rows × 175px   (enemies 001-008)
+ *   Mini-boss 1120×1540 → 10 rows × 154px  (enemy 009)
+ *   Boss      1120×1680 → 8 rows × 210px   (enemy 010)
  *
- * Enemy sheets share rows 0-9 (idle/walk/run/attacks/react/knockdown).
+ * Row layout (common 8-row sheets, verified visually):
+ *   0 idle | 1 walk | 2 run | 3 punch | 4 kick | 5 weapon |
+ *   6 knockdown | 7 downed/get-up
+ * Mostasa 8-row layout:
+ *   0 idle | 1 walk | 2 run | 3 punch | 4 heavy/kick | 5 special |
+ *   6 hurt | 7 knockdown/get-up
  */
 
-export const SPRITE_FRAME = 140;
 export const SPRITE_COLS = 8;
+
+export interface CharacterGrid {
+  frameWidth: number;
+  frameHeight: number;
+  cols: number;
+  rows: number;
+}
+
+/** Per-sheet frame geometry. Keyed by texture key. */
+export const CHARACTER_GRIDS: Record<string, CharacterGrid> = {
+  mostasa: { frameWidth: 140, frameHeight: 210, cols: 8, rows: 8 },
+  enemy_001: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_002: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_003: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_004: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_005: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_006: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_007: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_008: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
+  enemy_009: { frameWidth: 140, frameHeight: 154, cols: 8, rows: 10 },
+  enemy_010: { frameWidth: 140, frameHeight: 210, cols: 8, rows: 8 },
+};
+
+export function gridFor(spriteKey: string): CharacterGrid {
+  return CHARACTER_GRIDS[spriteKey] ?? CHARACTER_GRIDS['enemy_001']!;
+}
 
 export interface AnimClip {
   /** row index in the sheet (0-based) */
@@ -24,55 +55,94 @@ export interface AnimClip {
   frameRate: number;
   /** whether the clip loops */
   loop: boolean;
+  /** play the frames back-to-front (used to rise from a knockdown) */
+  reverse: boolean;
 }
 
-function clip(row: number, startFrame: number, frameCount: number, frameRate: number, loop = false): AnimClip {
-  return { row, startFrame, frameCount, frameRate, loop };
+function clip(
+  row: number,
+  startFrame: number,
+  frameCount: number,
+  frameRate: number,
+  loop = false,
+  reverse = false,
+): AnimClip {
+  return { row, startFrame, frameCount, frameRate, loop, reverse };
 }
 
 /**
- * Player (Mostasa) — keyed by PlayerStateMachine state id string.
- * Uses all 12 canonical rows.
+ * Player (Mostasa) — 8 rows. Rows beyond what the sheet provides are
+ * reused (the sheet has fewer animations than the FSM has states).
+ * Keyed by PlayerStateMachine state id string.
  */
 export const MOSTASA_ANIMS: Record<string, AnimClip> = {
   idle:       clip(0, 0, 8, 8, true),
   walk:       clip(1, 0, 8, 12, true),
   run:        clip(2, 0, 8, 15, true),
   light_1:    clip(3, 0, 8, 26),
-  light_2:    clip(4, 0, 8, 26),
-  light_3:    clip(5, 0, 8, 22),
-  heavy:      clip(5, 0, 8, 16),
+  light_2:    clip(3, 0, 8, 26),
+  light_3:    clip(4, 0, 8, 22),
+  heavy:      clip(4, 0, 8, 16),
   air_attack: clip(3, 0, 8, 24),
-  jump:       clip(6, 0, 8, 12),
-  land:       clip(6, 6, 2, 12),
-  grab:       clip(7, 0, 8, 14),
-  throw:      clip(8, 0, 8, 18),
-  hurt:       clip(9, 0, 6, 18),
-  down:       clip(10, 0, 4, 10),
-  get_up:     clip(10, 4, 4, 10),
-  special:    clip(11, 0, 8, 16),
+  jump:       clip(2, 0, 8, 12),
+  land:       clip(0, 0, 2, 12),
+  grab:       clip(4, 0, 8, 14),
+  throw:      clip(4, 0, 8, 18),
+  special:    clip(5, 0, 8, 16),
+  hurt:       clip(6, 0, 6, 18),
+  down:       clip(7, 0, 8, 12),
+  get_up:     clip(7, 0, 8, 22, false, true),
 };
 
 /**
- * Enemies — shared config for the common/mini-boss/boss sheets of
- * Escenario 1. Only rows 0-9 are referenced so it is valid for the
- * 10/11/12-row sheets alike. Keyed by EnemyStateMachine state id.
+ * Common enemies (8 rows): 0 idle 1 walk 2 run 3 punch 4 kick 5 weapon
+ * 6 knockdown 7 downed. get_up reuses the knockdown row reversed.
  */
-export const ENEMY_ANIMS: Record<string, AnimClip> = {
+export const ENEMY_ANIMS_COMMON: Record<string, AnimClip> = {
   idle:    clip(0, 0, 8, 8, true),
   walk:    clip(1, 0, 8, 12, true),
-  hurt:    clip(7, 0, 4, 16),
-  down:    clip(8, 0, 8, 10),
-  get_up:  clip(9, 0, 8, 10),
-  grabbed: clip(7, 0, 1, 1),
+  hurt:    clip(6, 0, 4, 18),
+  down:    clip(6, 0, 8, 12),
+  get_up:  clip(6, 0, 8, 22, false, true),
+  grabbed: clip(6, 0, 1, 1),
 };
 
+/** Mini-boss (10 rows × 154). Attacks occupy rows 3-7; knockdown 8, downed 9. */
+export const ENEMY_ANIMS_MINIBOSS: Record<string, AnimClip> = {
+  idle:    clip(0, 0, 8, 8, true),
+  walk:    clip(1, 0, 8, 12, true),
+  hurt:    clip(8, 0, 4, 18),
+  down:    clip(8, 0, 8, 12),
+  get_up:  clip(8, 0, 8, 22, false, true),
+  grabbed: clip(8, 0, 1, 1),
+};
+
+/** Boss (8 rows × 210) — same layout family as the common sheets. */
+export const ENEMY_ANIMS_BOSS: Record<string, AnimClip> = {
+  idle:    clip(0, 0, 8, 8, true),
+  walk:    clip(1, 0, 8, 12, true),
+  hurt:    clip(6, 0, 5, 18),
+  down:    clip(6, 0, 8, 12),
+  get_up:  clip(6, 0, 8, 22, false, true),
+  grabbed: clip(6, 0, 1, 1),
+};
+
+/** Select the enemy animation set for a given sprite sheet key. */
+export function enemyAnimsFor(spriteKey: string): Record<string, AnimClip> {
+  if (spriteKey === 'enemy_009') return ENEMY_ANIMS_MINIBOSS;
+  if (spriteKey === 'enemy_010') return ENEMY_ANIMS_BOSS;
+  return ENEMY_ANIMS_COMMON;
+}
+
 /**
- * Build the Phaser frame index list for a clip on an 8-column sheet.
+ * Build the Phaser frame index list for a clip. Frame indices are laid out
+ * row-major with `cols` frames per row. Reversed clips return them
+ * back-to-front.
  */
 export function clipFrames(c: AnimClip, cols = SPRITE_COLS): number[] {
   const frames: number[] = [];
   const base = c.row * cols + c.startFrame;
   for (let i = 0; i < c.frameCount; i++) frames.push(base + i);
+  if (c.reverse) frames.reverse();
   return frames;
 }

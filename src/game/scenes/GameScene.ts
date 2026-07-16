@@ -26,9 +26,11 @@ import {
   getRadialHits,
 } from '../systems/CombatSystem';
 import { registerAllCharacterAnims, playState } from '../systems/CharacterAnimator';
+import { gridFor } from '../data/AnimationData';
 
-const PLAYER_SPRITE_SCALE = 1.0;
-const PLAYER_SPRITE_ORIGIN_Y = 0.92;
+const PLAYER_SPRITE_SCALE = 0.7;
+const SPRITE_ORIGIN_Y = 0.95;
+const ENEMY_SCREEN_HEIGHT_K = 1.5;
 
 const WALK_SPEED_X = 280;
 const WALK_SPEED_Y = 210;
@@ -135,7 +137,7 @@ export class GameScene extends Phaser.Scene {
     const enemy = new EnemyEntity(x, y, stats, spriteKey);
     const shadow = this.add.graphics().setDepth(0);
     const sprite = this.add.sprite(0, 0, spriteKey);
-    sprite.setOrigin(0.5, PLAYER_SPRITE_ORIGIN_Y);
+    sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     playState(sprite, spriteKey, 'idle');
     const hud = this.add.graphics().setDepth(1);
     this.enemies.push(enemy);
@@ -212,7 +214,7 @@ export class GameScene extends Phaser.Scene {
   private createPlayerSprite(): void {
     this.playerShadow = this.add.graphics();
     this.playerSprite = this.add.sprite(0, 0, 'mostasa');
-    this.playerSprite.setOrigin(0.5, PLAYER_SPRITE_ORIGIN_Y);
+    this.playerSprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     this.playerSprite.setScale(PLAYER_SPRITE_SCALE);
     playState(this.playerSprite, 'mostasa', 'idle');
     this.updatePlayerSpritePosition();
@@ -285,7 +287,8 @@ export class GameScene extends Phaser.Scene {
       shadow.setDepth(enemy.pos.y - 1);
 
       // Character sprite driven by enemy FSM state
-      const scale = (enemy.height / 140) * 1.7;
+      const grid = gridFor(enemy.spriteKey);
+      const scale = (enemy.height * ENEMY_SCREEN_HEIGHT_K) / grid.frameHeight;
       sprite.setScale(scale);
       sprite.setPosition(screenX, screenY);
       sprite.setFlipX(enemy.facing === -1);
