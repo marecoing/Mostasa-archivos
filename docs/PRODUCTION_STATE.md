@@ -221,10 +221,28 @@
 - 4 tests nuevos en `AssetSystems.test.ts` (effectiveHitDamage, rango,
   física, bandas de durabilidad §13)
 
+### HITO 025 — Sistema de oleadas y zonas de combate ✅
+- `WaveManifest.ts`: encuentros del Escenario 1 (biblia §11) — 4 zonas de
+  combate (3 oleadas + 1 mini-boss) con triggerX, bounds de lock y oleadas
+  con spawns por arquetipo/sprite/lane (presupuesto de amenaza §11)
+- `WaveSystem.ts`: máquina de estados pura (traveling → fighting → done);
+  `update(playerX, aliveEnemies)` emite acciones (lock/unlock cámara, spawns,
+  zoneCleared, stageCleared) y expone `gateX` (gate de movimiento)
+- `GameScene.ts`: reemplaza la ola fija por progresión por zonas — al cruzar
+  el trigger bloquea la cámara a la arena, spawnea la oleada, muestra banner
+  "¡LIMPIÁ LA ZONA! ENEMIGOS: N"; el jugador queda confinado (gate min/max)
+  hasta limpiar; siguiente oleada al matar todos; al despejar la zona
+  desbloquea y deja avanzar; +200 score por zona. Termina en el mini-boss
+  (enemy_009)
+- Verificado en navegador: cruce de trigger → cámara bloqueada + 2 enemigos
+  spawneados + banner de objetivo, sin errores de runtime
+- 10 tests en `WaveSystem.test.ts` (transiciones de fase, gate, spawns,
+  integridad del manifest de encuentros)
+
 ## HITOS PENDIENTES
 
-- HITO 025 — Sistema de oleadas (WaveSystem) y zonas de combate del Escenario 1
-- HITO 026 — Colocación de props decorativos por panel + mini-boss/boss
+- HITO 026 — Colocación de props decorativos por panel + fases del boss
+- HITO 027 — Pantalla de resultados al despejar el escenario (rango, score)
 - HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
 - ... (hitos 025-060)
 
@@ -275,7 +293,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | CombatSystem.test.ts            | 26     | ✅ OK  |
 | AnimationData.test.ts           | 24     | ✅ OK  |
 | AssetSystems.test.ts            | 20     | ✅ OK  |
-| **Total**                       | **231**| ✅ OK  |
+| WaveSystem.test.ts              | 10     | ✅ OK  |
+| **Total**                       | **239**| ✅ OK  |
 
 ---
 

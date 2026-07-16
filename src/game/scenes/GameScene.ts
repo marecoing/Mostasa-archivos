@@ -39,6 +39,8 @@ import { BreakableEntity } from '../entities/BreakableEntity';
 import { PickupEntity } from '../entities/PickupEntity';
 import { WeaponEntity, effectiveHitDamage } from '../entities/WeaponEntity';
 import type { EquippedWeapon } from '../entities/WeaponEntity';
+import { WaveSystem } from '../systems/WaveSystem';
+import { ONCE_ENCOUNTERS } from '../data/WaveManifest';
 
 const PLAYER_SPRITE_SCALE = 0.9;
 const SPRITE_ORIGIN_Y = 0.95;
@@ -111,6 +113,10 @@ export class GameScene extends Phaser.Scene {
   private readonly playerMaxHp = 100;
   private score = 0;
 
+  private waveSystem!: WaveSystem;
+  private waveGateMinX = 0;
+  private objectiveText?: Phaser.GameObjects.Text;
+
   constructor() {
     super({ key: SCENE_KEYS.GAME });
   }
@@ -124,10 +130,10 @@ export class GameScene extends Phaser.Scene {
     this.createPlayerSprite();
     this.createHUD();
     this.createDebugUI();
-    this.spawnInitialWave();
     this.spawnBreakables();
     this.spawnWeapons();
     this.createHeldWeaponSprite();
+    this.createWaveSystem();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
     const noticeText = this.add
@@ -276,14 +282,53 @@ export class GameScene extends Phaser.Scene {
       .setDepth(this.playerPos.y + 1);
   }
 
-  private spawnInitialWave(): void {
-    const spawnPoints = [
-      { x: 600, y: 480, type: 'grunt',     sprite: 'enemy_001' },
-      { x: 750, y: 460, type: 'grunt',     sprite: 'enemy_002' },
-      { x: 900, y: 500, type: 'speedster', sprite: 'enemy_005' },
-    ];
-    for (const sp of spawnPoints) {
-      this.spawnEnemy(sp.x, sp.y, sp.type, sp.sprite);
+  private createWaveSystem(): void {
+    this.waveSystem = new WaveSystem(ONCE_ENCOUNTERS, STAGE_LANE.maxX);
+    this.objectiveText = this.add
+      .text(GAME_WIDTH / 2, 40, '', {
+        fontFamily: 'monospace', fontSize: '13px', color: '#ff6644',
+        stroke: '#000000', strokeThickness: 3, align: 'center',
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(320)
+      .setVisible(false);
+  }
+
+  /** Advance the encounter state and apply its actions. */
+  private updateWaves(): void {
+    const alive = this.enemies.reduce((n, e) => n + (e && !e.dead ? 1 : 0), 0);
+    const actions = this.waveSystem.update(this.playerPos.x, alive);
+
+    for (const s of actions.spawns) {
+      this.spawnEnemy(s.x, s.y, s.type, s.spriteKey);
+    }
+
+    if (actions.lockCamera) {
+      const center = (actions.lockCamera.minX + actions.lockCamera.maxX) / 2;
+      const camPos = Math.max(0, Math.min(STAGE_LANE.maxX - GAME_WIDTH, center - GAME_WIDTH / 2));
+      this.camera.lock(camPos, camPos);
+    }
+    if (actions.unlockCamera) {
+      this.camera.unlock();
+    }
+    if (actions.zoneCleared) {
+      this.score += 200;
+    }
+
+    // Movement gate: confine the player to the active arena while fighting.
+    const zone = this.waveSystem.activeZone;
+    this.waveGateMinX = zone ? zone.lockMinX : STAGE_LANE.minX;
+
+    // Objective banner.
+    if (this.objectiveText) {
+      if (this.waveSystem.currentPhase === 'fighting') {
+        this.objectiveText.setText(`¡LIMPIÁ LA ZONA!  ENEMIGOS: ${alive}`).setVisible(true);
+      } else if (this.waveSystem.currentPhase === 'done') {
+        this.objectiveText.setText('¡ZONA DESPEJADA! → AVANZÁ').setVisible(true);
+      } else {
+        this.objectiveText.setVisible(false);
+      }
     }
   }
 
@@ -554,6 +599,9 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
+    // Encounter progression (spawns, camera lock, movement gate).
+    this.updateWaves();
+
     const snap = this.input2d.getSnapshot();
     const dt = FIXED_TIMESTEP;
 
@@ -741,6 +789,9 @@ export class GameScene extends Phaser.Scene {
     const clamped = clampEntityToLane(this.playerPos.x, this.playerPos.y, pb.halfW, pb.halfD, STAGE_LANE);
     this.playerPos.x = clamped.x;
     this.playerPos.y = clamped.y;
+
+    // Encounter movement gate: can't leave an active arena until it clears.
+    this.playerPos.x = Math.max(this.waveGateMinX, Math.min(this.playerPos.x, this.waveSystem.gateX));
 
     // Tick enemy physics
     for (const enemy of this.enemies) {
