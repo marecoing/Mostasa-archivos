@@ -34,9 +34,11 @@ import { breakableKey, itemKey } from '../systems/AssetLoader';
 import { stageById } from '../data/StageManifest';
 import { BREAKABLES } from '../data/BreakableManifest';
 import { rollDrop } from '../data/BreakableManifest';
-import { DROPPABLES } from '../data/ItemManifest';
+import { DROPPABLES, WEAPONS } from '../data/ItemManifest';
 import { BreakableEntity } from '../entities/BreakableEntity';
 import { PickupEntity } from '../entities/PickupEntity';
+import { WeaponEntity, effectiveHitDamage } from '../entities/WeaponEntity';
+import type { EquippedWeapon } from '../entities/WeaponEntity';
 
 const PLAYER_SPRITE_SCALE = 0.9;
 const SPRITE_ORIGIN_Y = 0.95;
@@ -99,6 +101,12 @@ export class GameScene extends Phaser.Scene {
   private breakableSprites: Phaser.GameObjects.Sprite[] = [];
   private pickups: PickupEntity[] = [];
   private pickupSprites: Phaser.GameObjects.Sprite[] = [];
+  private weapons: WeaponEntity[] = [];
+  private weaponSprites: Phaser.GameObjects.Sprite[] = [];
+  private equippedWeapon: EquippedWeapon | null = null;
+  private heldWeaponSprite?: Phaser.GameObjects.Image;
+  private weaponDepletedThisSwing = false;
+  private weaponHudText?: Phaser.GameObjects.Text;
   private playerHp = 100;
   private readonly playerMaxHp = 100;
   private score = 0;
@@ -118,6 +126,8 @@ export class GameScene extends Phaser.Scene {
     this.createDebugUI();
     this.spawnInitialWave();
     this.spawnBreakables();
+    this.spawnWeapons();
+    this.createHeldWeaponSprite();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
     const noticeText = this.add
@@ -177,6 +187,93 @@ export class GameScene extends Phaser.Scene {
       this.breakables.push(ent);
       this.breakableSprites.push(sprite);
     }
+  }
+
+  private spawnWeapons(): void {
+    // A couple of grabbable weapons laid along the Once street.
+    const layout: { id: string; x: number; y: number }[] = [
+      { id: 'tubo_metalico', x: 880, y: 520 },
+      { id: 'llave_inglesa', x: 1700, y: 500 },
+      { id: 'cadena_oxidada', x: 2500, y: 540 },
+    ];
+    for (const item of layout) {
+      const def = WEAPONS[item.id];
+      if (!def || !this.textures.exists(itemKey(item.id))) continue;
+      const ent = new WeaponEntity(def, item.x, item.y);
+      const sprite = this.add.sprite(0, 0, itemKey(item.id)).setOrigin(0.5, 0.9).setScale(0.3);
+      this.weapons.push(ent);
+      this.weaponSprites.push(sprite);
+    }
+  }
+
+  private createHeldWeaponSprite(): void {
+    this.heldWeaponSprite = this.add.image(0, 0, itemKey('tubo_metalico')).setVisible(false);
+    this.weaponHudText = this.add
+      .text(228, 84, '', { fontFamily: 'monospace', fontSize: '9px', color: '#e8c046' })
+      .setScrollFactor(0)
+      .setDepth(301);
+    this.updateWeaponHud();
+  }
+
+  private equipWeapon(def: import('../data/ItemManifest').WeaponDef): void {
+    this.equippedWeapon = { def, durabilityLeft: def.durability };
+    if (this.heldWeaponSprite) {
+      this.heldWeaponSprite.setTexture(itemKey(def.id)).setVisible(true).setScale(0.32);
+    }
+    this.updateWeaponHud();
+  }
+
+  private breakWeapon(): void {
+    this.playVfxAtWorld('polvo_caida', this.playerPos.x, this.playerPos.y, 70);
+    this.equippedWeapon = null;
+    this.heldWeaponSprite?.setVisible(false);
+    this.updateWeaponHud();
+  }
+
+  private updateWeaponHud(): void {
+    if (!this.weaponHudText) return;
+    if (this.equippedWeapon) {
+      const w = this.equippedWeapon;
+      this.weaponHudText.setText(`⚔ ${w.def.displayName}  ${w.durabilityLeft}/${w.def.durability}`);
+    } else {
+      this.weaponHudText.setText('⚔ Puños');
+    }
+  }
+
+  private updateWeapons(dt: number): void {
+    const camX = this.camera?.worldX ?? 0;
+    for (let i = 0; i < this.weapons.length; i++) {
+      const w = this.weapons[i];
+      const sprite = this.weaponSprites[i];
+      if (!w || !sprite) continue;
+      if (w.taken) { sprite.setVisible(false); continue; }
+
+      w.tick(GRAVITY, dt, GROUND_Z);
+
+      // Walk over an unheld weapon to pick it up (swaps the current one).
+      if (w.isInRange(this.playerPos.x, this.playerPos.y, 48, 60)) {
+        w.taken = true;
+        sprite.setVisible(false);
+        this.equipWeapon(w.def);
+        continue;
+      }
+
+      const { screenX, screenY } = worldToScreen(w.x, w.y, w.z, camX, -FLOOR_OFFSET);
+      sprite.setPosition(screenX, screenY);
+      sprite.setDepth(w.y + 5);
+    }
+  }
+
+  private updateHeldWeaponSprite(screenX: number, screenY: number): void {
+    if (!this.heldWeaponSprite || !this.equippedWeapon) return;
+    const swinging = this.fsm.isAttacking();
+    const handX = screenX + this.playerFacing * (swinging ? 34 : 20);
+    const handY = screenY - 62;
+    this.heldWeaponSprite
+      .setPosition(handX, handY)
+      .setFlipX(this.playerFacing === -1)
+      .setAngle(swinging ? this.playerFacing * -35 : 0)
+      .setDepth(this.playerPos.y + 1);
   }
 
   private spawnInitialWave(): void {
@@ -322,6 +419,8 @@ export class GameScene extends Phaser.Scene {
     } else {
       this.playerSprite.clearTint();
     }
+
+    this.updateHeldWeaponSprite(screenX, screenY);
   }
 
   private updateEnemySprites(): void {
@@ -539,15 +638,22 @@ export class GameScene extends Phaser.Scene {
         this.activeAttack,
         this.enemies,
       );
+      // A held weapon adds its damage; use a modified attack for this swing.
+      const atk = this.equippedWeapon
+        ? { ...this.activeAttack, damage: effectiveHitDamage(this.activeAttack.damage, this.equippedWeapon) }
+        : this.activeAttack;
+
       let maxHitstop = 0;
-      const heavy = this.activeAttack.damage >= 18;
+      let connected = false;
+      const heavy = atk.damage >= 18 || this.equippedWeapon !== null;
       for (const idx of hits) {
         const enemy = this.enemies[idx];
         if (!enemy) continue;
-        enemy.applyHit(this.activeAttack, this.playerFacing);
+        enemy.applyHit(atk, this.playerFacing);
+        connected = true;
         this.broncaMeter = Math.min(BRONCA_MAX, this.broncaMeter + BRONCA_PER_HIT);
         this.updateBroncaBar();
-        maxHitstop = Math.max(maxHitstop, this.activeAttack.hitstopFrames);
+        maxHitstop = Math.max(maxHitstop, atk.hitstopFrames);
         this.camera.triggerShake(SHAKE_LIGHT);
         this.playVfxAtWorld(heavy ? 'impacto_pesado' : 'impacto_puno', enemy.pos.x, enemy.pos.y, enemy.pos.z + 40);
       }
@@ -557,23 +663,33 @@ export class GameScene extends Phaser.Scene {
 
       // Hitbox vs breakables
       const bHits = checkPlayerHitsBreakables(
-        this.playerPos.x, this.playerPos.y, this.playerFacing, this.activeAttack, this.breakables,
+        this.playerPos.x, this.playerPos.y, this.playerFacing, atk, this.breakables,
       );
       for (const idx of bHits) {
         const b = this.breakables[idx];
         if (!b) continue;
         b.hitThisSwing = true;
-        const broke = b.applyHit(this.activeAttack.damage);
+        connected = true;
+        const broke = b.applyHit(atk.damage);
         this.playVfxAtWorld('chispas_metal', b.x, b.y, 60);
         this.camera.triggerShake(SHAKE_LIGHT);
         if (broke) this.onBreakableDestroyed(b);
       }
+
+      // Deplete the weapon once per connecting swing.
+      if (connected && this.equippedWeapon && !this.weaponDepletedThisSwing) {
+        this.weaponDepletedThisSwing = true;
+        this.equippedWeapon.durabilityLeft -= 1;
+        if (this.equippedWeapon.durabilityLeft <= 0) this.breakWeapon();
+        this.updateWeaponHud();
+      }
     } else {
-      // Clear hitThisSwing when there's no active attack (between swings)
+      // Clear per-swing guards when there's no active attack (between swings)
       for (const enemy of this.enemies) {
         if (enemy && !enemy.dead) enemy.hitThisSwing = false;
       }
       for (const b of this.breakables) if (!b.destroyed) b.hitThisSwing = false;
+      this.weaponDepletedThisSwing = false;
     }
 
     // Handle movement
@@ -780,6 +896,7 @@ export class GameScene extends Phaser.Scene {
     this.updateEnemySprites();
     this.updateBreakableSprites();
     this.updatePickups(FIXED_TIMESTEP);
+    this.updateWeapons(FIXED_TIMESTEP);
     this.groundGraphics.setX(-this.camera.worldX);
 
     this.debugOverlay.render(

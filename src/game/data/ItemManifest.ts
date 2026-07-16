@@ -14,6 +14,8 @@ export interface WeaponDef {
   path: string;
   displayName: string;
   damage: number;
+  /** number of hits before the weapon breaks (Biblia §13) */
+  durability: number;
 }
 
 export interface PickupDef {
@@ -26,16 +28,16 @@ export interface PickupDef {
 }
 
 export const WEAPONS: Record<string, WeaponDef> = {
-  palo_escoba:    { id: 'palo_escoba',    path: 'assets/weapons/palo_escoba.png',    displayName: 'Palo de Escoba',  damage: 8 },
-  tubo_metalico:  { id: 'tubo_metalico',  path: 'assets/weapons/tubo_metalico.png',  displayName: 'Tubo Metálico',   damage: 12 },
-  cadena_oxidada: { id: 'cadena_oxidada', path: 'assets/weapons/cadena_oxidada.png', displayName: 'Cadena Oxidada',  damage: 10 },
-  llave_inglesa:  { id: 'llave_inglesa',  path: 'assets/weapons/llave_inglesa.png',  displayName: 'Llave Inglesa',   damage: 14 },
-  paraguas_roto:  { id: 'paraguas_roto',  path: 'assets/weapons/paraguas_roto.png',  displayName: 'Paraguas Roto',   damage: 6 },
-  tapa_tacho:     { id: 'tapa_tacho',     path: 'assets/weapons/tapa_tacho.png',     displayName: 'Tapa de Tacho',   damage: 7 },
-  maletin_pesado: { id: 'maletin_pesado', path: 'assets/weapons/maletin_pesado.png', displayName: 'Maletín Pesado',  damage: 9 },
-  botella_vidrio: { id: 'botella_vidrio', path: 'assets/weapons/botella_vidrio.png', displayName: 'Botella',         damage: 8 },
-  silla_plastico: { id: 'silla_plastico', path: 'assets/weapons/silla_plastico.png', displayName: 'Silla',           damage: 10 },
-  cajon_verdura:  { id: 'cajon_verdura',  path: 'assets/weapons/cajon_verdura.png',  displayName: 'Cajón de Verdura', damage: 11 },
+  palo_escoba:    { id: 'palo_escoba',    path: 'assets/weapons/palo_escoba.png',    displayName: 'Palo de Escoba',  damage: 8,  durability: 8 },
+  tubo_metalico:  { id: 'tubo_metalico',  path: 'assets/weapons/tubo_metalico.png',  displayName: 'Tubo Metálico',   damage: 12, durability: 8 },
+  cadena_oxidada: { id: 'cadena_oxidada', path: 'assets/weapons/cadena_oxidada.png', displayName: 'Cadena Oxidada',  damage: 10, durability: 8 },
+  llave_inglesa:  { id: 'llave_inglesa',  path: 'assets/weapons/llave_inglesa.png',  displayName: 'Llave Inglesa',   damage: 14, durability: 5 },
+  paraguas_roto:  { id: 'paraguas_roto',  path: 'assets/weapons/paraguas_roto.png',  displayName: 'Paraguas Roto',   damage: 6,  durability: 5 },
+  tapa_tacho:     { id: 'tapa_tacho',     path: 'assets/weapons/tapa_tacho.png',     displayName: 'Tapa de Tacho',   damage: 7,  durability: 8 },
+  maletin_pesado: { id: 'maletin_pesado', path: 'assets/weapons/maletin_pesado.png', displayName: 'Maletín Pesado',  damage: 9,  durability: 8 },
+  botella_vidrio: { id: 'botella_vidrio', path: 'assets/weapons/botella_vidrio.png', displayName: 'Botella',         damage: 8,  durability: 3 },
+  silla_plastico: { id: 'silla_plastico', path: 'assets/weapons/silla_plastico.png', displayName: 'Silla',           damage: 10, durability: 5 },
+  cajon_verdura:  { id: 'cajon_verdura',  path: 'assets/weapons/cajon_verdura.png',  displayName: 'Cajón de Verdura', damage: 11, durability: 5 },
 };
 
 export const PICKUPS: Record<string, PickupDef> = {

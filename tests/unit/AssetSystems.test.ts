@@ -5,6 +5,7 @@ import { VFX, VFX_LIST, vfxFrames } from '../../src/game/data/VfxManifest';
 import { STAGES, stageById } from '../../src/game/data/StageManifest';
 import { BreakableEntity } from '../../src/game/entities/BreakableEntity';
 import { PickupEntity } from '../../src/game/entities/PickupEntity';
+import { WeaponEntity, effectiveHitDamage } from '../../src/game/entities/WeaponEntity';
 import { checkPlayerHitsBreakables } from '../../src/game/systems/CombatSystem';
 import { ATTACKS } from '../../src/game/data/AttackData';
 
@@ -95,6 +96,35 @@ describe('checkPlayerHitsBreakables', () => {
   it('misses a breakable at a different depth', () => {
     const b = new BreakableEntity(BREAKABLES['cajon_rompible']!, 80, 600);
     expect(checkPlayerHitsBreakables(0, 500, 1, ATTACKS['light_1']!, [b])).toEqual([]);
+  });
+});
+
+describe('WeaponEntity / equip', () => {
+  it('effectiveHitDamage adds weapon damage on top of the base attack', () => {
+    expect(effectiveHitDamage(8, null)).toBe(8);
+    const w = { def: WEAPONS['tubo_metalico']!, durabilityLeft: 8 };
+    expect(effectiveHitDamage(8, w)).toBe(8 + 12);
+  });
+
+  it('is grabbable within range and depth, once', () => {
+    const w = new WeaponEntity(WEAPONS['tubo_metalico']!, 100, 500, 0);
+    expect(w.isInRange(120, 500, 48, 60)).toBe(true);
+    expect(w.isInRange(300, 500, 48, 60)).toBe(false);
+    w.taken = true;
+    expect(w.isInRange(120, 500, 48, 60)).toBe(false);
+  });
+
+  it('settles to the ground after its spawn hop', () => {
+    const w = new WeaponEntity(WEAPONS['llave_inglesa']!, 0, 0, 180);
+    for (let i = 0; i < 120; i++) w.tick(-1800, 1 / 60, 0);
+    expect(w.z).toBe(0);
+  });
+
+  it('durability follows Biblia §13 bands (3-8 hits)', () => {
+    for (const wd of Object.values(WEAPONS)) {
+      expect(wd.durability).toBeGreaterThanOrEqual(3);
+      expect(wd.durability).toBeLessThanOrEqual(8);
+    }
   });
 });
 

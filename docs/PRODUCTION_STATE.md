@@ -206,9 +206,25 @@
 - 16 tests nuevos en `AssetSystems.test.ts` (drops, rompibles, pickups,
   colisión, integridad de los 4 manifests).
 
+### HITO 024 — Armas equipables ✅
+- `ItemManifest`: armas con `durability` (biblia §13: liviana 5 / media 8 /
+  pesada 3-5; botella 3, llave/silla/cajón 5, resto 8)
+- `WeaponEntity.ts`: arma en el mundo (física de spawn + rango de recogida) +
+  `EquippedWeapon` + `effectiveHitDamage(base, weapon)` (el arma suma su daño)
+- `GameScene.ts`: spawnea 3 armas en la calle (tubo, llave inglesa, cadena);
+  auto-equip al caminar sobre ellas; ataques con arma usan daño modificado
+  contra enemigos y rompibles; durabilidad se gasta 1 por swing conectado;
+  al agotarse el arma se rompe (VFX polvo + desequipa); sprite del arma
+  renderizado en la mano (angulado durante el golpe); HUD "⚔ nombre dur/max"
+- Verificado en navegador: recoger tubo → HUD "Tubo Metálico 7/8", arma en
+  mano durante ataque, sin errores de runtime
+- 4 tests nuevos en `AssetSystems.test.ts` (effectiveHitDamage, rango,
+  física, bandas de durabilidad §13)
+
 ## HITOS PENDIENTES
 
-- HITO 024 — Wiring de armas equipables (pickup de arma → daño modificado)
+- HITO 025 — Sistema de oleadas (WaveSystem) y zonas de combate del Escenario 1
+- HITO 026 — Colocación de props decorativos por panel + mini-boss/boss
 - HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
 - ... (hitos 025-060)
 
@@ -258,8 +274,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | EnemyStateMachine.test.ts       | 35     | ✅ OK  |
 | CombatSystem.test.ts            | 26     | ✅ OK  |
 | AnimationData.test.ts           | 24     | ✅ OK  |
-| AssetSystems.test.ts            | 16     | ✅ OK  |
-| **Total**                       | **227**| ✅ OK  |
+| AssetSystems.test.ts            | 20     | ✅ OK  |
+| **Total**                       | **231**| ✅ OK  |
 
 ---
 
