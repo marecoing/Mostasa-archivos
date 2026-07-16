@@ -1,0 +1,1249 @@
+[
+  {
+    "id": "mate_curativo",
+    "displayName": "Mate Curativo",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_vida.png",
+    "outputPath": "pickups/mate_curativo.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "health",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 309,
+    "frameHeight": 455,
+    "tags": [
+      "pickup",
+      "health",
+      "argentine"
+    ]
+  },
+  {
+    "id": "termo_salvador",
+    "displayName": "Termo Salvador",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_vida.png",
+    "outputPath": "pickups/termo_salvador.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "health",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 234,
+    "frameHeight": 477,
+    "tags": [
+      "pickup",
+      "health",
+      "argentine"
+    ]
+  },
+  {
+    "id": "empanada_rotiseria",
+    "displayName": "Empanada de Rotiseria",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_vida.png",
+    "outputPath": "pickups/empanada_rotiseria.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "health",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 446,
+    "frameHeight": 324,
+    "tags": [
+      "pickup",
+      "health",
+      "food"
+    ]
+  },
+  {
+    "id": "choripan_callejero",
+    "displayName": "Choripan Callejero",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_vida.png",
+    "outputPath": "pickups/choripan_callejero.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "health",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 473,
+    "frameHeight": 329,
+    "tags": [
+      "pickup",
+      "health",
+      "food"
+    ]
+  },
+  {
+    "id": "pizza_slice_ficticia",
+    "displayName": "Porcion de Pizza Ficticia",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_vida.png",
+    "outputPath": "pickups/pizza_slice_ficticia.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "health",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 489,
+    "frameHeight": 359,
+    "tags": [
+      "pickup",
+      "health",
+      "food"
+    ]
+  },
+  {
+    "id": "botiquin_once",
+    "displayName": "Botiquin de Once",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_vida.png",
+    "outputPath": "pickups/botiquin_once.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "health",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 415,
+    "frameHeight": 361,
+    "tags": [
+      "pickup",
+      "health",
+      "medical"
+    ]
+  },
+  {
+    "id": "cafe_quemado",
+    "displayName": "Cafe Quemado",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_energia_bronca.png",
+    "outputPath": "pickups/cafe_quemado.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "energy",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 252,
+    "frameHeight": 479,
+    "tags": [
+      "pickup",
+      "energy",
+      "drink"
+    ]
+  },
+  {
+    "id": "gaseosa_ficticia",
+    "displayName": "Gaseosa Ficticia",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_energia_bronca.png",
+    "outputPath": "pickups/gaseosa_ficticia.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "energy",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 375,
+    "frameHeight": 489,
+    "tags": [
+      "pickup",
+      "energy",
+      "drink"
+    ]
+  },
+  {
+    "id": "alfajor_generico",
+    "displayName": "Alfajor Generico",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_energia_bronca.png",
+    "outputPath": "pickups/alfajor_generico.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "energy",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 468,
+    "frameHeight": 401,
+    "tags": [
+      "pickup",
+      "energy",
+      "snack"
+    ]
+  },
+  {
+    "id": "blister_misterioso",
+    "displayName": "Blister Misterioso",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_energia_bronca.png",
+    "outputPath": "pickups/blister_misterioso.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "energy",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 324,
+    "frameHeight": 356,
+    "tags": [
+      "pickup",
+      "energy",
+      "special"
+    ]
+  },
+  {
+    "id": "bronca_embotellada",
+    "displayName": "Bronca Embotellada",
+    "category": "pickups",
+    "sourcePath": "sheets_alpha/pickups_energia_bronca.png",
+    "outputPath": "pickups/bronca_embotellada.png",
+    "type": "pickup",
+    "destructible": false,
+    "pickupEffect": "rage",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 238,
+    "frameHeight": 425,
+    "tags": [
+      "pickup",
+      "rage",
+      "special"
+    ]
+  },
+  {
+    "id": "monedas_sueltas",
+    "displayName": "Monedas Sueltas",
+    "category": "rewards",
+    "sourcePath": "sheets_alpha/recompensas.png",
+    "outputPath": "rewards/monedas_sueltas.png",
+    "type": "reward",
+    "destructible": false,
+    "pickupEffect": "money",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 435,
+    "frameHeight": 330,
+    "tags": [
+      "reward",
+      "currency"
+    ]
+  },
+  {
+    "id": "fajo_billetes_ficticios",
+    "displayName": "Fajo de Billetes Ficticios",
+    "category": "rewards",
+    "sourcePath": "sheets_alpha/recompensas.png",
+    "outputPath": "rewards/fajo_billetes_ficticios.png",
+    "type": "reward",
+    "destructible": false,
+    "pickupEffect": "money",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 498,
+    "frameHeight": 370,
+    "tags": [
+      "reward",
+      "currency"
+    ]
+  },
+  {
+    "id": "pendrive_comun",
+    "displayName": "Pendrive Comun",
+    "category": "rewards",
+    "sourcePath": "sheets_alpha/recompensas.png",
+    "outputPath": "rewards/pendrive_comun.png",
+    "type": "reward",
+    "destructible": false,
+    "pickupEffect": "collectible",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 454,
+    "frameHeight": 323,
+    "tags": [
+      "collectible",
+      "usb"
+    ]
+  },
+  {
+    "id": "pendrive_federal",
+    "displayName": "Pendrive Federal",
+    "category": "rewards",
+    "sourcePath": "sheets_alpha/recompensas.png",
+    "outputPath": "rewards/pendrive_federal.png",
+    "type": "reward",
+    "destructible": false,
+    "pickupEffect": "key_item",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 429,
+    "frameHeight": 358,
+    "tags": [
+      "collectible",
+      "usb",
+      "key"
+    ]
+  },
+  {
+    "id": "pendrive_bitcoin",
+    "displayName": "Pendrive Bitcoin",
+    "category": "rewards",
+    "sourcePath": "sheets_alpha/recompensas.png",
+    "outputPath": "rewards/pendrive_bitcoin.png",
+    "type": "reward",
+    "destructible": false,
+    "pickupEffect": "collectible",
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 478,
+    "frameHeight": 349,
+    "tags": [
+      "collectible",
+      "usb",
+      "valuable"
+    ]
+  },
+  {
+    "id": "palo_escoba",
+    "displayName": "Palo de Escoba",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/palo_escoba.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 8,
+    "frameCount": 1,
+    "frameWidth": 263,
+    "frameHeight": 384,
+    "tags": [
+      "weapon",
+      "wood"
+    ]
+  },
+  {
+    "id": "tubo_metalico",
+    "displayName": "Tubo Metalico",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/tubo_metalico.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 12,
+    "frameCount": 1,
+    "frameWidth": 346,
+    "frameHeight": 370,
+    "tags": [
+      "weapon",
+      "metal"
+    ]
+  },
+  {
+    "id": "cadena_oxidada",
+    "displayName": "Cadena Oxidada",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/cadena_oxidada.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 10,
+    "frameCount": 1,
+    "frameWidth": 331,
+    "frameHeight": 266,
+    "tags": [
+      "weapon",
+      "metal"
+    ]
+  },
+  {
+    "id": "llave_inglesa",
+    "displayName": "Llave Inglesa",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/llave_inglesa.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 14,
+    "frameCount": 1,
+    "frameWidth": 338,
+    "frameHeight": 359,
+    "tags": [
+      "weapon",
+      "metal",
+      "tool"
+    ]
+  },
+  {
+    "id": "paraguas_roto",
+    "displayName": "Paraguas Roto",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/paraguas_roto.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 6,
+    "frameCount": 1,
+    "frameWidth": 275,
+    "frameHeight": 373,
+    "tags": [
+      "weapon",
+      "absurd"
+    ]
+  },
+  {
+    "id": "tapa_tacho",
+    "displayName": "Tapa de Tacho",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/tapa_tacho.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 7,
+    "frameCount": 1,
+    "frameWidth": 314,
+    "frameHeight": 260,
+    "tags": [
+      "weapon",
+      "shield",
+      "metal"
+    ]
+  },
+  {
+    "id": "maletin_pesado",
+    "displayName": "Maletin Pesado",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/maletin_pesado.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 9,
+    "frameCount": 1,
+    "frameWidth": 354,
+    "frameHeight": 325,
+    "tags": [
+      "weapon",
+      "blunt"
+    ]
+  },
+  {
+    "id": "botella_vidrio",
+    "displayName": "Botella de Vidrio",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/botella_vidrio.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 8,
+    "frameCount": 1,
+    "frameWidth": 354,
+    "frameHeight": 355,
+    "tags": [
+      "weapon",
+      "glass",
+      "breakable"
+    ]
+  },
+  {
+    "id": "silla_plastico",
+    "displayName": "Silla de Plastico",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/silla_plastico.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 10,
+    "frameCount": 1,
+    "frameWidth": 354,
+    "frameHeight": 379,
+    "tags": [
+      "weapon",
+      "throwable"
+    ]
+  },
+  {
+    "id": "cajon_verdura",
+    "displayName": "Cajon de Verdura",
+    "category": "weapons",
+    "sourcePath": "sheets_alpha/armas_improvisadas.png",
+    "outputPath": "weapons/cajon_verdura.png",
+    "type": "weapon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": 11,
+    "frameCount": 1,
+    "frameWidth": 312,
+    "frameHeight": 296,
+    "tags": [
+      "weapon",
+      "throwable",
+      "wood"
+    ]
+  },
+  {
+    "id": "persiana_metalica",
+    "displayName": "Persiana Metalica",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/persiana_metalica.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 396,
+    "frameHeight": 397,
+    "tags": [
+      "prop",
+      "street",
+      "once"
+    ]
+  },
+  {
+    "id": "cartel_generico_local",
+    "displayName": "Cartel Generico de Local",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/cartel_generico_local.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 429,
+    "frameHeight": 397,
+    "tags": [
+      "prop",
+      "street",
+      "sign"
+    ]
+  },
+  {
+    "id": "bolsa_basura",
+    "displayName": "Bolsa de Basura",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/bolsa_basura.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 385,
+    "frameHeight": 302,
+    "tags": [
+      "prop",
+      "street",
+      "trash"
+    ]
+  },
+  {
+    "id": "carrito_carga",
+    "displayName": "Carrito de Carga",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/carrito_carga.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 346,
+    "frameHeight": 358,
+    "tags": [
+      "prop",
+      "street",
+      "market"
+    ]
+  },
+  {
+    "id": "bicicleta_reparto",
+    "displayName": "Bicicleta de Reparto",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/bicicleta_reparto.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 400,
+    "frameHeight": 270,
+    "tags": [
+      "prop",
+      "street",
+      "bike"
+    ]
+  },
+  {
+    "id": "cableado_colgante",
+    "displayName": "Cableado Colgante",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/cableado_colgante.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 429,
+    "frameHeight": 280,
+    "tags": [
+      "prop",
+      "street",
+      "modular"
+    ]
+  },
+  {
+    "id": "reja_seguridad",
+    "displayName": "Reja de Seguridad",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/reja_seguridad.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 423,
+    "frameHeight": 374,
+    "tags": [
+      "prop",
+      "street",
+      "storefront"
+    ]
+  },
+  {
+    "id": "posteres_rotos",
+    "displayName": "Posteres Rotos",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_calle_once.png",
+    "outputPath": "props/posteres_rotos.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 341,
+    "frameHeight": 347,
+    "tags": [
+      "prop",
+      "street",
+      "wall"
+    ]
+  },
+  {
+    "id": "molinete_generico",
+    "displayName": "Molinete Generico",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_estacion.png",
+    "outputPath": "props/molinete_generico.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 468,
+    "frameHeight": 424,
+    "tags": [
+      "prop",
+      "station"
+    ]
+  },
+  {
+    "id": "banco_anden",
+    "displayName": "Banco de Anden",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_estacion.png",
+    "outputPath": "props/banco_anden.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 512,
+    "frameHeight": 333,
+    "tags": [
+      "prop",
+      "station"
+    ]
+  },
+  {
+    "id": "valija_vieja",
+    "displayName": "Valija Vieja",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_estacion.png",
+    "outputPath": "props/valija_vieja.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 463,
+    "frameHeight": 346,
+    "tags": [
+      "prop",
+      "station"
+    ]
+  },
+  {
+    "id": "cartel_anden_ilegible",
+    "displayName": "Cartel de Anden Ilegible",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_estacion.png",
+    "outputPath": "props/cartel_anden_ilegible.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 403,
+    "frameHeight": 436,
+    "tags": [
+      "prop",
+      "station",
+      "sign"
+    ]
+  },
+  {
+    "id": "farol_estacion",
+    "displayName": "Farol de Estacion",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_estacion.png",
+    "outputPath": "props/farol_estacion.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 222,
+    "frameHeight": 408,
+    "tags": [
+      "prop",
+      "station",
+      "light"
+    ]
+  },
+  {
+    "id": "maletin_papeles",
+    "displayName": "Maletin de Papeles",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_oficina_poder.png",
+    "outputPath": "props/maletin_papeles.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 414,
+    "frameHeight": 459,
+    "tags": [
+      "prop",
+      "office"
+    ]
+  },
+  {
+    "id": "sello_administrativo",
+    "displayName": "Sello Administrativo",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_oficina_poder.png",
+    "outputPath": "props/sello_administrativo.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 398,
+    "frameHeight": 435,
+    "tags": [
+      "prop",
+      "office"
+    ]
+  },
+  {
+    "id": "carrito_expedientes",
+    "displayName": "Carrito de Expedientes",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_oficina_poder.png",
+    "outputPath": "props/carrito_expedientes.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 383,
+    "frameHeight": 473,
+    "tags": [
+      "prop",
+      "office"
+    ]
+  },
+  {
+    "id": "atril_ficticio",
+    "displayName": "Atril Ficticio",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_oficina_poder.png",
+    "outputPath": "props/atril_ficticio.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 323,
+    "frameHeight": 466,
+    "tags": [
+      "prop",
+      "office"
+    ]
+  },
+  {
+    "id": "carpeta_oficina",
+    "displayName": "Carpeta de Oficina",
+    "category": "props",
+    "sourcePath": "sheets_alpha/props_oficina_poder.png",
+    "outputPath": "props/carpeta_oficina.png",
+    "type": "prop",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 444,
+    "frameHeight": 382,
+    "tags": [
+      "prop",
+      "office"
+    ]
+  },
+  {
+    "id": "icono_vida",
+    "displayName": "Icono Vida",
+    "category": "ui",
+    "sourcePath": "sheets_alpha/ui_iconos.png",
+    "outputPath": "ui/icono_vida.png",
+    "type": "uiIcon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 350,
+    "frameHeight": 335,
+    "tags": [
+      "ui",
+      "health"
+    ]
+  },
+  {
+    "id": "icono_bronca",
+    "displayName": "Icono Bronca",
+    "category": "ui",
+    "sourcePath": "sheets_alpha/ui_iconos.png",
+    "outputPath": "ui/icono_bronca.png",
+    "type": "uiIcon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 331,
+    "frameHeight": 380,
+    "tags": [
+      "ui",
+      "rage"
+    ]
+  },
+  {
+    "id": "icono_pendrive",
+    "displayName": "Icono Pendrive",
+    "category": "ui",
+    "sourcePath": "sheets_alpha/ui_iconos.png",
+    "outputPath": "ui/icono_pendrive.png",
+    "type": "uiIcon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 336,
+    "frameHeight": 347,
+    "tags": [
+      "ui",
+      "inventory"
+    ]
+  },
+  {
+    "id": "icono_moneda",
+    "displayName": "Icono Moneda",
+    "category": "ui",
+    "sourcePath": "sheets_alpha/ui_iconos.png",
+    "outputPath": "ui/icono_moneda.png",
+    "type": "uiIcon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 325,
+    "frameHeight": 335,
+    "tags": [
+      "ui",
+      "currency"
+    ]
+  },
+  {
+    "id": "icono_arma",
+    "displayName": "Icono Arma",
+    "category": "ui",
+    "sourcePath": "sheets_alpha/ui_iconos.png",
+    "outputPath": "ui/icono_arma.png",
+    "type": "uiIcon",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 1,
+    "frameWidth": 372,
+    "frameHeight": 377,
+    "tags": [
+      "ui",
+      "weapon"
+    ]
+  },
+  {
+    "id": "cajon_rompible",
+    "displayName": "Cajon Rompible",
+    "category": "destructibles",
+    "sourcePath": "sheets_alpha/destruibles.png",
+    "outputPath": "destructibles/cajon_rompible.png",
+    "framePaths": [
+      "destructibles/frames/cajon_rompible_intact.png",
+      "destructibles/frames/cajon_rompible_damaged.png",
+      "destructibles/frames/cajon_rompible_breaking.png",
+      "destructibles/frames/cajon_rompible_debris.png"
+    ],
+    "type": "destructibleSheet",
+    "destructible": true,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 4,
+    "frameWidth": 362,
+    "frameHeight": 181,
+    "states": [
+      "intact",
+      "damaged",
+      "breaking",
+      "debris"
+    ],
+    "tags": [
+      "destructible",
+      "crate"
+    ]
+  },
+  {
+    "id": "tacho_basura_rompible",
+    "displayName": "Tacho de Basura Rompible",
+    "category": "destructibles",
+    "sourcePath": "sheets_alpha/destruibles.png",
+    "outputPath": "destructibles/tacho_basura_rompible.png",
+    "framePaths": [
+      "destructibles/frames/tacho_basura_rompible_intact.png",
+      "destructibles/frames/tacho_basura_rompible_damaged.png",
+      "destructibles/frames/tacho_basura_rompible_breaking.png",
+      "destructibles/frames/tacho_basura_rompible_debris.png"
+    ],
+    "type": "destructibleSheet",
+    "destructible": true,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 4,
+    "frameWidth": 362,
+    "frameHeight": 181,
+    "states": [
+      "intact",
+      "damaged",
+      "breaking",
+      "debris"
+    ],
+    "tags": [
+      "destructible",
+      "trash"
+    ]
+  },
+  {
+    "id": "puesto_diarios_ficticio",
+    "displayName": "Puesto de Diarios Ficticio",
+    "category": "destructibles",
+    "sourcePath": "sheets_alpha/destruibles.png",
+    "outputPath": "destructibles/puesto_diarios_ficticio.png",
+    "framePaths": [
+      "destructibles/frames/puesto_diarios_ficticio_intact.png",
+      "destructibles/frames/puesto_diarios_ficticio_damaged.png",
+      "destructibles/frames/puesto_diarios_ficticio_breaking.png",
+      "destructibles/frames/puesto_diarios_ficticio_debris.png"
+    ],
+    "type": "destructibleSheet",
+    "destructible": true,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 4,
+    "frameWidth": 362,
+    "frameHeight": 181,
+    "states": [
+      "intact",
+      "damaged",
+      "breaking",
+      "debris"
+    ],
+    "tags": [
+      "destructible",
+      "street"
+    ]
+  },
+  {
+    "id": "vidriera_rota",
+    "displayName": "Vidriera Rota",
+    "category": "destructibles",
+    "sourcePath": "sheets_alpha/destruibles.png",
+    "outputPath": "destructibles/vidriera_rota.png",
+    "framePaths": [
+      "destructibles/frames/vidriera_rota_intact.png",
+      "destructibles/frames/vidriera_rota_damaged.png",
+      "destructibles/frames/vidriera_rota_breaking.png",
+      "destructibles/frames/vidriera_rota_debris.png"
+    ],
+    "type": "destructibleSheet",
+    "destructible": true,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 4,
+    "frameWidth": 362,
+    "frameHeight": 181,
+    "states": [
+      "intact",
+      "damaged",
+      "breaking",
+      "debris"
+    ],
+    "tags": [
+      "destructible",
+      "glass"
+    ]
+  },
+  {
+    "id": "cono_transito",
+    "displayName": "Cono de Transito",
+    "category": "destructibles",
+    "sourcePath": "sheets_alpha/destruibles.png",
+    "outputPath": "destructibles/cono_transito.png",
+    "framePaths": [
+      "destructibles/frames/cono_transito_intact.png",
+      "destructibles/frames/cono_transito_damaged.png",
+      "destructibles/frames/cono_transito_breaking.png",
+      "destructibles/frames/cono_transito_debris.png"
+    ],
+    "type": "destructibleSheet",
+    "destructible": true,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 4,
+    "frameWidth": 362,
+    "frameHeight": 181,
+    "states": [
+      "intact",
+      "damaged",
+      "breaking",
+      "debris"
+    ],
+    "tags": [
+      "destructible",
+      "street"
+    ]
+  },
+  {
+    "id": "barril_plastico",
+    "displayName": "Barril Plastico",
+    "category": "destructibles",
+    "sourcePath": "sheets_alpha/destruibles.png",
+    "outputPath": "destructibles/barril_plastico.png",
+    "framePaths": [
+      "destructibles/frames/barril_plastico_intact.png",
+      "destructibles/frames/barril_plastico_damaged.png",
+      "destructibles/frames/barril_plastico_breaking.png",
+      "destructibles/frames/barril_plastico_debris.png"
+    ],
+    "type": "destructibleSheet",
+    "destructible": true,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 4,
+    "frameWidth": 362,
+    "frameHeight": 181,
+    "states": [
+      "intact",
+      "damaged",
+      "breaking",
+      "debris"
+    ],
+    "tags": [
+      "destructible",
+      "barrel"
+    ]
+  },
+  {
+    "id": "impacto_puno",
+    "displayName": "Impacto de Puno",
+    "category": "vfx",
+    "sourcePath": "sheets_alpha/vfx_2d.png",
+    "outputPath": "vfx/impacto_puno.png",
+    "framePaths": [
+      "vfx/frames/impacto_puno_00.png",
+      "vfx/frames/impacto_puno_01.png",
+      "vfx/frames/impacto_puno_02.png",
+      "vfx/frames/impacto_puno_03.png",
+      "vfx/frames/impacto_puno_04.png",
+      "vfx/frames/impacto_puno_05.png"
+    ],
+    "type": "vfxSheet",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 6,
+    "frameWidth": 181,
+    "frameHeight": 181,
+    "tags": [
+      "vfx",
+      "contact"
+    ]
+  },
+  {
+    "id": "impacto_pesado",
+    "displayName": "Impacto Pesado",
+    "category": "vfx",
+    "sourcePath": "sheets_alpha/vfx_2d.png",
+    "outputPath": "vfx/impacto_pesado.png",
+    "framePaths": [
+      "vfx/frames/impacto_pesado_00.png",
+      "vfx/frames/impacto_pesado_01.png",
+      "vfx/frames/impacto_pesado_02.png",
+      "vfx/frames/impacto_pesado_03.png",
+      "vfx/frames/impacto_pesado_04.png",
+      "vfx/frames/impacto_pesado_05.png"
+    ],
+    "type": "vfxSheet",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 6,
+    "frameWidth": 181,
+    "frameHeight": 181,
+    "tags": [
+      "vfx",
+      "heavy"
+    ]
+  },
+  {
+    "id": "polvo_caida",
+    "displayName": "Polvo de Caida",
+    "category": "vfx",
+    "sourcePath": "sheets_alpha/vfx_2d.png",
+    "outputPath": "vfx/polvo_caida.png",
+    "framePaths": [
+      "vfx/frames/polvo_caida_00.png",
+      "vfx/frames/polvo_caida_01.png",
+      "vfx/frames/polvo_caida_02.png",
+      "vfx/frames/polvo_caida_03.png",
+      "vfx/frames/polvo_caida_04.png",
+      "vfx/frames/polvo_caida_05.png"
+    ],
+    "type": "vfxSheet",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 6,
+    "frameWidth": 181,
+    "frameHeight": 181,
+    "tags": [
+      "vfx",
+      "dust"
+    ]
+  },
+  {
+    "id": "chispas_metal",
+    "displayName": "Chispas de Metal",
+    "category": "vfx",
+    "sourcePath": "sheets_alpha/vfx_2d.png",
+    "outputPath": "vfx/chispas_metal.png",
+    "framePaths": [
+      "vfx/frames/chispas_metal_00.png",
+      "vfx/frames/chispas_metal_01.png",
+      "vfx/frames/chispas_metal_02.png",
+      "vfx/frames/chispas_metal_03.png",
+      "vfx/frames/chispas_metal_04.png",
+      "vfx/frames/chispas_metal_05.png"
+    ],
+    "type": "vfxSheet",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 6,
+    "frameWidth": 181,
+    "frameHeight": 181,
+    "tags": [
+      "vfx",
+      "sparks"
+    ]
+  },
+  {
+    "id": "vidrio_roto_vfx",
+    "displayName": "Vidrio Roto VFX",
+    "category": "vfx",
+    "sourcePath": "sheets_alpha/vfx_2d.png",
+    "outputPath": "vfx/vidrio_roto_vfx.png",
+    "framePaths": [
+      "vfx/frames/vidrio_roto_vfx_00.png",
+      "vfx/frames/vidrio_roto_vfx_01.png",
+      "vfx/frames/vidrio_roto_vfx_02.png",
+      "vfx/frames/vidrio_roto_vfx_03.png",
+      "vfx/frames/vidrio_roto_vfx_04.png",
+      "vfx/frames/vidrio_roto_vfx_05.png"
+    ],
+    "type": "vfxSheet",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 6,
+    "frameWidth": 181,
+    "frameHeight": 181,
+    "tags": [
+      "vfx",
+      "glass"
+    ]
+  },
+  {
+    "id": "bronca_especial",
+    "displayName": "Bronca Especial",
+    "category": "vfx",
+    "sourcePath": "sheets_alpha/vfx_2d.png",
+    "outputPath": "vfx/bronca_especial.png",
+    "framePaths": [
+      "vfx/frames/bronca_especial_00.png",
+      "vfx/frames/bronca_especial_01.png",
+      "vfx/frames/bronca_especial_02.png",
+      "vfx/frames/bronca_especial_03.png",
+      "vfx/frames/bronca_especial_04.png",
+      "vfx/frames/bronca_especial_05.png",
+      "vfx/frames/bronca_especial_06.png",
+      "vfx/frames/bronca_especial_07.png"
+    ],
+    "type": "vfxSheet",
+    "destructible": false,
+    "pickupEffect": null,
+    "weaponDamage": null,
+    "frameCount": 8,
+    "frameWidth": 181,
+    "frameHeight": 181,
+    "tags": [
+      "vfx",
+      "rage"
+    ]
+  }
+]
