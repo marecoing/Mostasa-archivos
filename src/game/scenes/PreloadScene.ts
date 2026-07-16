@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, SCENE_KEYS } from '../config/GameConfig';
+import { loadCharacterSheets } from '../systems/CharacterAnimator';
 
 export class PreloadScene extends Phaser.Scene {
   private progressBar!: Phaser.GameObjects.Graphics;
@@ -108,6 +109,7 @@ export class PreloadScene extends Phaser.Scene {
 
   private loadPlaceholderAssets(): void {
     this.createPlaceholderTextures();
+    loadCharacterSheets(this);
   }
 
   private createPlaceholderTextures(): void {

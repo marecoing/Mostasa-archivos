@@ -24,8 +24,9 @@ export class EnemyEntity {
   hitstopRemaining = 0;
   dead = false;
   hitThisSwing = false;
+  spriteKey: string;
 
-  constructor(x: number, y: number, stats: EnemyStats) {
+  constructor(x: number, y: number, stats: EnemyStats, spriteKey = 'enemy_001') {
     this.pos = { x, y, z: 0 };
     this.vel = { x: 0, y: 0, z: 0 };
     this.hp = stats.hp;
@@ -36,6 +37,7 @@ export class EnemyEntity {
     this.color = stats.color;
     this.height = stats.height;
     this.type = stats.type;
+    this.spriteKey = spriteKey;
     this.fsm = new EnemyStateMachine();
   }
 

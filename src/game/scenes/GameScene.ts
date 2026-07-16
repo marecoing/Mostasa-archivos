@@ -25,6 +25,10 @@ import {
   checkGrabRange,
   getRadialHits,
 } from '../systems/CombatSystem';
+import { registerAllCharacterAnims, playState } from '../systems/CharacterAnimator';
+
+const PLAYER_SPRITE_SCALE = 1.0;
+const PLAYER_SPRITE_ORIGIN_Y = 0.92;
 
 const WALK_SPEED_X = 280;
 const WALK_SPEED_Y = 210;
@@ -49,7 +53,7 @@ export class GameScene extends Phaser.Scene {
   private playerPos: Vec3 = { x: 400, y: 480, z: 0 };
   private playerVel: Vec3 = { x: 0, y: 0, z: 0 };
   private playerFacing: 1 | -1 = 1;
-  private playerSprite!: Phaser.GameObjects.Graphics;
+  private playerSprite!: Phaser.GameObjects.Sprite;
   private playerShadow!: Phaser.GameObjects.Graphics;
   private groundGraphics!: Phaser.GameObjects.Graphics;
   private debugText!: Phaser.GameObjects.Text;
@@ -64,6 +68,7 @@ export class GameScene extends Phaser.Scene {
   private enemies: EnemyEntity[] = [];
   private enemyGraphics: Phaser.GameObjects.Graphics[] = [];
   private enemyShadows: Phaser.GameObjects.Graphics[] = [];
+  private enemySprites: Phaser.GameObjects.Sprite[] = [];
 
   private grabbedEnemyIndex = -1;
   private hitstopFrames = 0;
@@ -76,11 +81,12 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor('#0a0a18');
+    registerAllCharacterAnims(this);
+    this.setupSystems();
     this.createGround();
     this.createPlayerSprite();
     this.createHUD();
     this.createDebugUI();
-    this.setupSystems();
     this.spawnInitialWave();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
@@ -114,24 +120,28 @@ export class GameScene extends Phaser.Scene {
 
   private spawnInitialWave(): void {
     const spawnPoints = [
-      { x: 600, y: 480, type: 'grunt' },
-      { x: 750, y: 460, type: 'grunt' },
-      { x: 900, y: 500, type: 'speedster' },
+      { x: 600, y: 480, type: 'grunt',     sprite: 'enemy_001' },
+      { x: 750, y: 460, type: 'grunt',     sprite: 'enemy_002' },
+      { x: 900, y: 500, type: 'speedster', sprite: 'enemy_005' },
     ];
     for (const sp of spawnPoints) {
-      this.spawnEnemy(sp.x, sp.y, sp.type);
+      this.spawnEnemy(sp.x, sp.y, sp.type, sp.sprite);
     }
   }
 
-  private spawnEnemy(x: number, y: number, type: string): void {
+  private spawnEnemy(x: number, y: number, type: string, spriteKey = 'enemy_001'): void {
     const stats = ENEMY_TYPES[type];
     if (!stats) return;
-    const enemy = new EnemyEntity(x, y, stats);
+    const enemy = new EnemyEntity(x, y, stats, spriteKey);
     const shadow = this.add.graphics().setDepth(0);
-    const gfx = this.add.graphics().setDepth(1);
+    const sprite = this.add.sprite(0, 0, spriteKey);
+    sprite.setOrigin(0.5, PLAYER_SPRITE_ORIGIN_Y);
+    playState(sprite, spriteKey, 'idle');
+    const hud = this.add.graphics().setDepth(1);
     this.enemies.push(enemy);
     this.enemyShadows.push(shadow);
-    this.enemyGraphics.push(gfx);
+    this.enemySprites.push(sprite);
+    this.enemyGraphics.push(hud);
   }
 
   private createGround(): void {
@@ -201,7 +211,10 @@ export class GameScene extends Phaser.Scene {
 
   private createPlayerSprite(): void {
     this.playerShadow = this.add.graphics();
-    this.playerSprite = this.add.graphics();
+    this.playerSprite = this.add.sprite(0, 0, 'mostasa');
+    this.playerSprite.setOrigin(0.5, PLAYER_SPRITE_ORIGIN_Y);
+    this.playerSprite.setScale(PLAYER_SPRITE_SCALE);
+    playState(this.playerSprite, 'mostasa', 'idle');
     this.updatePlayerSpritePosition();
   }
 
@@ -226,45 +239,24 @@ export class GameScene extends Phaser.Scene {
     this.playerShadow.clear();
     const shadowAlpha = Math.max(0.1, 0.5 - this.playerPos.z * 0.001);
     this.playerShadow.fillStyle(0x000000, shadowAlpha);
-    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 44, 14);
+    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 48, 15);
     this.playerShadow.setDepth(this.playerPos.y - 1);
 
-    const w = 40;
-    const h = 72;
+    // Drive the animation from the FSM state
+    playState(this.playerSprite, 'mostasa', this.fsm.currentState);
 
-    const isAttacking = this.fsm.isAttacking();
-    const isHurt = this.fsm.currentState === PLAYER_STATE.HURT;
-    const isGrabbing = this.fsm.isGrabbing();
-    const isSpecial = this.fsm.currentState === PLAYER_STATE.SPECIAL;
-    const bodyColor = isHurt
-      ? 0xff4444
-      : isSpecial
-        ? 0xffaa00
-        : isGrabbing
-          ? 0x8844ff
-          : isAttacking
-            ? 0x2d7a5a
-            : 0x1a3d2b;
-
-    this.playerSprite.clear();
-    this.playerSprite.fillStyle(bodyColor, 1);
-    this.playerSprite.fillRect(screenX - w / 2, screenY - h, w, h);
-
-    this.playerSprite.fillStyle(0xf4c89a, 1);
-    this.playerSprite.fillCircle(screenX, screenY - h + 14, 13);
-
-    this.playerSprite.fillStyle(0x0d2218, 1);
-    this.playerSprite.fillRect(screenX - 11, screenY - h + 2, 22, 8);
-
-    const armExtend = isAttacking ? this.playerFacing * 12 : 0;
-    this.playerSprite.fillStyle(0xc8a060, 1);
-    this.playerSprite.fillRect(screenX - w / 2 - 8, screenY - h + 22, 8, 28);
-    this.playerSprite.fillRect(screenX + w / 2 + armExtend, screenY - h + 22, 8, 28);
-
-    this.playerSprite.lineStyle(2, 0x2d7a50, 0.6);
-    this.playerSprite.strokeRect(screenX - w / 2, screenY - h, w, h);
-
+    this.playerSprite.setPosition(screenX, screenY);
+    this.playerSprite.setFlipX(this.playerFacing === -1);
     this.playerSprite.setDepth(this.playerPos.y);
+
+    // Damage flash tint
+    if (this.fsm.currentState === PLAYER_STATE.HURT) {
+      this.playerSprite.setTint(0xff8888);
+    } else if (this.fsm.currentState === PLAYER_STATE.SPECIAL) {
+      this.playerSprite.setTint(0xffdd88);
+    } else {
+      this.playerSprite.clearTint();
+    }
   }
 
   private updateEnemySprites(): void {
@@ -272,13 +264,15 @@ export class GameScene extends Phaser.Scene {
 
     for (let i = 0; i < this.enemies.length; i++) {
       const enemy = this.enemies[i];
-      const gfx = this.enemyGraphics[i];
+      const hud = this.enemyGraphics[i];
       const shadow = this.enemyShadows[i];
-      if (!enemy || !gfx || !shadow) continue;
+      const sprite = this.enemySprites[i];
+      if (!enemy || !hud || !shadow || !sprite) continue;
 
       if (enemy.dead) {
-        gfx.setVisible(false);
+        hud.setVisible(false);
         shadow.setVisible(false);
+        sprite.setVisible(false);
         continue;
       }
 
@@ -287,35 +281,32 @@ export class GameScene extends Phaser.Scene {
 
       shadow.clear();
       shadow.fillStyle(0x000000, 0.35);
-      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 8, 12);
+      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 12, 13);
       shadow.setDepth(enemy.pos.y - 1);
 
-      gfx.clear();
-      const w = enemy.halfW * 2;
-      const h = enemy.height;
+      // Character sprite driven by enemy FSM state
+      const scale = (enemy.height / 140) * 1.7;
+      sprite.setScale(scale);
+      sprite.setPosition(screenX, screenY);
+      sprite.setFlipX(enemy.facing === -1);
+      sprite.setDepth(enemy.pos.y);
+      playState(sprite, enemy.spriteKey, enemy.fsm.currentState);
 
       const state = enemy.fsm.currentState;
-      const col =
-        state === 'hurt'
-          ? 0xff6666
-          : state === 'down' || state === 'get_up'
-            ? 0x664444
-            : enemy.color;
+      if (state === 'hurt') sprite.setTint(0xff8888);
+      else sprite.clearTint();
 
-      gfx.fillStyle(col, 1);
-      gfx.fillRect(screenX - w / 2, screenY - h, w, h);
-
-      gfx.fillStyle(0xf4c89a, 1);
-      gfx.fillCircle(screenX, screenY - h + 12, 10);
-
-      // HP bar above enemy
+      // HP bar above the character
+      const h = enemy.height * 1.4;
       const hpRatio = enemy.hp / enemy.maxHp;
-      gfx.fillStyle(0x222222, 1);
-      gfx.fillRect(screenX - 20, screenY - h - 10, 40, 4);
-      gfx.fillStyle(hpRatio > 0.5 ? 0x22cc44 : hpRatio > 0.25 ? 0xccaa22 : 0xcc2222, 1);
-      gfx.fillRect(screenX - 20, screenY - h - 10, Math.round(40 * hpRatio), 4);
-
-      gfx.setDepth(enemy.pos.y);
+      hud.clear();
+      hud.fillStyle(0x000000, 0.6);
+      hud.fillRect(screenX - 22, screenY - h - 12, 44, 6);
+      hud.fillStyle(0x222222, 1);
+      hud.fillRect(screenX - 20, screenY - h - 11, 40, 4);
+      hud.fillStyle(hpRatio > 0.5 ? 0x22cc44 : hpRatio > 0.25 ? 0xccaa22 : 0xcc2222, 1);
+      hud.fillRect(screenX - 20, screenY - h - 11, Math.round(40 * hpRatio), 4);
+      hud.setDepth(enemy.pos.y + 1);
     }
   }
 
@@ -424,11 +415,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Debug spawning
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_GRUNT].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'grunt');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_SPEEDSTER].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'speedster');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_TANK].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'tank');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_ZONER].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'zoner');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_MINIBOSS].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'miniboss');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_GRUNT].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'grunt', 'enemy_001');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_SPEEDSTER].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'speedster', 'enemy_005');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_TANK].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'tank', 'enemy_004');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_ZONER].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'zoner', 'enemy_003');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_MINIBOSS].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'miniboss', 'enemy_009');
     if (snap[INPUT_ACTIONS.DEBUG_FILL_BRONCA].justPressed) {
       this.broncaMeter = BRONCA_MAX;
       this.updateBroncaBar();

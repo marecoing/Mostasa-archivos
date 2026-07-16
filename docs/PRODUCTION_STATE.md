@@ -1,7 +1,7 @@
 # MOSTASA'S RAGE — PRODUCTION STATE
 
 ## Versión actual: 0.1.0
-## Última actualización: 2026-07-13
+## Última actualización: 2026-07-16
 ## Rama: claude/mostasas-rage-game-build-ausmwi
 
 ---
@@ -141,11 +141,30 @@
 - `isGrabbing()` y `isAttacking()` incluyen estados nuevos; sprite tinted por estado
 - Debug: F (fill bronca), kill enemies, spawn todos los tipos
 
+### HITO 021 — Integración de sprite sheets reales del Escenario 1 ✅
+- 11 hojas de movimiento subidas por el usuario (Mostasa + enemigos 01-10),
+  fondo magenta `#FF00FF`, frames 140×140, 8 columnas (biblia §6, §18)
+- `scripts/process-sprites.mjs`: decodificador PNG propio (solo zlib) + key-out
+  de magenta con despill de bordes → `public/assets/characters/*.png` (RGBA)
+- Raw preservado en `assets/raw/characters/` (biblia §28); `npm run sprites:process`
+- `AnimationData.ts`: mapeo data-driven estado FSM → fila/frames de la hoja
+  (Mostasa usa las 12 filas canónicas; enemigos comparten filas 0-9)
+- `CharacterAnimator.ts`: carga de hojas, registro de animaciones Phaser,
+  `playState()` para dirigir clips desde el estado; clamp de frames fuera de rango
+- `GameScene.ts`: jugador y enemigos ahora son `Phaser.Sprite` animados con
+  flip por facing, depth-sort por Y, sombras, barras de HP y tint de daño
+- `PreloadScene.ts` carga las 11 hojas como spritesheets 140×140
+- Verificado end-to-end en navegador (Chromium headless): sprites renderizan,
+  animan, combate conecta (Bronca sube con hits), sin errores de runtime
+- 10 tests en `tests/unit/AnimationData.test.ts` (integridad de filas/columnas)
+
 ## HITOS PENDIENTES
 
-- HITO 021 — Sprites animados (sprite sheets) para Mostasa y enemigos
-- HITO 022 — Audio (SFX: golpes, salto, hurt; música: loop)
-- ... (hitos 023-060)
+- HITO 022 — Ajuste fino de filas de animación por enemigo (hurt/down/get_up)
+  y escalas por arquetipo
+- HITO 023 — Fondos parallax de los 5 paneles del Escenario 1 (biblia §14, §17)
+- HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
+- ... (hitos 025-060)
 
 ---
 
@@ -192,7 +211,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | PlayerStateMachine.test.ts      | 53     | ✅ OK  |
 | EnemyStateMachine.test.ts       | 35     | ✅ OK  |
 | CombatSystem.test.ts            | 26     | ✅ OK  |
-| **Total**                       | **187**| ✅ OK  |
+| AnimationData.test.ts           | 10     | ✅ OK  |
+| **Total**                       | **197**| ✅ OK  |
 
 ---
 
