@@ -1,6 +1,6 @@
-Object sprite batch generated from attached TXT.
-Final transparent assets are organized by category.
-sheets_alpha contains transparent source sheets.
-sheets_magenta_clean contains the same sheets composited on pure #FF00FF.
-raw_sheets_magenta contains copies of the generated source sheets.
-asset-manifest.json describes ids, categories, outputs, frame counts and suggested gameplay metadata.
+Generated modular scenarios from the attached TXT.
+Each stage has one normalized 5120x1024 strip and five 1024x1024 panels.
+raw_generated contains the unmodified generated image copies.
+strips_5120x1024 contains normalized wide strips.
+panels_1024x1024 contains the sliced five-panel exports per stage.
+scenario-manifest.json maps ids to strip and panel paths.

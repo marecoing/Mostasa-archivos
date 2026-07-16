@@ -1,0 +1,252 @@
+[
+  {
+    "id": "01-once",
+    "displayName": "Once",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/01-once.png",
+    "stripPath": "strips_5120x1024/01-once.png",
+    "panelPaths": [
+      "panels_1024x1024/01-once/01-once-panel-01.png",
+      "panels_1024x1024/01-once/01-once-panel-02.png",
+      "panels_1024x1024/01-once/01-once-panel-03.png",
+      "panels_1024x1024/01-once/01-once-panel-04.png",
+      "panels_1024x1024/01-once/01-once-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "02-estacion-oxidada",
+    "displayName": "Estacion Oxidada",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/02-estacion-oxidada.png",
+    "stripPath": "strips_5120x1024/02-estacion-oxidada.png",
+    "panelPaths": [
+      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-01.png",
+      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-02.png",
+      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-03.png",
+      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-04.png",
+      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "03-pasillo-del-conurbano",
+    "displayName": "Pasillo del Conurbano",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/03-pasillo-del-conurbano.png",
+    "stripPath": "strips_5120x1024/03-pasillo-del-conurbano.png",
+    "panelPaths": [
+      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-01.png",
+      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-02.png",
+      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-03.png",
+      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-04.png",
+      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "04-palermo-de-carton",
+    "displayName": "Palermo de Carton",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/04-palermo-de-carton.png",
+    "stripPath": "strips_5120x1024/04-palermo-de-carton.png",
+    "panelPaths": [
+      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-01.png",
+      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-02.png",
+      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-03.png",
+      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-04.png",
+      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "05-avenida-de-la-protesta",
+    "displayName": "Avenida de la Protesta",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/05-avenida-de-la-protesta.png",
+    "stripPath": "strips_5120x1024/05-avenida-de-la-protesta.png",
+    "panelPaths": [
+      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-01.png",
+      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-02.png",
+      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-03.png",
+      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-04.png",
+      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "06-catalinas-del-humo",
+    "displayName": "Catalinas del Humo",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/06-catalinas-del-humo.png",
+    "stripPath": "strips_5120x1024/06-catalinas-del-humo.png",
+    "panelPaths": [
+      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-01.png",
+      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-02.png",
+      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-03.png",
+      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-04.png",
+      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "07-puerto-del-country",
+    "displayName": "Puerto del Country",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/07-puerto-del-country.png",
+    "stripPath": "strips_5120x1024/07-puerto-del-country.png",
+    "panelPaths": [
+      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-01.png",
+      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-02.png",
+      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-03.png",
+      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-04.png",
+      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "08-galpon-del-acceso",
+    "displayName": "Galpon del Acceso",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/08-galpon-del-acceso.png",
+    "stripPath": "strips_5120x1024/08-galpon-del-acceso.png",
+    "panelPaths": [
+      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-01.png",
+      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-02.png",
+      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-03.png",
+      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-04.png",
+      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "09-pasillos-del-poder",
+    "displayName": "Pasillos del Poder",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/09-pasillos-del-poder.png",
+    "stripPath": "strips_5120x1024/09-pasillos-del-poder.png",
+    "panelPaths": [
+      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-01.png",
+      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-02.png",
+      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-03.png",
+      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-04.png",
+      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  },
+  {
+    "id": "10-casa-rosada-final",
+    "displayName": "Casa Rosada Final",
+    "type": "modularStage",
+    "panelCount": 5,
+    "stripWidth": 5120,
+    "stripHeight": 1024,
+    "panelWidth": 1024,
+    "panelHeight": 1024,
+    "sourcePath": "raw_generated/10-casa-rosada-final.png",
+    "stripPath": "strips_5120x1024/10-casa-rosada-final.png",
+    "panelPaths": [
+      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-01.png",
+      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-02.png",
+      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-03.png",
+      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-04.png",
+      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-05.png"
+    ],
+    "tags": [
+      "background",
+      "stage",
+      "2.5d",
+      "beat-em-up"
+    ]
+  }
+]
