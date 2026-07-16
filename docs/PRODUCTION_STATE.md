@@ -258,11 +258,30 @@
   para un clear impecable; sin errores de runtime
 - 6 tests en `RankSystem.test.ts` (bandas, bumps, Rosca, rangos válidos)
 
+### HITO 029 — Ataques enemigos, daño al jugador, vidas y game over ✅
+- `EnemyStateMachine`: nuevo estado ATTACK telegrafiado (windup 14 / active 5 /
+  recovery 18 frames, biblia §10); `startAttack()`, `isAttackActive()`;
+  interrumpible con un golpe (vulnerable durante el ataque)
+- `EnemyData`: cada tipo gana `attackDamage/attackRange/attackCooldown`; nuevo
+  tipo `boss`
+- `EnemyEntity`: IA decide atacar en rango (presiona hasta entrar), cooldown,
+  `consumeAttackHit()` (daño una vez por swing, solo en frames activos, con
+  jugador de frente/en rango/misma profundidad); animación de ataque (fila 3)
+- `GameScene`: **sistema de tokens de ataque** (máx 2 atacantes simultáneos,
+  §10); el jugador recibe daño → HURT + knockback + i-frames (48f) con
+  parpadeo + shake + VFX; barra de AGUANTE dinámica; **3 vidas**; al morir se
+  pierde vida y respawnea con gracia; sin vidas → **GAME OVER** → título;
+  HUD dinámico (★ score + ♥ vidas)
+- Verificado en navegador (dump de estado): HP 100→92→76 por ataques de grunts,
+  i-frames y knockback funcionando; enemigos en estado 'attack' con telegrafía
+- 10 tests en `EnemyAttack.test.ts` (windows de ataque, interrupción, daño
+  una-vez/en-rango/de-frente, tokens)
+
 ## HITOS PENDIENTES
 
-- HITO 028 — Audio (SFX de golpes/salto/hurt, música loop del escenario)
-- HITO 029 — Ataques del boss (estados de ataque en el FSM enemigo) y pulido IA
-- HITO 030 — Props decorativos foreground + selección de escenario / campaña
+- HITO 030 — Audio (SFX de golpes/salto/hurt + música loop del escenario)
+- HITO 031 — Ataques del boss diferenciados (caño, carga) y pulido de fases
+- HITO 032 — Props decorativos foreground + selección de escenario / campaña
 - HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
 - ... (hitos 025-060)
 
@@ -315,7 +334,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | AssetSystems.test.ts            | 20     | ✅ OK  |
 | WaveSystem.test.ts              | 10     | ✅ OK  |
 | RankSystem.test.ts              | 6      | ✅ OK  |
-| **Total**                       | **245**| ✅ OK  |
+| EnemyAttack.test.ts             | 10     | ✅ OK  |
+| **Total**                       | **255**| ✅ OK  |
 
 ---
 

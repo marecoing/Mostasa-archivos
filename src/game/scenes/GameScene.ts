@@ -119,6 +119,10 @@ export class GameScene extends Phaser.Scene {
   private stageStartMs = 0;
   private bossPhase2Done = false;
   private stageEnded = false;
+  private aguanteBar!: Phaser.GameObjects.Graphics;
+  private hudInfoText!: Phaser.GameObjects.Text;
+  private playerIFrames = 0;
+  private playerLives = 3;
 
   constructor() {
     super({ key: SCENE_KEYS.GAME });
@@ -508,6 +512,10 @@ export class GameScene extends Phaser.Scene {
       this.playerSprite.clearTint();
     }
 
+    // Blink during invulnerability frames.
+    const blink = this.playerIFrames > 0 && Math.floor(this.playerIFrames / 4) % 2 === 0;
+    this.playerSprite.setAlpha(blink ? 0.4 : 1);
+
     this.updateHeldWeaponSprite(screenX, screenY);
   }
 
@@ -584,11 +592,12 @@ export class GameScene extends Phaser.Scene {
     const hpBg = this.add.graphics();
     hpBg.fillStyle(0x222222, 1);
     hpBg.fillRect(18, 42, 200, 10);
-    hpBg.fillStyle(0x22cc44, 1);
-    hpBg.fillRect(18, 42, 200, 10);
     hpBg.lineStyle(1, 0x44ff66, 0.5);
     hpBg.strokeRect(18, 42, 200, 10);
     hpBg.setScrollFactor(0).setDepth(301);
+
+    this.aguanteBar = this.add.graphics().setScrollFactor(0).setDepth(302);
+    this.updateAguanteBar();
 
     this.add
       .text(18, 58, 'BRONCA', { fontFamily: 'monospace', fontSize: '9px', color: '#888888' })
@@ -606,10 +615,25 @@ export class GameScene extends Phaser.Scene {
     this.broncaBar.setScrollFactor(0).setDepth(302);
     this.updateBroncaBar();
 
-    this.add
-      .text(18, 84, '♦ 0  ★ 000000  ♥ 3', { fontFamily: 'monospace', fontSize: '9px', color: '#aaaaaa' })
+    this.hudInfoText = this.add
+      .text(18, 84, '', { fontFamily: 'monospace', fontSize: '9px', color: '#aaaaaa' })
       .setScrollFactor(0)
       .setDepth(301);
+    this.updateHudInfo();
+  }
+
+  private updateAguanteBar(): void {
+    const ratio = Math.max(0, this.playerHp / this.playerMaxHp);
+    const w = Math.round(200 * ratio);
+    this.aguanteBar.clear();
+    const col = ratio > 0.5 ? 0x22cc44 : ratio > 0.25 ? 0xccaa22 : 0xcc2222;
+    this.aguanteBar.fillStyle(col, 1);
+    if (w > 0) this.aguanteBar.fillRect(18, 42, w, 10);
+  }
+
+  private updateHudInfo(): void {
+    const hearts = '♥'.repeat(Math.max(0, this.playerLives));
+    this.hudInfoText.setText(`★ ${String(this.score).padStart(6, '0')}   ${hearts}`);
   }
 
   private updateBroncaBar(): void {
@@ -641,6 +665,8 @@ export class GameScene extends Phaser.Scene {
       this.hitstopFrames--;
       return;
     }
+
+    if (this.playerIFrames > 0) this.playerIFrames--;
 
     // Encounter progression (spawns, camera lock, movement gate).
     this.updateWaves();
@@ -806,6 +832,13 @@ export class GameScene extends Phaser.Scene {
       } else {
         this.playerVel.y = applyFriction(this.playerVel, FRICTION, dt).y;
       }
+    } else if (
+      this.fsm.currentState === PLAYER_STATE.HURT ||
+      this.fsm.currentState === PLAYER_STATE.DOWN
+    ) {
+      // Keep knockback momentum while stunned; let it decay.
+      this.playerVel.x = applyFriction(this.playerVel, FRICTION * 0.5, dt).x;
+      this.playerVel.y = applyFriction(this.playerVel, FRICTION * 0.5, dt).y;
     } else {
       this.playerVel.x = 0;
       this.playerVel.y = 0;
@@ -836,12 +869,60 @@ export class GameScene extends Phaser.Scene {
     // Encounter movement gate: can't leave an active arena until it clears.
     this.playerPos.x = Math.max(this.waveGateMinX, Math.min(this.playerPos.x, this.waveSystem.gateX));
 
-    // Tick enemy physics
+    // Tick enemy physics + attacks (attack-token limited, Biblia §10).
+    const MAX_ATTACKERS = 2;
+    let attackingNow = this.enemies.reduce(
+      (n, e) => n + (e && !e.dead && e.fsm.isAttacking() ? 1 : 0), 0);
     for (const enemy of this.enemies) {
-      if (enemy) {
-        enemy.tickPhysics(this.playerPos.x, this.playerPos.y, STAGE_LANE);
-      }
+      if (!enemy || enemy.dead) continue;
+      const wasAttacking = enemy.fsm.isAttacking();
+      const allow = attackingNow < MAX_ATTACKERS;
+      enemy.tickPhysics(this.playerPos.x, this.playerPos.y, STAGE_LANE, allow);
+      if (!wasAttacking && enemy.fsm.isAttacking()) attackingNow++;
+      const dmg = enemy.consumeAttackHit(this.playerPos.x, this.playerPos.y, this.playerPos.z);
+      if (dmg > 0) this.damagePlayer(dmg, enemy.facing);
     }
+  }
+
+  private damagePlayer(dmg: number, fromFacing: 1 | -1): void {
+    if (this.stageEnded || this.playerIFrames > 0) return;
+    if (this.fsm.currentState === PLAYER_STATE.DOWN) return;
+
+    this.playerHp = Math.max(0, this.playerHp - dmg);
+    this.updateAguanteBar();
+    this.playerIFrames = 48;
+    this.camera.triggerShake(SHAKE_MEDIUM);
+    this.playVfxAtWorld('impacto_puno', this.playerPos.x, this.playerPos.y, this.playerPos.z + 40);
+
+    if (this.playerHp <= 0) {
+      this.onPlayerDown();
+    } else {
+      this.fsm.forceHurt();
+      this.playerVel.x = fromFacing * 260;
+      this.playerVel.z = 130;
+    }
+  }
+
+  private onPlayerDown(): void {
+    this.fsm.forceDown();
+    this.playerLives -= 1;
+    this.updateHudInfo();
+    if (this.playerLives <= 0) {
+      this.gameOver();
+    } else {
+      // Respawn with a fresh bar and a long grace period.
+      this.playerHp = this.playerMaxHp;
+      this.updateAguanteBar();
+      this.playerIFrames = 150;
+    }
+  }
+
+  private gameOver(): void {
+    if (this.stageEnded) return;
+    this.stageEnded = true;
+    this.objectiveText?.setText('GAME OVER').setVisible(true);
+    this.cameras.main.fadeOut(900, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.TITLE));
   }
 
   private handleThrow(): void {
@@ -991,6 +1072,7 @@ export class GameScene extends Phaser.Scene {
     this.updateBreakableSprites();
     this.updatePickups(FIXED_TIMESTEP);
     this.updateWeapons(FIXED_TIMESTEP);
+    this.updateHudInfo();
     this.groundGraphics.setX(-this.camera.worldX);
 
     this.debugOverlay.render(

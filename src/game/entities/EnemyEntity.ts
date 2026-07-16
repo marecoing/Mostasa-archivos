@@ -25,6 +25,12 @@ export class EnemyEntity {
   dead = false;
   hitThisSwing = false;
   spriteKey: string;
+  attackDamage: number;
+  attackRange: number;
+  attackCooldown: number;
+  attackCooldownLeft = 0;
+  /** guards one damage application per attack swing */
+  dealtDamageThisAttack = false;
 
   constructor(x: number, y: number, stats: EnemyStats, spriteKey = 'enemy_001') {
     this.pos = { x, y, z: 0 };
@@ -37,8 +43,28 @@ export class EnemyEntity {
     this.color = stats.color;
     this.height = stats.height;
     this.type = stats.type;
+    this.attackDamage = stats.attackDamage;
+    this.attackRange = stats.attackRange;
+    this.attackCooldown = stats.attackCooldown;
     this.spriteKey = spriteKey;
     this.fsm = new EnemyStateMachine();
+  }
+
+  /**
+   * Returns the damage to apply to the player this frame, or 0. Fires once
+   * per attack, only during the active window and when the player is within
+   * reach and depth. The scene decides i-frames / actual application.
+   */
+  consumeAttackHit(playerX: number, playerY: number, playerZ: number): number {
+    if (this.dead || this.dealtDamageThisAttack) return 0;
+    if (!this.fsm.isAttackActive()) return 0;
+    if (Math.abs(playerY - this.pos.y) > 40) return 0;
+    if (Math.abs(playerZ - this.pos.z) > 60) return 0;
+    const dx = playerX - this.pos.x;
+    if (this.facing * dx < -12) return 0; // player must be in front
+    if (Math.abs(dx) > this.attackRange + 24) return 0;
+    this.dealtDamageThisAttack = true;
+    return this.attackDamage;
   }
 
   applyHit(attack: AttackDef, attackerFacing: 1 | -1): void {
@@ -82,7 +108,7 @@ export class EnemyEntity {
     if (this.hp <= 0) this.dead = true;
   }
 
-  tickPhysics(playerX: number, playerY: number, lane: StageLane): void {
+  tickPhysics(playerX: number, playerY: number, lane: StageLane, attackAllowed = false): void {
     if (this.dead) return;
 
     if (this.hitstopRemaining > 0) {
@@ -90,10 +116,16 @@ export class EnemyEntity {
       return;
     }
 
+    if (this.attackCooldownLeft > 0) this.attackCooldownLeft--;
     this.fsm.tick();
+    if (!this.fsm.isAttacking()) this.dealtDamageThisAttack = false;
 
-    if (this.fsm.canMove()) {
-      this.tickAI(playerX, playerY);
+    if (this.fsm.isAttacking()) {
+      // Anchored while swinging; face the player during the windup.
+      this.vel.x = 0;
+      this.vel.y = 0;
+    } else if (this.fsm.canMove()) {
+      this.tickAI(playerX, playerY, attackAllowed);
     } else if (!this.fsm.isGrabbed()) {
       const f = applyFriction(this.vel, KNOCKBACK_FRICTION, FIXED_TIMESTEP);
       this.vel.x = f.x;
@@ -131,17 +163,34 @@ export class EnemyEntity {
     }
   }
 
-  private tickAI(playerX: number, playerY: number): void {
+  private tickAI(playerX: number, playerY: number, attackAllowed: boolean): void {
     const dx = playerX - this.pos.x;
     const dy = playerY - this.pos.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
+    this.facing = dx >= 0 ? 1 : -1;
+
+    const inRange = Math.abs(dx) <= this.attackRange && Math.abs(dy) <= 40;
+
+    // Commit to a telegraphed attack when in range, off cooldown and a token
+    // is available.
+    if (inRange && this.attackCooldownLeft <= 0 && attackAllowed && this.fsm.startAttack()) {
+      this.attackCooldownLeft = this.attackCooldown;
+      this.vel.x = 0;
+      this.vel.y = 0;
+      return;
+    }
 
     if (dist > 65) {
       this.fsm.setWalking();
       const scale = this.walkSpeed / dist;
       this.vel.x = dx * scale;
       this.vel.y = dy * scale;
-      this.facing = dx >= 0 ? 1 : -1;
+    } else if (Math.abs(dx) > this.attackRange - 8 || Math.abs(dy) > 30) {
+      // Close enough to loiter but not yet in strike range → keep pressing in.
+      this.fsm.setWalking();
+      const scale = (this.walkSpeed * 0.7) / Math.max(1, dist);
+      this.vel.x = dx * scale;
+      this.vel.y = dy * scale;
     } else {
       this.fsm.setIdle();
       this.vel.x = 0;

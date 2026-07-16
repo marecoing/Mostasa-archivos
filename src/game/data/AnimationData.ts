@@ -101,6 +101,7 @@ export const MOSTASA_ANIMS: Record<string, AnimClip> = {
 export const ENEMY_ANIMS_COMMON: Record<string, AnimClip> = {
   idle:    clip(0, 0, 8, 8, true),
   walk:    clip(1, 0, 8, 12, true),
+  attack:  clip(3, 0, 8, 14),
   hurt:    clip(6, 0, 4, 18),
   down:    clip(6, 0, 8, 12),
   get_up:  clip(6, 0, 8, 22, false, true),
@@ -111,6 +112,7 @@ export const ENEMY_ANIMS_COMMON: Record<string, AnimClip> = {
 export const ENEMY_ANIMS_MINIBOSS: Record<string, AnimClip> = {
   idle:    clip(0, 0, 8, 8, true),
   walk:    clip(1, 0, 8, 12, true),
+  attack:  clip(3, 0, 8, 14),
   hurt:    clip(8, 0, 4, 18),
   down:    clip(8, 0, 8, 12),
   get_up:  clip(8, 0, 8, 22, false, true),
@@ -121,6 +123,7 @@ export const ENEMY_ANIMS_MINIBOSS: Record<string, AnimClip> = {
 export const ENEMY_ANIMS_BOSS: Record<string, AnimClip> = {
   idle:    clip(0, 0, 8, 8, true),
   walk:    clip(1, 0, 8, 12, true),
+  attack:  clip(3, 0, 8, 14),
   hurt:    clip(6, 0, 5, 18),
   down:    clip(6, 0, 8, 12),
   get_up:  clip(6, 0, 8, 22, false, true),

@@ -1,6 +1,7 @@
 export const ENEMY_STATE = {
   IDLE: 'idle',
   WALK: 'walk',
+  ATTACK: 'attack',
   HURT: 'hurt',
   DOWN: 'down',
   GET_UP: 'get_up',
@@ -11,6 +12,12 @@ export type EnemyStateId = (typeof ENEMY_STATE)[keyof typeof ENEMY_STATE];
 
 const DOWN_FRAMES = 40;
 const GET_UP_FRAMES = 20;
+
+// Telegraphed attack (Biblia §10: telegráficos claros, sin reacción instantánea).
+export const ATTACK_WINDUP = 14;
+export const ATTACK_ACTIVE = 5;
+export const ATTACK_RECOVERY = 18;
+export const ATTACK_TOTAL = ATTACK_WINDUP + ATTACK_ACTIVE + ATTACK_RECOVERY;
 
 export class EnemyStateMachine {
   private state: EnemyStateId = ENEMY_STATE.IDLE;
@@ -31,6 +38,25 @@ export class EnemyStateMachine {
 
   isVulnerable(): boolean {
     return this.state !== ENEMY_STATE.GET_UP && this.state !== ENEMY_STATE.GRABBED;
+  }
+
+  isAttacking(): boolean {
+    return this.state === ENEMY_STATE.ATTACK;
+  }
+
+  /** True only during the active (damaging) frames of an attack. */
+  isAttackActive(): boolean {
+    return (
+      this.state === ENEMY_STATE.ATTACK &&
+      this.frame >= ATTACK_WINDUP &&
+      this.frame < ATTACK_WINDUP + ATTACK_ACTIVE
+    );
+  }
+
+  startAttack(): boolean {
+    if (this.state !== ENEMY_STATE.IDLE && this.state !== ENEMY_STATE.WALK) return false;
+    this.enterState(ENEMY_STATE.ATTACK);
+    return true;
   }
 
   isGrabbed(): boolean {
@@ -86,6 +112,11 @@ export class EnemyStateMachine {
         break;
       case ENEMY_STATE.GET_UP:
         if (this.frame >= GET_UP_FRAMES) {
+          this.enterState(ENEMY_STATE.IDLE);
+        }
+        break;
+      case ENEMY_STATE.ATTACK:
+        if (this.frame >= ATTACK_TOTAL) {
           this.enterState(ENEMY_STATE.IDLE);
         }
         break;
