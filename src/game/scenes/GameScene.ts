@@ -24,13 +24,29 @@ import {
   checkPlayerHitsEnemies,
   checkGrabRange,
   getRadialHits,
+  checkPlayerHitsBreakables,
 } from '../systems/CombatSystem';
 import { registerAllCharacterAnims, playState } from '../systems/CharacterAnimator';
 import { gridFor } from '../data/AnimationData';
+import { StageBackground } from '../systems/StageBackground';
+import { VfxSystem } from '../systems/VfxSystem';
+import { breakableKey, itemKey } from '../systems/AssetLoader';
+import { stageById } from '../data/StageManifest';
+import { BREAKABLES } from '../data/BreakableManifest';
+import { rollDrop } from '../data/BreakableManifest';
+import { DROPPABLES } from '../data/ItemManifest';
+import { BreakableEntity } from '../entities/BreakableEntity';
+import { PickupEntity } from '../entities/PickupEntity';
 
-const PLAYER_SPRITE_SCALE = 0.7;
+const PLAYER_SPRITE_SCALE = 0.9;
 const SPRITE_ORIGIN_Y = 0.95;
-const ENEMY_SCREEN_HEIGHT_K = 1.5;
+const ENEMY_SCREEN_HEIGHT_K = 1.9;
+/**
+ * Vertical render offset (screen px) that drops the 2.5D character lane down
+ * onto the painted floor of the stage backdrop. Applied via worldToScreen's
+ * cameraY on render calls only — physics/logic are unaffected.
+ */
+const FLOOR_OFFSET = 168;
 
 const WALK_SPEED_X = 280;
 const WALK_SPEED_Y = 210;
@@ -77,6 +93,16 @@ export class GameScene extends Phaser.Scene {
   private broncaMeter = 0;
   private broncaBar!: Phaser.GameObjects.Graphics;
 
+  private stageBg?: StageBackground;
+  private vfx!: VfxSystem;
+  private breakables: BreakableEntity[] = [];
+  private breakableSprites: Phaser.GameObjects.Sprite[] = [];
+  private pickups: PickupEntity[] = [];
+  private pickupSprites: Phaser.GameObjects.Sprite[] = [];
+  private playerHp = 100;
+  private readonly playerMaxHp = 100;
+  private score = 0;
+
   constructor() {
     super({ key: SCENE_KEYS.GAME });
   }
@@ -84,12 +110,14 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     this.cameras.main.setBackgroundColor('#0a0a18');
     registerAllCharacterAnims(this);
+    this.createStageBackground();
     this.setupSystems();
     this.createGround();
     this.createPlayerSprite();
     this.createHUD();
     this.createDebugUI();
     this.spawnInitialWave();
+    this.spawnBreakables();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
     const noticeText = this.add
@@ -118,6 +146,37 @@ export class GameScene extends Phaser.Scene {
     this.camera = new CameraSystem(createDefaultCameraConfig(STAGE_LANE.maxX, GAME_WIDTH, GAME_HEIGHT));
     this.fsm = new PlayerStateMachine();
     this.debugOverlay = new DebugOverlay(this);
+    this.vfx = new VfxSystem(this);
+  }
+
+  private createStageBackground(): void {
+    const stage = stageById('01-once');
+    if (!stage) return;
+    const bg = new StageBackground(this, stage);
+    if (!bg.isReady) return;
+    this.stageBg = bg;
+    // Extend the walkable lane to span the full painted background.
+    STAGE_LANE.maxX = Math.max(STAGE_LANE.maxX, Math.round(bg.worldWidth - 200));
+  }
+
+  private spawnBreakables(): void {
+    // A few destructibles laid along the Once street (Biblia §13/§14).
+    const layout: { id: string; x: number; y: number }[] = [
+      { id: 'cajon_rompible', x: 720, y: 560 },
+      { id: 'tacho_basura_rompible', x: 1050, y: 500 },
+      { id: 'puesto_diarios_ficticio', x: 1500, y: 560 },
+      { id: 'vidriera_rota', x: 1950, y: 460 },
+      { id: 'cono_transito', x: 2350, y: 540 },
+      { id: 'barril_plastico', x: 2800, y: 520 },
+    ];
+    for (const item of layout) {
+      const def = BREAKABLES[item.id];
+      if (!def || !this.textures.exists(breakableKey(item.id))) continue;
+      const ent = new BreakableEntity(def, item.x, item.y);
+      const sprite = this.add.sprite(0, 0, breakableKey(item.id), 0).setOrigin(0.5, 0.92);
+      this.breakables.push(ent);
+      this.breakableSprites.push(sprite);
+    }
   }
 
   private spawnInitialWave(): void {
@@ -149,6 +208,10 @@ export class GameScene extends Phaser.Scene {
   private createGround(): void {
     this.groundGraphics = this.add.graphics();
     this.drawGround();
+    // The painted stage backdrop replaces the procedural grid when present.
+    if (this.stageBg) {
+      this.groundGraphics.setVisible(false);
+    }
   }
 
   private drawGround(): void {
@@ -227,7 +290,7 @@ export class GameScene extends Phaser.Scene {
       this.playerPos.y,
       this.playerPos.z,
       camX,
-      0,
+      -FLOOR_OFFSET,
     );
 
     const { screenX: shadowX, screenY: shadowY } = worldToScreen(
@@ -235,7 +298,7 @@ export class GameScene extends Phaser.Scene {
       this.playerPos.y,
       GROUND_Z,
       camX,
-      0,
+      -FLOOR_OFFSET,
     );
 
     this.playerShadow.clear();
@@ -278,8 +341,8 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
 
-      const { screenX, screenY } = worldToScreen(enemy.pos.x, enemy.pos.y, enemy.pos.z, camX, 0);
-      const { screenX: sx, screenY: sy } = worldToScreen(enemy.pos.x, enemy.pos.y, GROUND_Z, camX, 0);
+      const { screenX, screenY } = worldToScreen(enemy.pos.x, enemy.pos.y, enemy.pos.z, camX, -FLOOR_OFFSET);
+      const { screenX: sx, screenY: sy } = worldToScreen(enemy.pos.x, enemy.pos.y, GROUND_Z, camX, -FLOOR_OFFSET);
 
       shadow.clear();
       shadow.fillStyle(0x000000, 0.35);
@@ -477,6 +540,7 @@ export class GameScene extends Phaser.Scene {
         this.enemies,
       );
       let maxHitstop = 0;
+      const heavy = this.activeAttack.damage >= 18;
       for (const idx of hits) {
         const enemy = this.enemies[idx];
         if (!enemy) continue;
@@ -485,15 +549,31 @@ export class GameScene extends Phaser.Scene {
         this.updateBroncaBar();
         maxHitstop = Math.max(maxHitstop, this.activeAttack.hitstopFrames);
         this.camera.triggerShake(SHAKE_LIGHT);
+        this.playVfxAtWorld(heavy ? 'impacto_pesado' : 'impacto_puno', enemy.pos.x, enemy.pos.y, enemy.pos.z + 40);
       }
       if (maxHitstop > 0) {
         this.hitstopFrames = maxHitstop;
+      }
+
+      // Hitbox vs breakables
+      const bHits = checkPlayerHitsBreakables(
+        this.playerPos.x, this.playerPos.y, this.playerFacing, this.activeAttack, this.breakables,
+      );
+      for (const idx of bHits) {
+        const b = this.breakables[idx];
+        if (!b) continue;
+        b.hitThisSwing = true;
+        const broke = b.applyHit(this.activeAttack.damage);
+        this.playVfxAtWorld('chispas_metal', b.x, b.y, 60);
+        this.camera.triggerShake(SHAKE_LIGHT);
+        if (broke) this.onBreakableDestroyed(b);
       }
     } else {
       // Clear hitThisSwing when there's no active attack (between swings)
       for (const enemy of this.enemies) {
         if (enemy && !enemy.dead) enemy.hitThisSwing = false;
       }
+      for (const b of this.breakables) if (!b.destroyed) b.hitThisSwing = false;
     }
 
     // Handle movement
@@ -568,7 +648,92 @@ export class GameScene extends Phaser.Scene {
     for (const idx of hits) {
       this.enemies[idx]?.applySpecialHit();
     }
-    if (hits.length > 0) this.camera.triggerShake(SHAKE_MEDIUM);
+    this.playVfxAtWorld('bronca_especial', this.playerPos.x, this.playerPos.y, 70);
+    this.camera.triggerShake(SHAKE_MEDIUM);
+  }
+
+  /** Play a VFX at a world position (projected to screen). */
+  private playVfxAtWorld(id: string, worldX: number, worldY: number, worldZ: number, scaleMul = 1): void {
+    const camX = this.camera?.worldX ?? 0;
+    const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET);
+    this.vfx.play(id, screenX, screenY, worldY + 200, scaleMul);
+  }
+
+  private onBreakableDestroyed(b: BreakableEntity): void {
+    this.playVfxAtWorld(b.def.destroyVfx, b.x, b.y, 70, 1.2);
+    this.camera.triggerShake(SHAKE_MEDIUM);
+    this.score += 50;
+    const dropId = rollDrop(b.def, Math.random());
+    if (dropId) this.spawnPickup(dropId, b.x, b.y);
+  }
+
+  private spawnPickup(itemId: string, x: number, y: number): void {
+    const def = DROPPABLES[itemId];
+    if (!def || !this.textures.exists(itemKey(itemId))) return;
+    const ent = new PickupEntity(def, x, y);
+    const sprite = this.add.sprite(0, 0, itemKey(itemId)).setOrigin(0.5, 0.9).setScale(0.28);
+    this.pickups.push(ent);
+    this.pickupSprites.push(sprite);
+  }
+
+  private applyPickup(def: import('../data/ItemManifest').PickupDef): void {
+    switch (def.effect) {
+      case 'health':
+        this.playerHp = Math.min(this.playerMaxHp, this.playerHp + def.amount);
+        break;
+      case 'rage':
+        this.broncaMeter = Math.min(BRONCA_MAX, this.broncaMeter + def.amount);
+        this.updateBroncaBar();
+        break;
+      case 'energy':
+        this.broncaMeter = Math.min(BRONCA_MAX, this.broncaMeter + Math.round(def.amount * 0.5));
+        this.updateBroncaBar();
+        break;
+      case 'money':
+        this.score += def.amount;
+        break;
+      case 'collectible':
+      case 'key_item':
+        this.score += 500;
+        break;
+    }
+  }
+
+  private updateBreakableSprites(): void {
+    const camX = this.camera?.worldX ?? 0;
+    for (let i = 0; i < this.breakables.length; i++) {
+      const b = this.breakables[i];
+      const sprite = this.breakableSprites[i];
+      if (!b || !sprite) continue;
+      if (b.destroyed) { sprite.setVisible(false); continue; }
+      const { screenX, screenY } = worldToScreen(b.x, b.y, 0, camX, -FLOOR_OFFSET);
+      sprite.setFrame(b.damageFrame());
+      sprite.setPosition(screenX, screenY);
+      sprite.setDepth(b.y);
+    }
+  }
+
+  private updatePickups(dt: number): void {
+    const camX = this.camera?.worldX ?? 0;
+    for (let i = 0; i < this.pickups.length; i++) {
+      const p = this.pickups[i];
+      const sprite = this.pickupSprites[i];
+      if (!p || !sprite) continue;
+      if (p.collected) { sprite.setVisible(false); continue; }
+
+      p.tick(GRAVITY, dt, GROUND_Z);
+
+      if (p.isInRange(this.playerPos.x, this.playerPos.y, 46, 60)) {
+        p.collected = true;
+        sprite.setVisible(false);
+        this.applyPickup(p.def);
+        continue;
+      }
+
+      const { screenX, screenY } = worldToScreen(p.x, p.y, p.z, camX, -FLOOR_OFFSET);
+      sprite.setPosition(screenX, screenY);
+      sprite.setDepth(p.y + 5);
+    }
   }
 
   update(_time: number, delta: number): void {
@@ -610,8 +775,11 @@ export class GameScene extends Phaser.Scene {
     this.camera.follow(this.playerPos.x, this.playerPos.y);
     this.camera.update(delta);
 
+    this.stageBg?.update(this.camera.worldX);
     this.updatePlayerSpritePosition();
     this.updateEnemySprites();
+    this.updateBreakableSprites();
+    this.updatePickups(FIXED_TIMESTEP);
     this.groundGraphics.setX(-this.camera.worldX);
 
     this.debugOverlay.render(

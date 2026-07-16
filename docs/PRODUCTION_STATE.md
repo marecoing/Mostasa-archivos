@@ -178,9 +178,37 @@
 - 24 tests en `AnimationData.test.ts` (incluye validación de que cada grid
   tesela su hoja exactamente)
 
+### HITO 023 — Integración de assets: escenarios, rompibles, VFX, ítems ✅
+- **Auditoría** de 223 PNGs nuevos + 2 manifests: 0 corruptos, 0 duplicados,
+  0 mismatches de dimensión vs `asset-manifest.json`. Detectadas y corregidas
+  60 referencias rotas en `scenario-manifest.json` (apuntaban a
+  `strips_5120x1024/` y `panels_1024x1024/` inexistentes; archivos en la raíz).
+- Assets de runtime copiados (no destructivo) a `public/assets/{stages,vfx,
+  weapons,pickups,destructibles,props,rewards,ui}` (~13MB); Escenario 1 (Once)
+  a `public/assets/stages/once/`. Fuentes y escenarios 2-10 quedan en la raíz
+  (lazy-load por escenario, biblia §32).
+- Manifests de código (biblia §40): `StageManifest.ts` (10 escenarios),
+  `ItemManifest.ts` (10 armas + 11 pickups + 5 rewards), `BreakableManifest.ts`
+  (6 rompibles con durabilidad §13, drop tables, VFX), `VfxManifest.ts` (6 VFX).
+- Sistemas nuevos: `StageBackground.ts` (fondo desplazable 1:1 con la cámara,
+  5 paneles 1024², extiende la lane al ancho del escenario), `VfxSystem.ts`
+  (anims one-shot ADD-blend), `AssetLoader.ts` (preload centralizado),
+  entidades `BreakableEntity` y `PickupEntity` (lógica pura testeable).
+- `GameScene.ts`: renderiza el fondo real de Once (reemplaza la grilla), spawnea
+  6 rompibles, colisión ataque→rompible (`checkPlayerHitsBreakables`), destrucción
+  con VFX + drop (rollDrop) + score, pickups con física de spawn y colección por
+  proximidad (health/rage/energy/money). VFX de impacto en cada golpe a enemigo,
+  chispas al pegar rompibles, `bronca_especial` en el especial. Offset de piso
+  (`FLOOR_OFFSET`) alinea la lane 2.5D con el piso pintado.
+- Fix: TDZ por import circular (campo estático usaba `GAME_HEIGHT`) → movido al
+  constructor. Verificado end-to-end en navegador: fondo, rompibles, combate,
+  VFX y Bronca funcionando sin errores de runtime.
+- 16 tests nuevos en `AssetSystems.test.ts` (drops, rompibles, pickups,
+  colisión, integridad de los 4 manifests).
+
 ## HITOS PENDIENTES
 
-- HITO 023 — Fondos parallax de los 5 paneles del Escenario 1 (biblia §14, §17)
+- HITO 024 — Wiring de armas equipables (pickup de arma → daño modificado)
 - HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
 - ... (hitos 025-060)
 
@@ -230,7 +258,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | EnemyStateMachine.test.ts       | 35     | ✅ OK  |
 | CombatSystem.test.ts            | 26     | ✅ OK  |
 | AnimationData.test.ts           | 24     | ✅ OK  |
-| **Total**                       | **211**| ✅ OK  |
+| AssetSystems.test.ts            | 16     | ✅ OK  |
+| **Total**                       | **227**| ✅ OK  |
 
 ---
 

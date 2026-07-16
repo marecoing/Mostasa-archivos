@@ -1,6 +1,27 @@
 import { sameDepth } from '../core/Physics25D';
 import type { AttackDef } from '../data/AttackData';
 import type { EnemyEntity } from '../entities/EnemyEntity';
+import type { BreakableEntity } from '../entities/BreakableEntity';
+
+export function checkPlayerHitsBreakables(
+  playerX: number,
+  playerY: number,
+  playerFacing: 1 | -1,
+  attack: AttackDef,
+  breakables: readonly BreakableEntity[],
+): number[] {
+  const hitIndices: number[] = [];
+  const hbX = playerX + attack.hitboxOffsetX * playerFacing;
+
+  for (let i = 0; i < breakables.length; i++) {
+    const b = breakables[i];
+    if (!b || b.destroyed || b.hitThisSwing) continue;
+    if (!sameDepth(playerY, b.y, 44)) continue;
+    const dx = Math.abs(hbX - b.x);
+    if (dx < attack.hitboxHalfW + b.def.halfW) hitIndices.push(i);
+  }
+  return hitIndices;
+}
 
 export function checkPlayerHitsEnemies(
   playerX: number,

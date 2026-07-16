@@ -9,13 +9,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/01-once.png",
-    "stripPath": "strips_5120x1024/01-once.png",
+    "stripPath": "01-once.png",
     "panelPaths": [
-      "panels_1024x1024/01-once/01-once-panel-01.png",
-      "panels_1024x1024/01-once/01-once-panel-02.png",
-      "panels_1024x1024/01-once/01-once-panel-03.png",
-      "panels_1024x1024/01-once/01-once-panel-04.png",
-      "panels_1024x1024/01-once/01-once-panel-05.png"
+      "01-once/01-once-panel-01.png",
+      "01-once/01-once-panel-02.png",
+      "01-once/01-once-panel-03.png",
+      "01-once/01-once-panel-04.png",
+      "01-once/01-once-panel-05.png"
     ],
     "tags": [
       "background",
@@ -34,13 +34,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/02-estacion-oxidada.png",
-    "stripPath": "strips_5120x1024/02-estacion-oxidada.png",
+    "stripPath": "02-estacion-oxidada.png",
     "panelPaths": [
-      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-01.png",
-      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-02.png",
-      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-03.png",
-      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-04.png",
-      "panels_1024x1024/02-estacion-oxidada/02-estacion-oxidada-panel-05.png"
+      "02-estacion-oxidada/02-estacion-oxidada-panel-01.png",
+      "02-estacion-oxidada/02-estacion-oxidada-panel-02.png",
+      "02-estacion-oxidada/02-estacion-oxidada-panel-03.png",
+      "02-estacion-oxidada/02-estacion-oxidada-panel-04.png",
+      "02-estacion-oxidada/02-estacion-oxidada-panel-05.png"
     ],
     "tags": [
       "background",
@@ -59,13 +59,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/03-pasillo-del-conurbano.png",
-    "stripPath": "strips_5120x1024/03-pasillo-del-conurbano.png",
+    "stripPath": "03-pasillo-del-conurbano.png",
     "panelPaths": [
-      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-01.png",
-      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-02.png",
-      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-03.png",
-      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-04.png",
-      "panels_1024x1024/03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-05.png"
+      "03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-01.png",
+      "03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-02.png",
+      "03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-03.png",
+      "03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-04.png",
+      "03-pasillo-del-conurbano/03-pasillo-del-conurbano-panel-05.png"
     ],
     "tags": [
       "background",
@@ -84,13 +84,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/04-palermo-de-carton.png",
-    "stripPath": "strips_5120x1024/04-palermo-de-carton.png",
+    "stripPath": "04-palermo-de-carton.png",
     "panelPaths": [
-      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-01.png",
-      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-02.png",
-      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-03.png",
-      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-04.png",
-      "panels_1024x1024/04-palermo-de-carton/04-palermo-de-carton-panel-05.png"
+      "04-palermo-de-carton/04-palermo-de-carton-panel-01.png",
+      "04-palermo-de-carton/04-palermo-de-carton-panel-02.png",
+      "04-palermo-de-carton/04-palermo-de-carton-panel-03.png",
+      "04-palermo-de-carton/04-palermo-de-carton-panel-04.png",
+      "04-palermo-de-carton/04-palermo-de-carton-panel-05.png"
     ],
     "tags": [
       "background",
@@ -109,13 +109,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/05-avenida-de-la-protesta.png",
-    "stripPath": "strips_5120x1024/05-avenida-de-la-protesta.png",
+    "stripPath": "05-avenida-de-la-protesta.png",
     "panelPaths": [
-      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-01.png",
-      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-02.png",
-      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-03.png",
-      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-04.png",
-      "panels_1024x1024/05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-05.png"
+      "05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-01.png",
+      "05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-02.png",
+      "05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-03.png",
+      "05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-04.png",
+      "05-avenida-de-la-protesta/05-avenida-de-la-protesta-panel-05.png"
     ],
     "tags": [
       "background",
@@ -134,13 +134,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/06-catalinas-del-humo.png",
-    "stripPath": "strips_5120x1024/06-catalinas-del-humo.png",
+    "stripPath": "06-catalinas-del-humo.png",
     "panelPaths": [
-      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-01.png",
-      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-02.png",
-      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-03.png",
-      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-04.png",
-      "panels_1024x1024/06-catalinas-del-humo/06-catalinas-del-humo-panel-05.png"
+      "06-catalinas-del-humo/06-catalinas-del-humo-panel-01.png",
+      "06-catalinas-del-humo/06-catalinas-del-humo-panel-02.png",
+      "06-catalinas-del-humo/06-catalinas-del-humo-panel-03.png",
+      "06-catalinas-del-humo/06-catalinas-del-humo-panel-04.png",
+      "06-catalinas-del-humo/06-catalinas-del-humo-panel-05.png"
     ],
     "tags": [
       "background",
@@ -159,13 +159,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/07-puerto-del-country.png",
-    "stripPath": "strips_5120x1024/07-puerto-del-country.png",
+    "stripPath": "07-puerto-del-country.png",
     "panelPaths": [
-      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-01.png",
-      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-02.png",
-      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-03.png",
-      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-04.png",
-      "panels_1024x1024/07-puerto-del-country/07-puerto-del-country-panel-05.png"
+      "07-puerto-del-country/07-puerto-del-country-panel-01.png",
+      "07-puerto-del-country/07-puerto-del-country-panel-02.png",
+      "07-puerto-del-country/07-puerto-del-country-panel-03.png",
+      "07-puerto-del-country/07-puerto-del-country-panel-04.png",
+      "07-puerto-del-country/07-puerto-del-country-panel-05.png"
     ],
     "tags": [
       "background",
@@ -184,13 +184,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/08-galpon-del-acceso.png",
-    "stripPath": "strips_5120x1024/08-galpon-del-acceso.png",
+    "stripPath": "08-galpon-del-acceso.png",
     "panelPaths": [
-      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-01.png",
-      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-02.png",
-      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-03.png",
-      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-04.png",
-      "panels_1024x1024/08-galpon-del-acceso/08-galpon-del-acceso-panel-05.png"
+      "08-galpon-del-acceso/08-galpon-del-acceso-panel-01.png",
+      "08-galpon-del-acceso/08-galpon-del-acceso-panel-02.png",
+      "08-galpon-del-acceso/08-galpon-del-acceso-panel-03.png",
+      "08-galpon-del-acceso/08-galpon-del-acceso-panel-04.png",
+      "08-galpon-del-acceso/08-galpon-del-acceso-panel-05.png"
     ],
     "tags": [
       "background",
@@ -209,13 +209,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/09-pasillos-del-poder.png",
-    "stripPath": "strips_5120x1024/09-pasillos-del-poder.png",
+    "stripPath": "09-pasillos-del-poder.png",
     "panelPaths": [
-      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-01.png",
-      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-02.png",
-      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-03.png",
-      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-04.png",
-      "panels_1024x1024/09-pasillos-del-poder/09-pasillos-del-poder-panel-05.png"
+      "09-pasillos-del-poder/09-pasillos-del-poder-panel-01.png",
+      "09-pasillos-del-poder/09-pasillos-del-poder-panel-02.png",
+      "09-pasillos-del-poder/09-pasillos-del-poder-panel-03.png",
+      "09-pasillos-del-poder/09-pasillos-del-poder-panel-04.png",
+      "09-pasillos-del-poder/09-pasillos-del-poder-panel-05.png"
     ],
     "tags": [
       "background",
@@ -234,13 +234,13 @@
     "panelWidth": 1024,
     "panelHeight": 1024,
     "sourcePath": "raw_generated/10-casa-rosada-final.png",
-    "stripPath": "strips_5120x1024/10-casa-rosada-final.png",
+    "stripPath": "10-casa-rosada-final.png",
     "panelPaths": [
-      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-01.png",
-      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-02.png",
-      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-03.png",
-      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-04.png",
-      "panels_1024x1024/10-casa-rosada-final/10-casa-rosada-final-panel-05.png"
+      "10-casa-rosada-final/10-casa-rosada-final-panel-01.png",
+      "10-casa-rosada-final/10-casa-rosada-final-panel-02.png",
+      "10-casa-rosada-final/10-casa-rosada-final-panel-03.png",
+      "10-casa-rosada-final/10-casa-rosada-final-panel-04.png",
+      "10-casa-rosada-final/10-casa-rosada-final-panel-05.png"
     ],
     "tags": [
       "background",
