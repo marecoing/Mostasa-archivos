@@ -116,6 +116,9 @@ export class GameScene extends Phaser.Scene {
   private waveSystem!: WaveSystem;
   private waveGateMinX = 0;
   private objectiveText?: Phaser.GameObjects.Text;
+  private stageStartMs = 0;
+  private bossPhase2Done = false;
+  private stageEnded = false;
 
   constructor() {
     super({ key: SCENE_KEYS.GAME });
@@ -284,6 +287,7 @@ export class GameScene extends Phaser.Scene {
 
   private createWaveSystem(): void {
     this.waveSystem = new WaveSystem(ONCE_ENCOUNTERS, STAGE_LANE.maxX);
+    this.stageStartMs = this.time.now;
     this.objectiveText = this.add
       .text(GAME_WIDTH / 2, 40, '', {
         fontFamily: 'monospace', fontSize: '13px', color: '#ff6644',
@@ -320,16 +324,55 @@ export class GameScene extends Phaser.Scene {
     const zone = this.waveSystem.activeZone;
     this.waveGateMinX = zone ? zone.lockMinX : STAGE_LANE.minX;
 
+    this.updateBossPhase(zone?.kind === 'boss');
+
+    if (actions.stageCleared && !this.stageEnded) {
+      this.finishStage();
+      return;
+    }
+
     // Objective banner.
     if (this.objectiveText) {
       if (this.waveSystem.currentPhase === 'fighting') {
-        this.objectiveText.setText(`¡LIMPIÁ LA ZONA!  ENEMIGOS: ${alive}`).setVisible(true);
-      } else if (this.waveSystem.currentPhase === 'done') {
-        this.objectiveText.setText('¡ZONA DESPEJADA! → AVANZÁ').setVisible(true);
+        const label = zone?.kind === 'boss' ? '¡EL CAPATAZ NOCTURNO!' : zone?.kind === 'mini_boss' ? '¡EL CARTONERO BLINDADO!' : '¡LIMPIÁ LA ZONA!';
+        this.objectiveText.setText(`${label}  ENEMIGOS: ${alive}`).setVisible(true);
       } else {
         this.objectiveText.setVisible(false);
       }
     }
+  }
+
+  /** El Capataz: al 50% de HP entra en Fase 2 y convoca dos refuerzos. */
+  private updateBossPhase(inBossZone: boolean): void {
+    if (!inBossZone || this.bossPhase2Done) return;
+    const boss = this.enemies.find((e) => e && !e.dead && e.type === 'boss');
+    if (!boss) return;
+    if (boss.hp <= boss.maxHp * 0.5) {
+      this.bossPhase2Done = true;
+      this.camera.triggerShake(SHAKE_MEDIUM);
+      this.playVfxAtWorld('bronca_especial', boss.pos.x, boss.pos.y, 80, 1.4);
+      this.spawnEnemy(boss.pos.x + 140, 470, 'grunt', 'enemy_006');
+      this.spawnEnemy(boss.pos.x - 140, 540, 'grunt', 'enemy_007');
+    }
+  }
+
+  private finishStage(): void {
+    this.stageEnded = true;
+    this.score += 500; // pendrive federal
+    this.objectiveText?.setVisible(false);
+    const hpFraction = Math.max(0, this.playerHp / this.playerMaxHp);
+    const timeSeconds = (this.time.now - this.stageStartMs) / 1000;
+    this.cameras.main.fadeOut(700, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start(SCENE_KEYS.RESULTS, {
+        stageId: '01-once',
+        score: this.score,
+        hpFraction,
+        noDeaths: true,
+        timeSeconds,
+        rewardItemId: 'pendrive_federal',
+      });
+    });
   }
 
   private spawnEnemy(x: number, y: number, type: string, spriteKey = 'enemy_001'): void {

@@ -97,8 +97,11 @@ describe('ONCE_ENCOUNTERS', () => {
     }
   });
 
-  it('ends with a mini-boss zone', () => {
-    const last = ONCE_ENCOUNTERS.zones[ONCE_ENCOUNTERS.zones.length - 1]!;
-    expect(last.kind).toBe('mini_boss');
+  it('has a mini-boss zone before the final boss zone', () => {
+    const zones = ONCE_ENCOUNTERS.zones;
+    const last = zones[zones.length - 1]!;
+    const prev = zones[zones.length - 2]!;
+    expect(last.kind).toBe('boss');
+    expect(prev.kind).toBe('mini_boss');
   });
 });

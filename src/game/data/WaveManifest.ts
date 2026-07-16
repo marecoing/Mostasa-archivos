@@ -70,9 +70,17 @@ export const ONCE_ENCOUNTERS: StageEncounters = {
       ],
     },
     {
-      id: 'once-miniboss', kind: 'mini_boss', triggerX: 4000, lockMinX: 3650, lockMaxX: 4450,
+      id: 'once-miniboss', kind: 'mini_boss', triggerX: 3900, lockMinX: 3600, lockMaxX: 4300,
       waves: [
         { enemies: [common('enemy_009', 40, 500, 'miniboss'), common('enemy_003', -80, 540)] },
+      ],
+    },
+    {
+      id: 'once-boss', kind: 'boss', triggerX: 4550, lockMinX: 4250, lockMaxX: 4650,
+      waves: [
+        // El Capataz Nocturno (enemy_010). Fase 2 (refuerzos) al 50% la maneja
+        // GameScene observando su HP.
+        { enemies: [common('enemy_010', 20, 500, 'boss')] },
       ],
     },
   ],

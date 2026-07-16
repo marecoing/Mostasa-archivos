@@ -54,4 +54,13 @@ export const ENEMY_TYPES: Record<string, EnemyStats> = {
     color: 0x882288,
     height: 90,
   },
+  boss: {
+    type: 'boss',
+    hp: 650,
+    walkSpeed: 70,
+    halfW: 30,
+    halfD: 24,
+    color: 0xcc4422,
+    height: 100,
+  },
 };

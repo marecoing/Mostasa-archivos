@@ -239,10 +239,30 @@
 - 10 tests en `WaveSystem.test.ts` (transiciones de fase, gate, spawns,
   integridad del manifest de encuentros)
 
+### HITO 026 — Boss del Escenario 1 con fases + cierre del nivel ✅
+- `WaveManifest`: agregada la zona final del **boss** (Capataz Nocturno,
+  enemy_010) después del mini-boss; `EnemyData` gana el tipo `boss` (650 HP)
+- `GameScene.updateBossPhase()`: **Fase 2** al 50% de HP del boss → shake +
+  VFX bronca_especial + convoca 2 refuerzos (biblia §14 Once)
+- `finishStage()`: al despejar todas las zonas → +500 score (pendrive),
+  calcula tiempo/HP y transiciona a la pantalla de resultados
+
+### HITO 027 — Pantalla de resultados y sistema de rango ✅
+- `RankSystem.ts`: `computeRank(StageResult)` → D/C/B/A/S/Rosca (biblia §4)
+  por bandas de score + bumps por clear sin caer/saludable y por tiempo;
+  "Rosca" reservado a clear impecable, rápido y de alto puntaje
+- `ResultsScene.ts`: "ESCENARIO DESPEJADO", sprite del Pendrive Federal
+  recuperado, stats (puntaje/aguante/tiempo/sin caer), rango grande coloreado,
+  ENTER → título; registrada en `GameConfig` (`SCENE_KEYS.RESULTS`)
+- Verificado en navegador: la escena renderiza el pendrive + rango "Rosca"
+  para un clear impecable; sin errores de runtime
+- 6 tests en `RankSystem.test.ts` (bandas, bumps, Rosca, rangos válidos)
+
 ## HITOS PENDIENTES
 
-- HITO 026 — Colocación de props decorativos por panel + fases del boss
-- HITO 027 — Pantalla de resultados al despejar el escenario (rango, score)
+- HITO 028 — Audio (SFX de golpes/salto/hurt, música loop del escenario)
+- HITO 029 — Ataques del boss (estados de ataque en el FSM enemigo) y pulido IA
+- HITO 030 — Props decorativos foreground + selección de escenario / campaña
 - HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
 - ... (hitos 025-060)
 
@@ -294,7 +314,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | AnimationData.test.ts           | 24     | ✅ OK  |
 | AssetSystems.test.ts            | 20     | ✅ OK  |
 | WaveSystem.test.ts              | 10     | ✅ OK  |
-| **Total**                       | **239**| ✅ OK  |
+| RankSystem.test.ts              | 6      | ✅ OK  |
+| **Total**                       | **245**| ✅ OK  |
 
 ---
 
