@@ -44,6 +44,7 @@ import { WaveSystem } from '../systems/WaveSystem';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
+import { variantForStage } from '../systems/audio/SoundBank';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 
 const PLAYER_SPRITE_SCALE = 0.9;
@@ -204,7 +205,7 @@ export class GameScene extends Phaser.Scene {
   private setupAudioUnlock(): void {
     const start = (): void => {
       this.audio.unlock();
-      if (!this.stageEnded) this.audio.startMusic();
+      if (!this.stageEnded) this.audio.startMusic(variantForStage(this.stageId));
     };
     this.input.keyboard?.once('keydown', start);
     this.input.once('pointerdown', start);

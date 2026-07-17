@@ -117,3 +117,33 @@ export const ONCE_MUSIC: MusicNote[] = [
 export function beatDuration(bpm: number): number {
   return 60 / bpm;
 }
+
+/**
+ * Per-stage rendition of the loop (Biblia §22 "música por escenario"): the
+ * same pattern re-keyed and re-paced so each zone has its own mood while the
+ * whole campaign stays coherent. Tension rises toward the Casa Rosada.
+ */
+export interface MusicVariant {
+  /** semitones added to every note */
+  transpose: number;
+  bpm: number;
+}
+
+export const MUSIC_VARIANTS: Record<string, MusicVariant> = {
+  '01-once': { transpose: 0, bpm: 132 },
+  '02-estacion-oxidada': { transpose: -2, bpm: 126 },
+  '03-pasillo-del-conurbano': { transpose: 3, bpm: 136 },
+  '04-palermo-de-carton': { transpose: 5, bpm: 140 },
+  '05-avenida-de-la-protesta': { transpose: -4, bpm: 122 },
+  '06-catalinas-del-humo': { transpose: 1, bpm: 128 },
+  '07-puerto-del-country': { transpose: 7, bpm: 138 },
+  '08-galpon-del-acceso': { transpose: -5, bpm: 130 },
+  '09-pasillos-del-poder': { transpose: 2, bpm: 144 },
+  '10-casa-rosada-final': { transpose: 6, bpm: 150 },
+};
+
+const DEFAULT_VARIANT: MusicVariant = { transpose: 0, bpm: MUSIC_BPM };
+
+export function variantForStage(stageId: string): MusicVariant {
+  return MUSIC_VARIANTS[stageId] ?? DEFAULT_VARIANT;
+}

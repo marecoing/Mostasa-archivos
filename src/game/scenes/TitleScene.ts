@@ -128,7 +128,7 @@ export class TitleScene extends Phaser.Scene {
       )
       .setOrigin(0.5);
 
-    const versionText = '[ VERTICAL SLICE — NIVEL 1: ONCE ]';
+    const versionText = '[ CAMPAÑA — 10 ZONAS JUGABLES ]';
     this.add
       .text(cx, 430, versionText, {
         fontFamily: 'monospace',
@@ -157,7 +157,7 @@ export class TitleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(cx, GAME_HEIGHT - 20, 'v0.1.0 — Hitos 001-005 — Build experimental', {
+      .text(cx, GAME_HEIGHT - 20, 'v0.1.0 — Build experimental', {
         fontFamily: 'monospace',
         fontSize: '9px',
         color: '#333333',

@@ -410,9 +410,33 @@
   encuentros, layout y props; verifica que todo prop id tenga su PNG y que
   Palermo sea el único sin mini-boss (34 tests en el archivo)
 
+### HITO 035 — Final de campaña + música por escenario ✅
+- `SoundBank`: `MUSIC_VARIANTS` — el loop base re-tonalizado y re-tempado por
+  escenario (transpose en semitonos + BPM; la tensión sube hacia la Casa
+  Rosada: Once 132 BPM/+0 → Rosada 150 BPM/+6); `variantForStage()` con
+  fallback neutro
+- `AudioSystem.startMusic(variant?)`: aplica transpose/BPM del escenario al
+  agendar cada compás
+- `scenes/EndingScene.ts` (nueva): epílogo satírico 100% ficticio ("LA ROSCA
+  CAYÓ"), pendrive federal, totales de campaña desde el progreso persistido
+  (zonas liberadas + puntaje total), "MOSTASA VOLVERÁ", ENTER → título (con
+  latch anti doble-start)
+- `ResultsScene`: detecta el último nivel (`nextStageId === null`) → banner
+  "¡LA ROSCA CAYÓ! CAMPAÑA COMPLETADA" y ENTER rutea al Ending en vez de a
+  la selección
+- `TitleScene`: textos desactualizados ("VERTICAL SLICE — NIVEL 1") →
+  "CAMPAÑA — 10 ZONAS JUGABLES"
+- Verificado en Chromium headless: la variante musical de la Rosada llega al
+  AudioSystem (transpose 6 / 150 BPM con contexto activo), Results del nivel
+  10 → ENTER → Ending (captura revisada, layout iterado) → ENTER → Título;
+  sin errores de runtime
+- 3 tests nuevos en `SoundBank.test.ts` (variante por cada escenario de la
+  campaña, frecuencias transpuestas dentro de rango audible y BPM sano,
+  fallback neutro + rampa de tensión)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 035-060)
+- ... (hitos 036-060)
 
 ---
 
@@ -464,13 +488,13 @@ Ver `docs/adr/` para Architecture Decision Records.
 | WaveSystem.test.ts              | 10     | ✅ OK  |
 | RankSystem.test.ts              | 6      | ✅ OK  |
 | EnemyAttack.test.ts             | 10     | ✅ OK  |
-| SoundBank.test.ts               | 9      | ✅ OK  |
+| SoundBank.test.ts               | 12     | ✅ OK  |
 | AudioSystem.test.ts             | 4      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **329**| ✅ OK  |
+| **Total**                       | **332**| ✅ OK  |
 
 ---
 

@@ -4,9 +4,12 @@ import {
   ONCE_MUSIC,
   MUSIC_BPM,
   MUSIC_PATTERN_BEATS,
+  MUSIC_VARIANTS,
   midiToFreq,
   beatDuration,
+  variantForStage,
 } from '../../src/game/systems/audio/SoundBank';
+import { STAGES } from '../../src/game/data/StageManifest';
 import type { SfxLayer } from '../../src/game/systems/audio/SoundBank';
 
 describe('midiToFreq', () => {
@@ -62,6 +65,33 @@ describe('SFX bank integrity', () => {
       if (layer.delay !== undefined) expect(layer.delay).toBeGreaterThanOrEqual(0);
       if (layer.freqEnd !== undefined) expect(layer.freqEnd).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('music variants per stage', () => {
+  it('defines a variant for every campaign stage', () => {
+    for (const s of STAGES) {
+      expect(MUSIC_VARIANTS[s.id], `missing variant for ${s.id}`).toBeDefined();
+    }
+  });
+
+  it('keeps every transposed note at a playable frequency and sane BPM', () => {
+    for (const [id, v] of Object.entries(MUSIC_VARIANTS)) {
+      expect(v.bpm, id).toBeGreaterThanOrEqual(80);
+      expect(v.bpm, id).toBeLessThanOrEqual(200);
+      for (const note of ONCE_MUSIC) {
+        const f = midiToFreq(note.midi + v.transpose);
+        expect(f, `${id} note too low`).toBeGreaterThan(20);
+        expect(f, `${id} note too high`).toBeLessThan(8000);
+      }
+    }
+  });
+
+  it('falls back to the neutral rendition for unknown stages', () => {
+    const v = variantForStage('nope');
+    expect(v.transpose).toBe(0);
+    expect(v.bpm).toBe(MUSIC_BPM);
+    expect(variantForStage('10-casa-rosada-final').bpm).toBeGreaterThan(variantForStage('01-once').bpm);
   });
 });
 

@@ -10,7 +10,7 @@
  *    node fails to build, every method degrades to a no-op instead of throwing.
  */
 
-import type { SfxDef, SfxLayer, MusicNote } from './SoundBank';
+import type { SfxDef, SfxLayer, MusicNote, MusicVariant } from './SoundBank';
 import {
   SFX,
   ONCE_MUSIC,
@@ -167,12 +167,16 @@ export class AudioSystem {
     }
   }
 
-  /** Start the looping stage music. Idempotent. */
-  startMusic(): void {
+  /** Music rendition currently in effect (per-stage key/tempo). */
+  private variant: MusicVariant = { transpose: 0, bpm: MUSIC_BPM };
+
+  /** Start the looping stage music with an optional per-stage variant. */
+  startMusic(variant?: MusicVariant): void {
     if (this.musicOn) return;
+    if (variant) this.variant = variant;
     if (!this.ctx || !this.musicGain) return;
     this.musicOn = true;
-    const loopSeconds = MUSIC_PATTERN_BEATS * beatDuration(MUSIC_BPM);
+    const loopSeconds = MUSIC_PATTERN_BEATS * beatDuration(this.variant.bpm);
     this.scheduleMusicBar();
     // Re-schedule each bar slightly ahead of time.
     this.musicTimer = setInterval(() => this.scheduleMusicBar(), loopSeconds * 1000);
@@ -180,7 +184,7 @@ export class AudioSystem {
 
   private scheduleMusicBar(): void {
     if (!this.ctx || !this.musicGain || !this.musicOn) return;
-    const spb = beatDuration(MUSIC_BPM);
+    const spb = beatDuration(this.variant.bpm);
     const base = this.ctx.currentTime + 0.05;
     for (const note of ONCE_MUSIC) this.scheduleMusicNote(note, base, spb);
   }
@@ -199,7 +203,7 @@ export class AudioSystem {
 
       const osc = this.ctx.createOscillator();
       osc.type = note.wave === 'noise' ? 'triangle' : note.wave;
-      osc.frequency.setValueAtTime(midiToFreq(note.midi), start);
+      osc.frequency.setValueAtTime(midiToFreq(note.midi + this.variant.transpose), start);
       osc.connect(env);
       osc.start(start);
       osc.stop(end);

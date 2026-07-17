@@ -79,6 +79,16 @@ export class ResultsScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setShadow(0, 0, RANK_COLORS[rank], 20, false, true);
 
+    // Final stage: the campaign is over — route to the ending.
+    const isFinal = stage !== undefined && stage.nextStageId === null;
+    if (isFinal) {
+      this.add
+        .text(cx, GAME_HEIGHT - 72, '¡LA ROSCA CAYÓ! CAMPAÑA COMPLETADA', {
+          fontFamily: 'monospace', fontSize: '13px', color: '#e8c046',
+        })
+        .setOrigin(0.5);
+    }
+
     // Next-stage unlock banner.
     if (nextStage && nextUnlocked) {
       const msg = nextStage.runtimeReady
@@ -98,12 +108,13 @@ export class ResultsScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.tweens.add({ targets: prompt, alpha: 0.2, duration: 700, yoyo: true, repeat: -1 });
 
-    const goSelect = (): void => {
+    const goNext = (): void => {
+      const dest = isFinal ? SCENE_KEYS.ENDING : SCENE_KEYS.STAGE_SELECT;
       this.cameras.main.fadeOut(400, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.STAGE_SELECT));
+      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(dest));
     };
-    this.input.keyboard?.once('keydown-ENTER', goSelect);
-    this.input.keyboard?.once('keydown-SPACE', goSelect);
+    this.input.keyboard?.once('keydown-ENTER', goNext);
+    this.input.keyboard?.once('keydown-SPACE', goNext);
   }
 
   private fmtTime(seconds: number): string {
