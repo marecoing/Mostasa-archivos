@@ -500,9 +500,27 @@
 - 11 tests en `ShopManifest.test.ts` (integridad, costos escalados, canBuy,
   compra inmutable, efectos) + 1 test de billetera en `CampaignProgress.test.ts`
 
+### HITO 039 — Cadena de bronca: combo + multiplicador de puntaje ✅
+- `systems/ComboSystem.ts` (puro, testeable): cadena por golpes conectados con
+  timer (84 frames ≈1.4s); `comboMultiplier` en bandas (5→x1.5, 10→x2, 20→x3,
+  30→x4), `comboLabel` con elogios (¡DALE!/¡QUÉ MÁQUINA!/¡FURIA TOTAL!/
+  ¡IMPARABLE!); `addHit`/`tick`/`reset`/`scoreFor`, `timeFraction` para un
+  eventual countdown bar
+- `GameScene`: cada golpe conectado a un enemigo suma al combo y **paga
+  score = base(10) × multiplicador** (alimenta la guita del Kiosco, §12/§16);
+  recibir daño rompe la cadena (`reset`); el timer avanza en `fixedUpdate`;
+  HUD arriba a la derecha con "N HITS xM" + etiqueta, pop en cada golpe,
+  color según el multiplicador; oculto bajo 2 hits
+- Verificado en Chromium headless: golpeando una multitud el combo subió
+  6→18, multiplicador 1.5→2, score 70→295; al expirar el timer o recibir
+  daño cae a 0; captura del HUD "16 HITS x2 / ¡QUÉ MÁQUINA!" revisada; sin
+  errores de runtime
+- 8 tests en `ComboSystem.test.ts` (bandas monótonas, labels, timeout
+  exacto una vez, refresh en ventana, reset, scoreFor)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 039-060)
+- ... (hitos 040-060)
 
 ---
 
@@ -559,11 +577,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | AudioSettings.test.ts           | 6      | ✅ OK  |
 | StoryManifest.test.ts           | 3      | ✅ OK  |
 | ShopManifest.test.ts            | 11     | ✅ OK  |
+| ComboSystem.test.ts             | 8      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **349**| ✅ OK  |
+| **Total**                       | **357**| ✅ OK  |
 
 ---
 

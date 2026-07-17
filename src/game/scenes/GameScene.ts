@@ -41,6 +41,7 @@ import { PickupEntity } from '../entities/PickupEntity';
 import { WeaponEntity, effectiveHitDamage } from '../entities/WeaponEntity';
 import type { EquippedWeapon } from '../entities/WeaponEntity';
 import { WaveSystem } from '../systems/WaveSystem';
+import { ComboSystem } from '../systems/ComboSystem';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -71,6 +72,8 @@ const THROW_VEL_Z = 220;
 const BRONCA_PER_HIT = 18;
 const BRONCA_MAX = 100;
 const SPECIAL_RADIUS = 200;
+/** Base score per landed hit, before the combo multiplier (§12). */
+const HIT_BASE_SCORE = 10;
 
 const STAGE_LANE: StageLane = {
   minX: 80,
@@ -104,6 +107,9 @@ export class GameScene extends Phaser.Scene {
   private hitstopFrames = 0;
   private broncaMeter = 0;
   private broncaBar!: Phaser.GameObjects.Graphics;
+  private combo = new ComboSystem();
+  private comboText!: Phaser.GameObjects.Text;
+  private comboLabelText!: Phaser.GameObjects.Text;
 
   private stageBg?: StageBackground;
   private props?: PropSystem;
@@ -216,6 +222,7 @@ export class GameScene extends Phaser.Scene {
     this.playerIFrames = 0;
     this.stageEnded = false;
     this.bossPhase2Done = false;
+    this.combo.reset();
   }
 
   private setupSystems(): void {
@@ -691,6 +698,40 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(301);
     this.updateHudInfo();
+
+    // Combo counter (top-right), hidden until a chain starts.
+    this.comboText = this.add
+      .text(GAME_WIDTH - 30, 96, '', {
+        fontFamily: 'monospace', fontSize: '34px', color: '#ffdd44',
+        stroke: '#000000', strokeThickness: 5, align: 'right',
+      })
+      .setOrigin(1, 0.5)
+      .setScrollFactor(0)
+      .setDepth(320)
+      .setVisible(false);
+    this.comboLabelText = this.add
+      .text(GAME_WIDTH - 30, 124, '', {
+        fontFamily: 'monospace', fontSize: '13px', color: '#ff8844', align: 'right',
+      })
+      .setOrigin(1, 0.5)
+      .setScrollFactor(0)
+      .setDepth(320)
+      .setVisible(false);
+  }
+
+  private updateComboHud(): void {
+    const active = this.combo.count >= 2;
+    this.comboText.setVisible(active);
+    this.comboLabelText.setVisible(active && this.combo.label !== '');
+    if (!active) return;
+    const mult = this.combo.multiplier;
+    this.comboText.setText(`${this.combo.count} HITS  x${mult}`);
+    // Brighter as the multiplier climbs.
+    this.comboText.setColor(mult >= 3 ? '#ff5555' : mult >= 2 ? '#ff9933' : '#ffdd44');
+    this.comboLabelText.setText(this.combo.label);
+    // A quick pop on each hit.
+    this.comboText.setScale(1.18);
+    this.tweens.add({ targets: this.comboText, scale: 1, duration: 120, ease: 'Quad.easeOut' });
   }
 
   private updateAguanteBar(): void {
@@ -738,6 +779,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.playerIFrames > 0) this.playerIFrames--;
+
+    // Age the combo chain; refresh the HUD the frame it drops.
+    if (this.combo.tick()) this.updateComboHud();
 
     // Encounter progression (spawns, camera lock, movement gate).
     this.updateWaves();
@@ -847,6 +891,11 @@ export class GameScene extends Phaser.Scene {
         connected = true;
         this.broncaMeter = Math.min(BRONCA_MAX, this.broncaMeter + BRONCA_PER_HIT);
         this.updateBroncaBar();
+        // Chain of bronca: each landed hit builds the combo and pays score
+        // scaled by its multiplier (feeds the Kiosco economy, §12/§16).
+        this.combo.addHit();
+        this.score += this.combo.scoreFor(HIT_BASE_SCORE);
+        this.updateComboHud();
         maxHitstop = Math.max(maxHitstop, atk.hitstopFrames);
         this.camera.triggerShake(SHAKE_LIGHT);
         this.playVfxAtWorld(heavy ? 'impacto_pesado' : 'impacto_puno', enemy.pos.x, enemy.pos.y, enemy.pos.z + 40);
@@ -983,6 +1032,8 @@ export class GameScene extends Phaser.Scene {
     this.playerHp = Math.max(0, this.playerHp - dmg);
     this.updateAguanteBar();
     this.playerIFrames = 48;
+    this.combo.reset(); // getting hit breaks the chain
+    this.updateComboHud();
     this.camera.triggerShake(SHAKE_MEDIUM);
     this.playVfxAtWorld('impacto_puno', this.playerPos.x, this.playerPos.y, this.playerPos.z + 40);
     this.audio.play('player_hurt');
