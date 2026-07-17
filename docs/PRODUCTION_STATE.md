@@ -322,9 +322,35 @@
   commit de melee/charge, dash hacia adelante, daño de carga una-vez y ventana
   extendida, enrage idempotente)
 
+### HITO 032 — Props decorativos + selección de escenario / campaña ✅
+- **Props decorativos** (biblia §14): `data/PropManifest.ts` (puro, testeable) —
+  13 props del Once en dos capas de parallax: `back` (persianas, carteles,
+  rejas, cableado; depth -900, parallax 0.9-0.96) y `front` (faroles, bolsas
+  de basura, bicicleta, banco; depth 700, parallax 1.08-1.1 → los peleadores
+  pasan POR DETRÁS, vendiendo la profundidad 2.5D); `propScreenX()` puro
+- `systems/PropSystem.ts`: coloca y scrollea los props con culling fuera de
+  pantalla (calles largas baratas de dibujar); 100% cosmético, sin colisión
+- `AssetLoader`: carga `assets/props/<id>.png` vía `allPropIds()` (18 PNGs ya
+  subidos al repo, solo se cargan los usados)
+- **Campaña** (biblia §32/§35): `data/CampaignProgress.ts` — progreso puro
+  (`isStageUnlocked` secuencial, `isStagePlayable` = desbloqueado + arte
+  runtime-ready, `withStageCleared` inmutable con mejor score/rango) +
+  persistencia defensiva en localStorage (degrada a memoria en tests/SSR)
+- `scenes/StageSelectScene.ts`: grilla 5×2 con los 10 escenarios, estados
+  🔒 BLOQUEADO / PRÓXIMAMENTE / ▶ DISPONIBLE / ✓ DESPEJADO+rango, navegación
+  por teclado, nudge al intentar entrar a uno bloqueado
+- Flujo nuevo: Título → **Selección** → GameScene(`stageId` por init data) →
+  Resultados (graba progreso, banner "NUEVA ZONA") → Selección
+- `GameScene`: `stageId` dinámico (banner de nivel, fondo, recompensa);
+  `noDeaths` real (vidas intactas)
+- Verificado en Chromium headless (capturas + estado): grilla renderiza con
+  estados correctos, el nivel bloqueado no se lanza (nudge), 13 props cargados
+  con culling (8 visibles), capas back/front a profundidad correcta, sin
+  errores de runtime
+- 8 tests en `PropManifest.test.ts` + 8 en `CampaignProgress.test.ts`
+
 ## HITOS PENDIENTES
 
-- HITO 032 — Props decorativos foreground + selección de escenario / campaña
 - ... (hitos 033-060)
 
 ---
@@ -380,7 +406,9 @@ Ver `docs/adr/` para Architecture Decision Records.
 | SoundBank.test.ts               | 9      | ✅ OK  |
 | AudioSystem.test.ts             | 4      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
-| **Total**                       | **279**| ✅ OK  |
+| PropManifest.test.ts            | 8      | ✅ OK  |
+| CampaignProgress.test.ts        | 8      | ✅ OK  |
+| **Total**                       | **295**| ✅ OK  |
 
 ---
 

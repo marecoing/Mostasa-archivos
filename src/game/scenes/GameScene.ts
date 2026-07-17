@@ -29,6 +29,7 @@ import {
 import { registerAllCharacterAnims, playState } from '../systems/CharacterAnimator';
 import { gridFor } from '../data/AnimationData';
 import { StageBackground } from '../systems/StageBackground';
+import { PropSystem } from '../systems/PropSystem';
 import { VfxSystem } from '../systems/VfxSystem';
 import { breakableKey, itemKey } from '../systems/AssetLoader';
 import { stageById } from '../data/StageManifest';
@@ -99,8 +100,10 @@ export class GameScene extends Phaser.Scene {
   private broncaBar!: Phaser.GameObjects.Graphics;
 
   private stageBg?: StageBackground;
+  private props?: PropSystem;
   private vfx!: VfxSystem;
   private audio!: AudioSystem;
+  private stageId = '01-once';
   private breakables: BreakableEntity[] = [];
   private breakableSprites: Phaser.GameObjects.Sprite[] = [];
   private pickups: PickupEntity[] = [];
@@ -130,6 +133,10 @@ export class GameScene extends Phaser.Scene {
     super({ key: SCENE_KEYS.GAME });
   }
 
+  init(data: { stageId?: string }): void {
+    if (data?.stageId) this.stageId = data.stageId;
+  }
+
   create(): void {
     this.cameras.main.setBackgroundColor('#0a0a18');
     registerAllCharacterAnims(this);
@@ -145,8 +152,12 @@ export class GameScene extends Phaser.Scene {
     this.createWaveSystem();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
+    const stageDef = stageById(this.stageId);
+    const noticeLabel = stageDef
+      ? `[ NIVEL ${stageDef.index} — ${stageDef.displayName.toUpperCase()} ]`
+      : '[ NIVEL 1 — ONCE: LA NOCHE DE LOS TRAPITOS ]';
     const noticeText = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.15, '[ NIVEL 1 — ONCE: LA NOCHE DE LOS TRAPITOS ]', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.15, noticeLabel, {
         fontFamily: 'monospace',
         fontSize: '13px',
         color: '#e8c046',
@@ -193,13 +204,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createStageBackground(): void {
-    const stage = stageById('01-once');
+    const stage = stageById(this.stageId);
     if (!stage) return;
     const bg = new StageBackground(this, stage);
-    if (!bg.isReady) return;
-    this.stageBg = bg;
-    // Extend the walkable lane to span the full painted background.
-    STAGE_LANE.maxX = Math.max(STAGE_LANE.maxX, Math.round(bg.worldWidth - 200));
+    if (bg.isReady) {
+      this.stageBg = bg;
+      // Extend the walkable lane to span the full painted background.
+      STAGE_LANE.maxX = Math.max(STAGE_LANE.maxX, Math.round(bg.worldWidth - 200));
+    }
+    const props = new PropSystem(this, this.stageId);
+    if (props.isReady) this.props = props;
   }
 
   private spawnBreakables(): void {
@@ -397,12 +411,12 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.fadeOut(700, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start(SCENE_KEYS.RESULTS, {
-        stageId: '01-once',
+        stageId: this.stageId,
         score: this.score,
         hpFraction,
-        noDeaths: true,
+        noDeaths: this.playerLives === 3,
         timeSeconds,
-        rewardItemId: 'pendrive_federal',
+        ...(this.stageId === '01-once' ? { rewardItemId: 'pendrive_federal' } : {}),
       });
     });
   }
@@ -1115,6 +1129,7 @@ export class GameScene extends Phaser.Scene {
     this.camera.update(delta);
 
     this.stageBg?.update(this.camera.worldX);
+    this.props?.update(this.camera.worldX);
     this.updatePlayerSpritePosition();
     this.updateEnemySprites();
     this.updateBreakableSprites();

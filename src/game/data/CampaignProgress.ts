@@ -1,0 +1,106 @@
+/**
+ * Campaign progress + persistence (Biblia §32 progresión, §35 guardado).
+ *
+ * The pure functions (unlock / playable / withStageCleared) are unit-tested
+ * without any storage; loadProgress/saveProgress wrap them with a defensive
+ * localStorage layer that degrades to an in-memory value when storage is
+ * unavailable (private mode, SSR, tests).
+ */
+
+import { STAGES } from './StageManifest';
+import type { StageDef } from './StageManifest';
+import { RANK_ORDER } from './RankSystem';
+import type { Rank } from './RankSystem';
+
+export interface CampaignProgress {
+  /** stage ids the player has cleared at least once */
+  cleared: string[];
+  /** best score achieved per stage */
+  bestScore: Record<string, number>;
+  /** best rank achieved per stage */
+  bestRank: Record<string, Rank>;
+}
+
+const STORAGE_KEY = 'mostasas-rage:progress:v1';
+
+export function emptyProgress(): CampaignProgress {
+  return { cleared: [], bestScore: {}, bestRank: {} };
+}
+
+/**
+ * A stage is unlocked if it's the first, or the stage immediately before it in
+ * campaign order has been cleared.
+ */
+export function isStageUnlocked(stage: StageDef, cleared: readonly string[]): boolean {
+  if (stage.index <= 1) return true;
+  const prev = STAGES.find((s) => s.index === stage.index - 1);
+  return prev ? cleared.includes(prev.id) : false;
+}
+
+/** Playable = unlocked in the campaign AND its art is wired for runtime. */
+export function isStagePlayable(stage: StageDef, cleared: readonly string[]): boolean {
+  return stage.runtimeReady && isStageUnlocked(stage, cleared);
+}
+
+function isBetterRank(a: Rank, b: Rank | undefined): boolean {
+  if (b === undefined) return true;
+  return RANK_ORDER.indexOf(a) > RANK_ORDER.indexOf(b);
+}
+
+/** Return a new progress with the stage recorded as cleared (pure). */
+export function withStageCleared(
+  p: CampaignProgress,
+  stageId: string,
+  score: number,
+  rank: Rank,
+): CampaignProgress {
+  const cleared = p.cleared.includes(stageId) ? p.cleared : [...p.cleared, stageId];
+  const bestScore = { ...p.bestScore };
+  if (score > (bestScore[stageId] ?? -1)) bestScore[stageId] = score;
+  const bestRank = { ...p.bestRank };
+  if (isBetterRank(rank, bestRank[stageId])) bestRank[stageId] = rank;
+  return { cleared, bestScore, bestRank };
+}
+
+function getStorage(): Storage | null {
+  try {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function loadProgress(): CampaignProgress {
+  const store = getStorage();
+  if (!store) return emptyProgress();
+  try {
+    const raw = store.getItem(STORAGE_KEY);
+    if (!raw) return emptyProgress();
+    const parsed = JSON.parse(raw) as Partial<CampaignProgress>;
+    return {
+      cleared: Array.isArray(parsed.cleared) ? parsed.cleared : [],
+      bestScore: parsed.bestScore ?? {},
+      bestRank: parsed.bestRank ?? {},
+    };
+  } catch {
+    return emptyProgress();
+  }
+}
+
+export function saveProgress(p: CampaignProgress): void {
+  const store = getStorage();
+  if (!store) return;
+  try {
+    store.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch {
+    /* storage full / blocked — progress just won't persist this session */
+  }
+}
+
+/** Load, record a clear, save, and return the updated progress. */
+export function recordStageResult(stageId: string, score: number, rank: Rank): CampaignProgress {
+  const next = withStageCleared(loadProgress(), stageId, score, rank);
+  saveProgress(next);
+  return next;
+}

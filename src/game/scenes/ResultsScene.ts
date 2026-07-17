@@ -4,6 +4,7 @@ import { computeRank, RANK_COLORS } from '../data/RankSystem';
 import type { StageResult } from '../data/RankSystem';
 import { itemKey } from '../systems/AssetLoader';
 import { stageById } from '../data/StageManifest';
+import { recordStageResult, isStageUnlocked, loadProgress } from '../data/CampaignProgress';
 
 export interface ResultsData extends StageResult {
   /** reward item id awarded for clearing (e.g. pendrive_federal) */
@@ -22,6 +23,11 @@ export class ResultsScene extends Phaser.Scene {
 
     const stage = stageById(data.stageId);
     const rank = computeRank(data);
+
+    // Persist campaign progress: mark this stage cleared and unlock the next.
+    recordStageResult(data.stageId, data.score, rank);
+    const nextStage = stage?.nextStageId ? stageById(stage.nextStageId) : undefined;
+    const nextUnlocked = nextStage ? isStageUnlocked(nextStage, loadProgress().cleared) : false;
 
     this.add
       .text(cx, 90, 'ESCENARIO DESPEJADO', {
@@ -73,6 +79,18 @@ export class ResultsScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setShadow(0, 0, RANK_COLORS[rank], 20, false, true);
 
+    // Next-stage unlock banner.
+    if (nextStage && nextUnlocked) {
+      const msg = nextStage.runtimeReady
+        ? `NUEVA ZONA: ${nextStage.displayName.toUpperCase()}`
+        : `PRÓXIMA ZONA: ${nextStage.displayName.toUpperCase()} (PRÓXIMAMENTE)`;
+      this.add
+        .text(cx, GAME_HEIGHT - 72, msg, {
+          fontFamily: 'monospace', fontSize: '12px', color: '#44ff88',
+        })
+        .setOrigin(0.5);
+    }
+
     const prompt = this.add
       .text(cx, GAME_HEIGHT - 40, 'ENTER para continuar', {
         fontFamily: 'monospace', fontSize: '13px', color: '#aaaaaa',
@@ -80,12 +98,12 @@ export class ResultsScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.tweens.add({ targets: prompt, alpha: 0.2, duration: 700, yoyo: true, repeat: -1 });
 
-    const goTitle = (): void => {
+    const goSelect = (): void => {
       this.cameras.main.fadeOut(400, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.TITLE));
+      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.STAGE_SELECT));
     };
-    this.input.keyboard?.once('keydown-ENTER', goTitle);
-    this.input.keyboard?.once('keydown-SPACE', goTitle);
+    this.input.keyboard?.once('keydown-ENTER', goSelect);
+    this.input.keyboard?.once('keydown-SPACE', goSelect);
   }
 
   private fmtTime(seconds: number): string {

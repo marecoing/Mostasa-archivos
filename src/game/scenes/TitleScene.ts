@@ -191,7 +191,7 @@ export class TitleScene extends Phaser.Scene {
     if (this.enterKey?.isDown) {
       this.cameras.main.fadeOut(400, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start(SCENE_KEYS.GAME);
+        this.scene.start(SCENE_KEYS.STAGE_SELECT);
       });
     }
   }
