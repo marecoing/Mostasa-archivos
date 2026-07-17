@@ -8,6 +8,7 @@ import { ResultsScene } from '../scenes/ResultsScene';
 import { CutsceneScene } from '../scenes/CutsceneScene';
 import { EndingScene } from '../scenes/EndingScene';
 import { ShopScene } from '../scenes/ShopScene';
+import { StatsScene } from '../scenes/StatsScene';
 
 export const GAME_WIDTH = 1280;
 export const GAME_HEIGHT = 720;
@@ -22,6 +23,7 @@ export const SCENE_KEYS = {
   RESULTS: 'ResultsScene',
   ENDING: 'EndingScene',
   SHOP: 'ShopScene',
+  STATS: 'StatsScene',
 } as const;
 
 export type SceneKey = (typeof SCENE_KEYS)[keyof typeof SCENE_KEYS];
@@ -57,6 +59,6 @@ export function createGameConfig(parent: string): Phaser.Types.Core.GameConfig {
     },
     title: "Mostasa's Rage: Ciudad de la Furia",
     version: '0.1.0',
-    scene: [BootScene, PreloadScene, TitleScene, StageSelectScene, CutsceneScene, GameScene, ResultsScene, EndingScene, ShopScene],
+    scene: [BootScene, PreloadScene, TitleScene, StageSelectScene, CutsceneScene, GameScene, ResultsScene, EndingScene, ShopScene, StatsScene],
   };
 }

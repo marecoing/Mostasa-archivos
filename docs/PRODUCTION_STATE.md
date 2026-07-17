@@ -539,9 +539,25 @@
   impecable (`RankSystem`); pico del combo a través de resets (`ComboSystem`);
   bestCombo entre runs (`CampaignProgress`)
 
+### HITO 041 — La Libreta de Mostasa (panel de récords) ✅
+- `data/CampaignStats.ts` (puro): `computeStats(progress)` agrega el progreso
+  persistido — zonas despejadas/total, campaña completa, puntaje total (suma
+  de mejores), combo récord, guita, mejor rango, y conteo de rangos S/Rosca
+- `scenes/StatsScene.ts` (nueva): "La Libreta de Mostasa" — bloque resumen +
+  grilla de rangos por zona (coloreados por RANK_COLORS, — si no despejada) +
+  banner de campaña completa; solo lectura, ESC/ENTER vuelve al título
+- `TitleScene`: **TAB abre la Libreta** (con hint en pantalla), reusa el latch
+  `starting` para evitar dobles transiciones
+- Verificado en Chromium headless: con progreso variado (4/10 zonas, rangos
+  S/Rosca/B/A) la Libreta mostró resumen correcto (2 S/Rosca, mejor rango
+  Rosca, combo 31, puntaje total 9900, guita 3200) y la grilla coloreada;
+  ESC vuelve al título; sin errores de runtime
+- 4 tests en `CampaignStats.test.ts` (vacío, agregación de clears/scores/top
+  rank/conteo S, Rosca cuenta como S-tier, campaña completa)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 041-060)
+- ... (hitos 042-060)
 
 ---
 
@@ -599,11 +615,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | StoryManifest.test.ts           | 3      | ✅ OK  |
 | ShopManifest.test.ts            | 11     | ✅ OK  |
 | ComboSystem.test.ts             | 9      | ✅ OK  |
+| CampaignStats.test.ts           | 4      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **361**| ✅ OK  |
+| **Total**                       | **365**| ✅ OK  |
 
 ---
 

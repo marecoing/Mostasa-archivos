@@ -148,6 +148,12 @@ export class TitleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
+      .text(cx, 516, 'TAB — LA LIBRETA (RÉCORDS)', {
+        fontFamily: 'monospace', fontSize: '11px', color: '#777777', align: 'center',
+      })
+      .setOrigin(0.5);
+
+    this.add
       .text(cx, 540, 'TECLADO: WASD / FLECHAS = MOVER   J = GOLPE   K = FUERTE   L = ESPECIAL', {
         fontFamily: 'monospace',
         fontSize: '10px',
@@ -179,7 +185,15 @@ export class TitleScene extends Phaser.Scene {
     if (this.input.keyboard) {
       this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
       this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      this.input.keyboard.once('keydown-TAB', () => this.openStats());
     }
+  }
+
+  private openStats(): void {
+    if (this.starting) return;
+    this.starting = true;
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.STATS));
   }
 
   update(time: number, delta: number): void {
