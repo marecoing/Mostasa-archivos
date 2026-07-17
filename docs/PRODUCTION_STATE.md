@@ -434,9 +434,34 @@
   campaña, frecuencias transpuestas dentro de rango audible y BPM sano,
   fallback neutro + rampa de tensión)
 
+### HITO 036 — Menú de pausa + volúmenes persistentes ✅
+- `data/AudioSettings.ts` (puro): `clamp01`, `sanitizeMix` (normaliza valores
+  inválidos a defaults), load/save defensivo en localStorage (mismo patrón
+  que CampaignProgress)
+- `AudioSystem`: `getMix()` (copia) y `setVolume(canal, v)` — aplica en vivo
+  al gain node correspondiente (respetando mute) y clampa 0..1; el
+  constructor recibe la mezcla guardada
+- `GameScene`: **menú de pausa** (ESC) — REANUDAR / VOLUMEN GENERAL / VOLUMEN
+  GOLPES / VOLUMEN MÚSICA (barras ▮▮▮ con ←→ en pasos de 10%, guardado al
+  instante + feedback ui_confirm) / REINICIAR ZONA (scene.restart con el
+  mismo stageId) / SALIR AL MENÚ (a la selección); la simulación se congela
+  (update retorna temprano; el menú es event-driven); ESC ya no expulsa al
+  título sin confirmación
+- **Bugfix crítico** `StageSelectScene`: `cards[]` persistía entre visitas
+  (Phaser reusa instancias de escena) y `refreshSelection()` tocaba textos
+  destruidos → crash `glTexture` al re-entrar a la selección (la causa raíz
+  de los fallos de ciclado vistos en el Hito 034); ahora `create()` resetea
+  `cards`/`selected`
+- Verificado en Chromium headless: pausa congela (x 400→400 con D
+  presionada), volumen música 0.6→0.4 aplicado y persistido en localStorage,
+  resume mueve al jugador, REINICIAR/SALIR funcionan, y el ciclo
+  juego→selección→juego×2 corre sin errores; captura del menú revisada
+- 6 tests en `AudioSettings.test.ts` (clamp, sanitize, round-trip, corrupt
+  storage, setVolume clampa sin WebAudio, getMix devuelve copia)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 036-060)
+- ... (hitos 037-060)
 
 ---
 
@@ -490,11 +515,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | EnemyAttack.test.ts             | 10     | ✅ OK  |
 | SoundBank.test.ts               | 12     | ✅ OK  |
 | AudioSystem.test.ts             | 4      | ✅ OK  |
+| AudioSettings.test.ts           | 6      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **332**| ✅ OK  |
+| **Total**                       | **338**| ✅ OK  |
 
 ---
 

@@ -221,6 +221,23 @@ export class AudioSystem {
     }
   }
 
+  /** Current mix (copy). */
+  getMix(): AudioMix {
+    return { ...this.mix };
+  }
+
+  /** Set one channel's volume (0..1) and apply it live if audio is active. */
+  setVolume(channel: keyof AudioMix, value: number): void {
+    const v = Math.max(0, Math.min(1, value));
+    this.mix[channel] = v;
+    if (!this.ctx) return;
+    const node =
+      channel === 'master' ? this.masterGain : channel === 'sfx' ? this.sfxGain : this.musicGain;
+    if (node && !(channel === 'master' && this.muted)) {
+      node.gain.setTargetAtTime(v, this.ctx.currentTime, 0.02);
+    }
+  }
+
   setMuted(muted: boolean): void {
     this.muted = muted;
     if (this.masterGain && this.ctx) {

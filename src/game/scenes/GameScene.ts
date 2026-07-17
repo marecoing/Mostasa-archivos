@@ -45,6 +45,7 @@ import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
 import { variantForStage } from '../systems/audio/SoundBank';
+import { loadAudioSettings, saveAudioSettings } from '../data/AudioSettings';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 
 const PLAYER_SPRITE_SCALE = 0.9;
@@ -132,6 +133,11 @@ export class GameScene extends Phaser.Scene {
   private playerIFrames = 0;
   private playerLives = 3;
 
+  private paused = false;
+  private pauseContainer?: Phaser.GameObjects.Container;
+  private pauseRowTexts: Phaser.GameObjects.Text[] = [];
+  private pauseIndex = 0;
+
   constructor() {
     super({ key: SCENE_KEYS.GAME });
   }
@@ -160,6 +166,7 @@ export class GameScene extends Phaser.Scene {
     this.spawnWeapons();
     this.createHeldWeaponSprite();
     this.createWaveSystem();
+    this.createPauseMenu();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
     const stageDef = stageById(this.stageId);
@@ -193,7 +200,7 @@ export class GameScene extends Phaser.Scene {
     this.fsm = new PlayerStateMachine();
     this.debugOverlay = new DebugOverlay(this);
     this.vfx = new VfxSystem(this);
-    this.audio = new AudioSystem();
+    this.audio = new AudioSystem(loadAudioSettings());
     this.setupAudioUnlock();
   }
 
@@ -1087,6 +1094,135 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  // ── Pause menu (Biblia §22 volúmenes separados; §24 pausa) ──────────────
+
+  private static readonly PAUSE_ROWS = [
+    'REANUDAR',
+    'VOLUMEN GENERAL',
+    'VOLUMEN GOLPES',
+    'VOLUMEN MÚSICA',
+    'REINICIAR ZONA',
+    'SALIR AL MENÚ',
+  ] as const;
+
+  private createPauseMenu(): void {
+    this.paused = false;
+    this.pauseIndex = 0;
+    this.pauseRowTexts = [];
+
+    const dim = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.72);
+    const panel = this.add
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 420, 380, 0x10101c, 0.96)
+      .setStrokeStyle(2, 0xe8c046);
+    const title = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 150, 'PAUSA', {
+        fontFamily: 'monospace', fontSize: '26px', color: '#e8c046',
+        stroke: '#000000', strokeThickness: 4,
+      })
+      .setOrigin(0.5);
+
+    const rows: Phaser.GameObjects.GameObject[] = [];
+    GameScene.PAUSE_ROWS.forEach((_, i) => {
+      const t = this.add
+        .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 92 + i * 46, '', {
+          fontFamily: 'monospace', fontSize: '16px', color: '#cccccc',
+        })
+        .setOrigin(0.5);
+      this.pauseRowTexts.push(t);
+      rows.push(t);
+    });
+
+    const hint = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 168, '↑↓ ELEGIR    ←→ AJUSTAR    ENTER OK    ESC VOLVER', {
+        fontFamily: 'monospace', fontSize: '10px', color: '#666666',
+      })
+      .setOrigin(0.5);
+
+    this.pauseContainer = this.add
+      .container(0, 0, [dim, panel, title, ...rows, hint])
+      .setDepth(1000)
+      .setScrollFactor(0)
+      .setVisible(false);
+
+    const kb = this.input.keyboard;
+    if (kb) {
+      kb.on('keydown-UP', () => this.pauseNav(-1));
+      kb.on('keydown-DOWN', () => this.pauseNav(1));
+      kb.on('keydown-LEFT', () => this.pauseAdjust(-0.1));
+      kb.on('keydown-RIGHT', () => this.pauseAdjust(0.1));
+      kb.on('keydown-ENTER', () => this.pauseConfirm());
+    }
+  }
+
+  private togglePause(): void {
+    if (this.stageEnded) return;
+    this.paused = !this.paused;
+    this.pauseIndex = 0;
+    this.pauseContainer?.setVisible(this.paused);
+    if (this.paused) this.refreshPauseMenu();
+  }
+
+  private volumeChannelForRow(row: number): 'master' | 'sfx' | 'music' | null {
+    return row === 1 ? 'master' : row === 2 ? 'sfx' : row === 3 ? 'music' : null;
+  }
+
+  private refreshPauseMenu(): void {
+    const mix = this.audio.getMix();
+    this.pauseRowTexts.forEach((t, i) => {
+      const selected = i === this.pauseIndex;
+      const ch = this.volumeChannelForRow(i);
+      let label: string = GameScene.PAUSE_ROWS[i] ?? '';
+      if (ch) {
+        const pct = Math.round(mix[ch] * 100);
+        const ticks = Math.round(mix[ch] * 10);
+        label = `${label}  ${'▮'.repeat(ticks)}${'▯'.repeat(10 - ticks)} ${String(pct).padStart(3)}%`;
+      }
+      t.setText(selected ? `▶ ${label}` : label);
+      t.setColor(selected ? '#ffffff' : '#999999');
+    });
+  }
+
+  private pauseNav(delta: number): void {
+    if (!this.paused) return;
+    const n = GameScene.PAUSE_ROWS.length;
+    this.pauseIndex = (this.pauseIndex + delta + n) % n;
+    this.refreshPauseMenu();
+  }
+
+  private pauseAdjust(delta: number): void {
+    if (!this.paused) return;
+    const ch = this.volumeChannelForRow(this.pauseIndex);
+    if (!ch) return;
+    const mix = this.audio.getMix();
+    this.audio.setVolume(ch, Math.round((mix[ch] + delta) * 10) / 10);
+    saveAudioSettings(this.audio.getMix());
+    this.audio.play('ui_confirm');
+    this.refreshPauseMenu();
+  }
+
+  private pauseConfirm(): void {
+    if (!this.paused) return;
+    switch (this.pauseIndex) {
+      case 0:
+        this.togglePause();
+        break;
+      case 4:
+        this.paused = false;
+        this.scene.restart({ stageId: this.stageId });
+        break;
+      case 5:
+        this.paused = false;
+        this.audio.stopMusic();
+        this.cameras.main.fadeOut(300, 0, 0, 0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+          this.scene.start(SCENE_KEYS.STAGE_SELECT);
+        });
+        break;
+      default:
+        break; // volume rows use ←/→
+    }
+  }
+
   update(_time: number, delta: number): void {
     const dtSec = Math.min(delta / 1000, MAX_DELTA);
 
@@ -1111,11 +1247,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (snap[INPUT_ACTIONS.PAUSE].justPressed) {
-      this.cameras.main.fadeOut(300, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start(SCENE_KEYS.TITLE);
-      });
+      this.togglePause();
     }
+
+    if (this.paused) return; // frozen: the pause menu is event-driven
 
     this.accumulator += dtSec;
     while (this.accumulator >= FIXED_TIMESTEP) {

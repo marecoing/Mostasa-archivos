@@ -36,6 +36,9 @@ export class StageSelectScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Scene instances are reused across visits — drop last visit's objects.
+    this.cards = [];
+    this.selected = 0;
     this.progress = loadProgress();
     this.cameras.main.setBackgroundColor('#08080f');
     this.cameras.main.fadeIn(400, 0, 0, 0);
