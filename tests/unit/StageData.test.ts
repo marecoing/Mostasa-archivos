@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   ALL_ENCOUNTERS,
   ESTACION_ENCOUNTERS,
@@ -65,15 +67,41 @@ describe('stage layouts', () => {
   }
 });
 
-describe('stage 2 runtime wiring', () => {
-  it('is runtime-ready with 5 panel paths', () => {
-    const s = stageById('02-estacion-oxidada')!;
-    expect(s.runtimeReady).toBe(true);
-    expect(s.panelPaths.length).toBe(5);
+describe('full campaign wiring (every stage runtime-ready)', () => {
+  const stageIds = [
+    '01-once', '02-estacion-oxidada', '03-pasillo-del-conurbano',
+    '04-palermo-de-carton', '05-avenida-de-la-protesta', '06-catalinas-del-humo',
+    '07-puerto-del-country', '08-galpon-del-acceso', '09-pasillos-del-poder',
+    '10-casa-rosada-final',
+  ];
+
+  for (const id of stageIds) {
+    it(`${id}: runtime-ready with panels on disk, encounters, layout and props`, () => {
+      const s = stageById(id)!;
+      expect(s.runtimeReady).toBe(true);
+      expect(s.panelPaths.length).toBe(5);
+      for (const p of s.panelPaths) {
+        expect(existsSync(join('public', p)), `missing panel file ${p}`).toBe(true);
+      }
+      expect(ALL_ENCOUNTERS[id], 'missing encounters').toBeDefined();
+      expect(layoutForStage(id).breakables.length).toBeGreaterThan(0);
+      expect(layoutForStage(id).weapons.length).toBeGreaterThan(0);
+      expect(STAGE_PROPS[id]!.length).toBeGreaterThan(0);
+    });
+  }
+
+  it('every prop id used has its asset on disk', () => {
+    const ids = new Set<string>();
+    for (const list of Object.values(STAGE_PROPS)) for (const p of list) ids.add(p.id);
+    for (const id of ids) {
+      expect(existsSync(join('public', 'assets', 'props', `${id}.png`)), `missing prop ${id}.png`).toBe(true);
+    }
   });
 
-  it('has its own props and encounters registered', () => {
-    expect(STAGE_PROPS['02-estacion-oxidada']!.length).toBeGreaterThan(0);
-    expect(ALL_ENCOUNTERS['02-estacion-oxidada']).toBeDefined();
+  it('Palermo (04) is the only stage without a mini-boss zone', () => {
+    for (const [id, enc] of Object.entries(ALL_ENCOUNTERS)) {
+      const hasMini = enc.zones.some((z) => z.kind === 'mini_boss');
+      expect(hasMini, id).toBe(id !== '04-palermo-de-carton');
+    }
   });
 });

@@ -12,12 +12,14 @@ export class TitleScene extends Phaser.Scene {
   private blinkTimer = 0;
   private blinkVisible = true;
   private scanlines!: Phaser.GameObjects.Graphics;
+  private starting = false;
 
   constructor() {
     super({ key: SCENE_KEYS.TITLE });
   }
 
   create(): void {
+    this.starting = false;
     this.cameras.main.setBackgroundColor('#000000');
     this.createBackground();
     this.createTitleText();
@@ -188,7 +190,10 @@ export class TitleScene extends Phaser.Scene {
       this.blinkText.setVisible(this.blinkVisible);
     }
 
-    if (this.enterKey?.isDown) {
+    // Latch: isDown holds for several frames, and stacking one fade-out
+    // callback per frame would restart the next scene repeatedly.
+    if (this.enterKey?.isDown && !this.starting) {
+      this.starting = true;
       this.cameras.main.fadeOut(400, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start(SCENE_KEYS.STAGE_SELECT);

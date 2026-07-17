@@ -378,9 +378,41 @@
   final; layouts contra manifests; wiring del escenario 2) + 2 tests
   existentes actualizados al nuevo estado
 
+### HITO 034 — Campaña completa: los 10 escenarios jugables ✅
+- **Paneles**: los 8 escenarios restantes (3-10) copiados no destructivamente a
+  `public/assets/stages/<nombre>/` (~52 MB, lazy-loaded §32); `StageManifest`
+  con helper `panels()` y los 10 escenarios `runtimeReady`
+- **Encuentros** (`WaveManifest`): 8 sets nuevos con curva de dificultad por
+  mezcla de arquetipos — Conurbano (emboscadas + zoners), Palermo (SIN
+  mini-boss, salta al jefe), Protesta (multitudes de 3-4), Catalinas (tanks),
+  Country (speedsters), Galpón (mezcla pesada; el jefe pelea con un
+  ex-mini-boss), Poder (doble mini-boss; jefe con 2 secuaces), Casa Rosada
+  (gauntlet final: jefe + mini-boss + tank). Jefes 100% ficticios (El Puntero
+  del Pasillo, El Influencer de Cartón, El Orador de Humo, La Gerencia del
+  Humo, El Escribano del Country, El Capanga del Galpón, La Mano Derecha,
+  El Jefe de la Rosca)
+- **Layouts** (`StageLayout`): rompibles + armas para los 8 escenarios desde
+  los pools existentes
+- **Props** (`PropManifest`): sets temáticos por escenario con helpers
+  compactos (`back`/`front`/`cables`); los props de oficina (carpetas, sellos,
+  maletines) son primeros planos → solo funcionan como clutter de piso a
+  escala chica; en la Casa Rosada el piso pintado está más abajo → props de
+  fondo al pie de la pared (~455-465)
+- **Bugfix** `TitleScene`: `enterKey.isDown` en `update()` encolaba un
+  `scene.start` por frame mientras Enter estaba presionado (múltiples
+  `once('camerafadeoutcomplete')`) → reinicios de la escena siguiente y
+  carreras intermitentes; ahora hay latch `starting` (reset en `create()`)
+- Verificado en Chromium headless (captura por escenario, página fresca por
+  nivel): los 8 escenarios nuevos cargan con fondo + props + rompibles +
+  armas, sin errores de runtime; ajustes visuales iterados (props flotantes
+  corregidos en 6/9/10)
+- Tests: `StageData.test.ts` ahora exige a los 10 escenarios paneles EN DISCO,
+  encuentros, layout y props; verifica que todo prop id tenga su PNG y que
+  Palermo sea el único sin mini-boss (34 tests en el archivo)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 034-060)
+- ... (hitos 035-060)
 
 ---
 
@@ -437,8 +469,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
-| StageData.test.ts               | 8      | ✅ OK  |
-| **Total**                       | **303**| ✅ OK  |
+| StageData.test.ts               | 34     | ✅ OK  |
+| **Total**                       | **329**| ✅ OK  |
 
 ---
 

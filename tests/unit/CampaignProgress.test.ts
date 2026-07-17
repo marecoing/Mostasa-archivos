@@ -33,8 +33,9 @@ describe('isStagePlayable', () => {
     // stage2 (runtime-ready) is locked until Once is cleared, then playable
     expect(isStagePlayable(stage2, [])).toBe(false);
     expect(isStagePlayable(stage2, ['01-once'])).toBe(true);
-    // stage3 unlocks after stage2 but its art is not runtime-ready yet
-    expect(isStagePlayable(stage3, ['01-once', stage2.id])).toBe(false);
+    // an unlocked stage whose art is not runtime-ready stays unplayable
+    const notReady = { ...stage2, runtimeReady: false };
+    expect(isStagePlayable(notReady, ['01-once'])).toBe(false);
   });
 });
 
