@@ -28,6 +28,12 @@ function oncePanels(): string[] {
   );
 }
 
+function estacionPanels(): string[] {
+  return [1, 2, 3, 4, 5].map(
+    (n) => `assets/stages/estacion/02-estacion-oxidada-panel-0${n}.png`,
+  );
+}
+
 export const STAGES: StageDef[] = [
   {
     id: '01-once', index: 1, displayName: 'Once', panelCount: 5,
@@ -36,8 +42,8 @@ export const STAGES: StageDef[] = [
   },
   {
     id: '02-estacion-oxidada', index: 2, displayName: 'Estación Oxidada', panelCount: 5,
-    panelWidth: 1024, panelHeight: 1024, panelPaths: [],
-    runtimeReady: false, miniBossId: 19, bossId: 20, nextStageId: '03-pasillo-del-conurbano',
+    panelWidth: 1024, panelHeight: 1024, panelPaths: estacionPanels(),
+    runtimeReady: true, miniBossId: 19, bossId: 20, nextStageId: '03-pasillo-del-conurbano',
   },
   {
     id: '03-pasillo-del-conurbano', index: 3, displayName: 'Pasillo del Conurbano', panelCount: 5,

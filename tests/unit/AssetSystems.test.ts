@@ -162,10 +162,15 @@ describe('StageManifest', () => {
     expect(STAGES[STAGES.length - 1]!.nextStageId).toBeNull();
   });
 
-  it('only Escenario 1 (Once) is runtime-ready with panel paths', () => {
-    const once = stageById('01-once')!;
-    expect(once.runtimeReady).toBe(true);
-    expect(once.panelPaths).toHaveLength(5);
-    for (const s of STAGES.slice(1)) expect(s.runtimeReady).toBe(false);
+  it('runtime-ready stages have panel paths; the rest have none yet', () => {
+    for (const s of STAGES) {
+      if (s.runtimeReady) {
+        expect(s.panelPaths, `${s.id} is runtimeReady but has no panels`).toHaveLength(5);
+      } else {
+        expect(s.panelPaths, `${s.id} has panels but is not runtimeReady`).toHaveLength(0);
+      }
+    }
+    expect(stageById('01-once')!.runtimeReady).toBe(true);
+    expect(stageById('02-estacion-oxidada')!.runtimeReady).toBe(true);
   });
 });

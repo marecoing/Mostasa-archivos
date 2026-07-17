@@ -5,6 +5,8 @@ import type { StageEncounters } from '../../src/game/data/WaveManifest';
 
 const TWO_ZONE: StageEncounters = {
   stageId: 'test',
+  miniBossLabel: '¡MINI!',
+  bossLabel: '¡BOSS!',
   zones: [
     {
       id: 'z1', kind: 'oleada', triggerX: 500, lockMinX: 300, lockMaxX: 900,

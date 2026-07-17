@@ -56,8 +56,33 @@ export const ONCE_PROPS: PropDef[] = [
   { id: 'farol_estacion', worldX: 2640, groundScreenY: 478, scale: 0.62, parallax: 1.08, layer: 'front', flip: true },
 ];
 
+/**
+ * Estación Oxidada — a decaying rail platform: turnstiles and illegible
+ * platform signage behind, benches / lamps / abandoned luggage up front.
+ */
+export const ESTACION_PROPS: PropDef[] = [
+  // --- back layer ---
+  { id: 'cartel_anden_ilegible', worldX: 420, groundScreenY: 250, scale: 0.55, parallax: 0.96, layer: 'back' },
+  { id: 'molinete_generico', worldX: 760, groundScreenY: 402, scale: 0.6, parallax: 0.96, layer: 'back' },
+  { id: 'cableado_colgante', worldX: 1100, groundScreenY: 150, scale: 0.7, parallax: 0.9, layer: 'back', alpha: 0.9 },
+  { id: 'posteres_rotos', worldX: 1500, groundScreenY: 280, scale: 0.6, parallax: 0.96, layer: 'back', flip: true },
+  { id: 'reja_seguridad', worldX: 1980, groundScreenY: 320, scale: 0.72, parallax: 0.96, layer: 'back' },
+  { id: 'cartel_anden_ilegible', worldX: 2440, groundScreenY: 250, scale: 0.55, parallax: 0.96, layer: 'back', flip: true },
+  { id: 'molinete_generico', worldX: 2860, groundScreenY: 402, scale: 0.6, parallax: 0.96, layer: 'back', flip: true },
+  { id: 'cableado_colgante', worldX: 3260, groundScreenY: 150, scale: 0.7, parallax: 0.9, layer: 'back', flip: true, alpha: 0.9 },
+
+  // --- front layer ---
+  { id: 'farol_estacion', worldX: 520, groundScreenY: 478, scale: 0.62, parallax: 1.08, layer: 'front' },
+  { id: 'valija_vieja', worldX: 1040, groundScreenY: 468, scale: 0.4, parallax: 1.1, layer: 'front' },
+  { id: 'banco_anden', worldX: 1560, groundScreenY: 470, scale: 0.5, parallax: 1.1, layer: 'front', flip: true },
+  { id: 'carrito_carga', worldX: 2120, groundScreenY: 474, scale: 0.5, parallax: 1.1, layer: 'front' },
+  { id: 'banco_anden', worldX: 2680, groundScreenY: 470, scale: 0.5, parallax: 1.1, layer: 'front' },
+  { id: 'farol_estacion', worldX: 3200, groundScreenY: 478, scale: 0.62, parallax: 1.08, layer: 'front', flip: true },
+];
+
 export const STAGE_PROPS: Record<string, PropDef[]> = {
   '01-once': ONCE_PROPS,
+  '02-estacion-oxidada': ESTACION_PROPS,
 };
 
 export function propsForStage(stageId: string): PropDef[] {

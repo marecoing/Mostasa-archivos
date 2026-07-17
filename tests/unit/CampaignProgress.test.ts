@@ -30,8 +30,11 @@ describe('isStageUnlocked', () => {
 describe('isStagePlayable', () => {
   it('requires both unlock and runtime-ready art', () => {
     expect(isStagePlayable(once, [])).toBe(true); // once is runtimeReady
-    // stage2 is unlocked once Once is cleared, but its art is not runtime-ready
-    expect(isStagePlayable(stage2, ['01-once'])).toBe(false);
+    // stage2 (runtime-ready) is locked until Once is cleared, then playable
+    expect(isStagePlayable(stage2, [])).toBe(false);
+    expect(isStagePlayable(stage2, ['01-once'])).toBe(true);
+    // stage3 unlocks after stage2 but its art is not runtime-ready yet
+    expect(isStagePlayable(stage3, ['01-once', stage2.id])).toBe(false);
   });
 });
 

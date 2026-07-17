@@ -349,9 +349,38 @@
   errores de runtime
 - 8 tests en `PropManifest.test.ts` + 8 en `CampaignProgress.test.ts`
 
+### HITO 033 — Escenario 2 jugable: Estación Oxidada ✅
+- **Paneles**: copiados (no destructivo) los 5 paneles 1024×1024 de
+  `02-estacion-oxidada/` a `public/assets/stages/estacion/`; `StageManifest`
+  marca el escenario `runtimeReady` con sus rutas
+- **Lazy load** (biblia §32): `GameScene.preload()` carga los paneles del
+  escenario elegido solo si PreloadScene no los tiene en caché — los
+  escenarios nuevos no engordan la carga inicial
+- `data/StageLayout.ts` (nuevo, puro): layouts de rompibles + armas por
+  escenario; los del Once salieron del código hardcodeado de GameScene y la
+  Estación suma 7 rompibles y 4 armas (cadena, tapa de tacho, tubo, maletín)
+- `WaveManifest`: `ESTACION_ENCOUNTERS` — 5 zonas (2 oleadas + 1 emboscada +
+  miniboss "El Guarda Fantasma" + boss "El Señalero del Óxido" con secuaz);
+  más presión de speedsters/tanks que el Once; `encountersForStage()` +
+  etiquetas de jefes por escenario (`miniBossLabel`/`bossLabel`); el elenco
+  reutiliza las hojas del Escenario 1 hasta que exista el arte de los
+  enemigos 11-20 (sin inventar assets)
+- `PropManifest`: `ESTACION_PROPS` — 14 props de andén (molinetes, carteles
+  ilegibles, cableado, faroles, bancos, valija abandonada, carrito de carga)
+- `GameScene` quedó 100% genérico por escenario: banner, fondo, props,
+  layouts, encuentros y etiquetas salen todos de datos por `stageId`
+- Verificado en Chromium headless (capturas + estado): la Estación se lanza
+  desde la selección (desbloqueada al despejar Once), fondo lazy-cargado,
+  14 props, 7 rompibles, 4 armas, zona 1 activa con combate; molinete
+  ajustado al pie de la pared; sin errores de runtime
+- 8 tests en `StageData.test.ts` (integridad de encuentros de TODOS los
+  escenarios registrados: orden de triggers, bounds, tipos válidos, boss
+  final; layouts contra manifests; wiring del escenario 2) + 2 tests
+  existentes actualizados al nuevo estado
+
 ## HITOS PENDIENTES
 
-- ... (hitos 033-060)
+- ... (hitos 034-060)
 
 ---
 
@@ -408,7 +437,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
-| **Total**                       | **295**| ✅ OK  |
+| StageData.test.ts               | 8      | ✅ OK  |
+| **Total**                       | **303**| ✅ OK  |
 
 ---
 

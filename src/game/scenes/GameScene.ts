@@ -41,8 +41,10 @@ import { PickupEntity } from '../entities/PickupEntity';
 import { WeaponEntity, effectiveHitDamage } from '../entities/WeaponEntity';
 import type { EquippedWeapon } from '../entities/WeaponEntity';
 import { WaveSystem } from '../systems/WaveSystem';
-import { ONCE_ENCOUNTERS } from '../data/WaveManifest';
+import { encountersForStage } from '../data/WaveManifest';
+import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
+import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 
 const PLAYER_SPRITE_SCALE = 0.9;
 const SPRITE_ORIGIN_Y = 0.95;
@@ -137,6 +139,13 @@ export class GameScene extends Phaser.Scene {
     if (data?.stageId) this.stageId = data.stageId;
   }
 
+  /** Lazy-load this stage's panels if PreloadScene didn't stage them (§32). */
+  preload(): void {
+    if (!this.textures.exists(stagePanelKey(this.stageId, 1))) {
+      loadStagePanels(this, this.stageId);
+    }
+  }
+
   create(): void {
     this.cameras.main.setBackgroundColor('#0a0a18');
     registerAllCharacterAnims(this);
@@ -217,16 +226,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnBreakables(): void {
-    // A few destructibles laid along the Once street (Biblia §13/§14).
-    const layout: { id: string; x: number; y: number }[] = [
-      { id: 'cajon_rompible', x: 720, y: 560 },
-      { id: 'tacho_basura_rompible', x: 1050, y: 500 },
-      { id: 'puesto_diarios_ficticio', x: 1500, y: 560 },
-      { id: 'vidriera_rota', x: 1950, y: 460 },
-      { id: 'cono_transito', x: 2350, y: 540 },
-      { id: 'barril_plastico', x: 2800, y: 520 },
-    ];
-    for (const item of layout) {
+    // Destructibles laid along the street, per stage (Biblia §13/§14).
+    for (const item of layoutForStage(this.stageId).breakables) {
       const def = BREAKABLES[item.id];
       if (!def || !this.textures.exists(breakableKey(item.id))) continue;
       const ent = new BreakableEntity(def, item.x, item.y);
@@ -237,13 +238,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnWeapons(): void {
-    // A couple of grabbable weapons laid along the Once street.
-    const layout: { id: string; x: number; y: number }[] = [
-      { id: 'tubo_metalico', x: 880, y: 520 },
-      { id: 'llave_inglesa', x: 1700, y: 500 },
-      { id: 'cadena_oxidada', x: 2500, y: 540 },
-    ];
-    for (const item of layout) {
+    // Grabbable weapons laid along the street, per stage.
+    for (const item of layoutForStage(this.stageId).weapons) {
       const def = WEAPONS[item.id];
       if (!def || !this.textures.exists(itemKey(item.id))) continue;
       const ent = new WeaponEntity(def, item.x, item.y);
@@ -326,7 +322,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createWaveSystem(): void {
-    this.waveSystem = new WaveSystem(ONCE_ENCOUNTERS, STAGE_LANE.maxX);
+    this.waveSystem = new WaveSystem(encountersForStage(this.stageId), STAGE_LANE.maxX);
     this.stageStartMs = this.time.now;
     this.objectiveText = this.add
       .text(GAME_WIDTH / 2, 40, '', {
@@ -375,7 +371,8 @@ export class GameScene extends Phaser.Scene {
     // Objective banner.
     if (this.objectiveText) {
       if (this.waveSystem.currentPhase === 'fighting') {
-        const label = zone?.kind === 'boss' ? '¡EL CAPATAZ NOCTURNO!' : zone?.kind === 'mini_boss' ? '¡EL CARTONERO BLINDADO!' : '¡LIMPIÁ LA ZONA!';
+        const enc = encountersForStage(this.stageId);
+        const label = zone?.kind === 'boss' ? enc.bossLabel : zone?.kind === 'mini_boss' ? enc.miniBossLabel : '¡LIMPIÁ LA ZONA!';
         this.objectiveText.setText(`${label}  ENEMIGOS: ${alive}`).setVisible(true);
       } else {
         this.objectiveText.setVisible(false);
@@ -394,7 +391,7 @@ export class GameScene extends Phaser.Scene {
       this.camera.triggerShake(SHAKE_MEDIUM);
       this.playVfxAtWorld('bronca_especial', boss.pos.x, boss.pos.y, 80, 1.4);
       this.audio.play('special');
-      this.objectiveText?.setText('¡EL CAPATAZ SE ENFURECE!').setVisible(true);
+      this.objectiveText?.setText('¡EL JEFE SE ENFURECE!').setVisible(true);
       this.spawnEnemy(boss.pos.x + 140, 470, 'grunt', 'enemy_006');
       this.spawnEnemy(boss.pos.x - 140, 540, 'grunt', 'enemy_007');
     }
