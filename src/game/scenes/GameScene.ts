@@ -41,6 +41,7 @@ import { WeaponEntity, effectiveHitDamage } from '../entities/WeaponEntity';
 import type { EquippedWeapon } from '../entities/WeaponEntity';
 import { WaveSystem } from '../systems/WaveSystem';
 import { ONCE_ENCOUNTERS } from '../data/WaveManifest';
+import { AudioSystem } from '../systems/audio/AudioSystem';
 
 const PLAYER_SPRITE_SCALE = 0.9;
 const SPRITE_ORIGIN_Y = 0.95;
@@ -99,6 +100,7 @@ export class GameScene extends Phaser.Scene {
 
   private stageBg?: StageBackground;
   private vfx!: VfxSystem;
+  private audio!: AudioSystem;
   private breakables: BreakableEntity[] = [];
   private breakableSprites: Phaser.GameObjects.Sprite[] = [];
   private pickups: PickupEntity[] = [];
@@ -170,6 +172,24 @@ export class GameScene extends Phaser.Scene {
     this.fsm = new PlayerStateMachine();
     this.debugOverlay = new DebugOverlay(this);
     this.vfx = new VfxSystem(this);
+    this.audio = new AudioSystem();
+    this.setupAudioUnlock();
+  }
+
+  /**
+   * Autoplay policy (Biblia §22): only start the AudioContext after a real
+   * user gesture. We latch onto the first key/pointer input, unlock, and start
+   * the stage music. Also tear the context down on scene shutdown.
+   */
+  private setupAudioUnlock(): void {
+    const start = (): void => {
+      this.audio.unlock();
+      if (!this.stageEnded) this.audio.startMusic();
+    };
+    this.input.keyboard?.once('keydown', start);
+    this.input.once('pointerdown', start);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.audio.destroy());
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => this.audio.destroy());
   }
 
   private createStageBackground(): void {
@@ -230,6 +250,7 @@ export class GameScene extends Phaser.Scene {
 
   private equipWeapon(def: import('../data/ItemManifest').WeaponDef): void {
     this.equippedWeapon = { def, durabilityLeft: def.durability };
+    this.audio.play('weapon_pickup');
     if (this.heldWeaponSprite) {
       this.heldWeaponSprite.setTexture(itemKey(def.id)).setVisible(true).setScale(0.32);
     }
@@ -238,6 +259,7 @@ export class GameScene extends Phaser.Scene {
 
   private breakWeapon(): void {
     this.playVfxAtWorld('polvo_caida', this.playerPos.x, this.playerPos.y, 70);
+    this.audio.play('weapon_break');
     this.equippedWeapon = null;
     this.heldWeaponSprite?.setVisible(false);
     this.updateWeaponHud();
@@ -322,6 +344,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (actions.zoneCleared) {
       this.score += 200;
+      this.audio.play('zone_clear');
     }
 
     // Movement gate: confine the player to the active arena while fighting.
@@ -355,6 +378,7 @@ export class GameScene extends Phaser.Scene {
       this.bossPhase2Done = true;
       this.camera.triggerShake(SHAKE_MEDIUM);
       this.playVfxAtWorld('bronca_especial', boss.pos.x, boss.pos.y, 80, 1.4);
+      this.audio.play('special');
       this.spawnEnemy(boss.pos.x + 140, 470, 'grunt', 'enemy_006');
       this.spawnEnemy(boss.pos.x - 140, 540, 'grunt', 'enemy_007');
     }
@@ -363,6 +387,8 @@ export class GameScene extends Phaser.Scene {
   private finishStage(): void {
     this.stageEnded = true;
     this.score += 500; // pendrive federal
+    this.audio.play('zone_clear');
+    this.audio.stopMusic();
     this.objectiveText?.setVisible(false);
     const hpFraction = Math.max(0, this.playerHp / this.playerMaxHp);
     const timeSeconds = (this.time.now - this.stageStartMs) / 1000;
@@ -726,6 +752,7 @@ export class GameScene extends Phaser.Scene {
     for (const ev of fsmResult.events) {
       if (ev === 'jump' || ev === 'land') {
         this.camera.triggerShake(SHAKE_LIGHT);
+        if (ev === 'jump') this.audio.play('jump');
       } else if (ev === 'throw') {
         this.handleThrow();
       } else if (ev === 'special_radial') {
@@ -773,6 +800,8 @@ export class GameScene extends Phaser.Scene {
         maxHitstop = Math.max(maxHitstop, atk.hitstopFrames);
         this.camera.triggerShake(SHAKE_LIGHT);
         this.playVfxAtWorld(heavy ? 'impacto_pesado' : 'impacto_puno', enemy.pos.x, enemy.pos.y, enemy.pos.z + 40);
+        this.audio.play(heavy ? 'heavy_hit' : 'punch');
+        this.audio.play('enemy_hurt');
       }
       if (maxHitstop > 0) {
         this.hitstopFrames = maxHitstop;
@@ -790,6 +819,7 @@ export class GameScene extends Phaser.Scene {
         const broke = b.applyHit(atk.damage);
         this.playVfxAtWorld('chispas_metal', b.x, b.y, 60);
         this.camera.triggerShake(SHAKE_LIGHT);
+        this.audio.play(broke ? 'breakable' : 'punch');
         if (broke) this.onBreakableDestroyed(b);
       }
 
@@ -893,6 +923,7 @@ export class GameScene extends Phaser.Scene {
     this.playerIFrames = 48;
     this.camera.triggerShake(SHAKE_MEDIUM);
     this.playVfxAtWorld('impacto_puno', this.playerPos.x, this.playerPos.y, this.playerPos.z + 40);
+    this.audio.play('player_hurt');
 
     if (this.playerHp <= 0) {
       this.onPlayerDown();
@@ -920,6 +951,7 @@ export class GameScene extends Phaser.Scene {
   private gameOver(): void {
     if (this.stageEnded) return;
     this.stageEnded = true;
+    this.audio.stopMusic();
     this.objectiveText?.setText('GAME OVER').setVisible(true);
     this.cameras.main.fadeOut(900, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.TITLE));
@@ -941,6 +973,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.playVfxAtWorld('bronca_especial', this.playerPos.x, this.playerPos.y, 70);
     this.camera.triggerShake(SHAKE_MEDIUM);
+    this.audio.play('special');
   }
 
   /** Play a VFX at a world position (projected to screen). */
@@ -968,6 +1001,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private applyPickup(def: import('../data/ItemManifest').PickupDef): void {
+    this.audio.play('pickup');
     switch (def.effect) {
       case 'health':
         this.playerHp = Math.min(this.playerMaxHp, this.playerHp + def.amount);

@@ -277,13 +277,33 @@
 - 10 tests en `EnemyAttack.test.ts` (windows de ataque, interrupción, daño
   una-vez/en-rango/de-frente, tokens)
 
+### HITO 030 — Audio procedural (SFX + música del escenario) ✅
+- No se enviaron archivos de audio (dirs `public/assets/audio/*` vacíos), así que
+  todo se **sintetiza con WebAudio** (biblia §22); los assets se pueden reemplazar
+  luego sin tocar el resto
+- `systems/audio/SoundBank.ts`: banco puro y testeable — 12 SFX definidos por
+  capas (`osciladores + ruido` con envolvente de ganancia), `midiToFreq()`,
+  `beatDuration()`, y un loop musical `ONCE_MUSIC` (bajo + arpegio, 132 BPM,
+  16 beats)
+- `systems/audio/AudioSystem.ts`: wrapper WebAudio defensivo — crea/reanuda el
+  `AudioContext` **solo tras el primer gesto del usuario** (política de autoplay,
+  §22); buses de ganancia separados master/sfx/música (§22 "volúmenes
+  separados"); renderiza capas como one-shots; loop de música re-agendado por
+  compás; mute; degrada a no-op si no hay WebAudio (jsdom/tests no rompen)
+- `GameScene`: dispara SFX en golpe conectado (punch/heavy_hit + enemy_hurt),
+  rompible, pickup, arma equipada, arma rota, salto, especial, daño al jugador,
+  zona limpia, fase 2 del boss y cierre de nivel; música arranca en el primer
+  input y se detiene en game over / fin de nivel
+- Verificado en Chromium headless: `AudioContext` activo tras el gesto,
+  `playCount` incrementa al sonar un SFX, sin errores de runtime
+- 9 tests en `SoundBank.test.ts` (integridad del banco, rangos de capas, loop) +
+  4 en `AudioSystem.test.ts` (degradación segura sin WebAudio, mute, mezcla)
+
 ## HITOS PENDIENTES
 
-- HITO 030 — Audio (SFX de golpes/salto/hurt + música loop del escenario)
 - HITO 031 — Ataques del boss diferenciados (caño, carga) y pulido de fases
 - HITO 032 — Props decorativos foreground + selección de escenario / campaña
-- HITO 024 — Audio (SFX: golpes, salto, hurt; música: loop del escenario)
-- ... (hitos 025-060)
+- ... (hitos 033-060)
 
 ---
 
@@ -335,14 +355,16 @@ Ver `docs/adr/` para Architecture Decision Records.
 | WaveSystem.test.ts              | 10     | ✅ OK  |
 | RankSystem.test.ts              | 6      | ✅ OK  |
 | EnemyAttack.test.ts             | 10     | ✅ OK  |
-| **Total**                       | **255**| ✅ OK  |
+| SoundBank.test.ts               | 9      | ✅ OK  |
+| AudioSystem.test.ts             | 4      | ✅ OK  |
+| **Total**                       | **268**| ✅ OK  |
 
 ---
 
 ## LIMITACIONES DE LA BUILD ACTUAL
 
 1. Sin sprites finales (placeholders rectangulares)
-2. Sin audio (SFX ni música)
+2. Audio 100% procedural (WebAudio sintetizado); faltan assets de audio finales
 3. Sin combate funcional (solo movimiento)
 4. Sin enemigos
 5. Sin máquina de estados del jugador
