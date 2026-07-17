@@ -46,6 +46,8 @@ import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
 import { variantForStage } from '../systems/audio/SoundBank';
 import { loadAudioSettings, saveAudioSettings } from '../data/AudioSettings';
+import { loadProgress } from '../data/CampaignProgress';
+import { effectsFor } from '../data/ShopManifest';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 
 const PLAYER_SPRITE_SCALE = 0.9;
@@ -119,8 +121,10 @@ export class GameScene extends Phaser.Scene {
   private weaponDepletedThisSwing = false;
   private weaponHudText?: Phaser.GameObjects.Text;
   private playerHp = 100;
-  private readonly playerMaxHp = 100;
+  private playerMaxHp = 100;
   private score = 0;
+  /** Kiosco upgrade: multiplies all player attack damage (§16). */
+  private damageMultiplier = 1;
 
   private waveSystem!: WaveSystem;
   private waveGateMinX = 0;
@@ -132,6 +136,7 @@ export class GameScene extends Phaser.Scene {
   private hudInfoText!: Phaser.GameObjects.Text;
   private playerIFrames = 0;
   private playerLives = 3;
+  private startingBronca = 0;
 
   private paused = false;
   private pauseContainer?: Phaser.GameObjects.Container;
@@ -154,6 +159,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.applyUpgrades();
     this.cameras.main.setBackgroundColor('#0a0a18');
     registerAllCharacterAnims(this);
     this.createStageBackground();
@@ -192,6 +198,24 @@ export class GameScene extends Phaser.Scene {
         onComplete: () => noticeText.destroy(),
       });
     });
+  }
+
+  /**
+   * Apply Kiosco upgrades (Biblia §16). Runs first in create() so it also
+   * resets run state cleanly when the scene instance is reused (restart).
+   */
+  private applyUpgrades(): void {
+    const fx = effectsFor(loadProgress());
+    this.playerMaxHp = 100 + fx.maxHpBonus;
+    this.playerHp = this.playerMaxHp;
+    this.playerLives = 3 + fx.extraLives;
+    this.damageMultiplier = fx.damageMultiplier;
+    this.startingBronca = fx.startingBronca;
+    this.broncaMeter = fx.startingBronca;
+    this.score = 0;
+    this.playerIFrames = 0;
+    this.stageEnded = false;
+    this.bossPhase2Done = false;
   }
 
   private setupSystems(): void {
@@ -803,10 +827,15 @@ export class GameScene extends Phaser.Scene {
         this.activeAttack,
         this.enemies,
       );
-      // A held weapon adds its damage; use a modified attack for this swing.
-      const atk = this.equippedWeapon
-        ? { ...this.activeAttack, damage: effectiveHitDamage(this.activeAttack.damage, this.equippedWeapon) }
-        : this.activeAttack;
+      // A held weapon adds its damage; the Kiosco upgrade scales the whole
+      // swing. Build a modified attack for this frame.
+      const baseDamage = this.equippedWeapon
+        ? effectiveHitDamage(this.activeAttack.damage, this.equippedWeapon)
+        : this.activeAttack.damage;
+      const atk =
+        this.damageMultiplier !== 1 || this.equippedWeapon
+          ? { ...this.activeAttack, damage: Math.round(baseDamage * this.damageMultiplier) }
+          : this.activeAttack;
 
       let maxHitstop = 0;
       let connected = false;

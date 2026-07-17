@@ -25,7 +25,7 @@ interface Card {
  * Progress comes from CampaignProgress (localStorage-backed).
  */
 export class StageSelectScene extends Phaser.Scene {
-  private progress: CampaignProgress = { cleared: [], bestScore: {}, bestRank: {} };
+  private progress: CampaignProgress = { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {} };
   private cards: Card[] = [];
   private selected = 0;
   private hintText!: Phaser.GameObjects.Text;
@@ -66,10 +66,17 @@ export class StageSelectScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'FLECHAS = MOVER    ENTER = JUGAR    ESC = VOLVER', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'FLECHAS = MOVER    ENTER = JUGAR    K = KIOSCO    ESC = VOLVER', {
         fontFamily: 'monospace', fontSize: '10px', color: '#555555',
       })
       .setOrigin(0.5);
+
+    // Wallet + shop teaser (Biblia §16).
+    this.add
+      .text(GAME_WIDTH - 24, 22, `GUITA $ ${this.progress.wallet}`, {
+        fontFamily: 'monospace', fontSize: '13px', color: '#44ff88',
+      })
+      .setOrigin(1, 0);
 
     // Start on the first playable stage if possible.
     const firstPlayable = this.cards.findIndex((c) => isStagePlayable(c.stage, this.progress.cleared));
@@ -173,7 +180,13 @@ export class StageSelectScene extends Phaser.Scene {
     kb.on('keydown-DOWN', () => this.move(COLS));
     kb.on('keydown-ENTER', () => this.launch());
     kb.on('keydown-SPACE', () => this.launch());
+    kb.on('keydown-K', () => this.openShop());
     kb.on('keydown-ESC', () => this.goBack());
+  }
+
+  private openShop(): void {
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.SHOP));
   }
 
   private move(delta: number): void {

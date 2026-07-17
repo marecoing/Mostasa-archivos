@@ -19,12 +19,16 @@ export interface CampaignProgress {
   bestScore: Record<string, number>;
   /** best rank achieved per stage */
   bestRank: Record<string, Rank>;
+  /** guita: spendable in-game currency earned from cleared runs (§16) */
+  wallet: number;
+  /** purchased upgrade levels, keyed by ShopManifest item id */
+  upgrades: Record<string, number>;
 }
 
 const STORAGE_KEY = 'mostasas-rage:progress:v1';
 
 export function emptyProgress(): CampaignProgress {
-  return { cleared: [], bestScore: {}, bestRank: {} };
+  return { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {} };
 }
 
 /**
@@ -59,7 +63,9 @@ export function withStageCleared(
   if (score > (bestScore[stageId] ?? -1)) bestScore[stageId] = score;
   const bestRank = { ...p.bestRank };
   if (isBetterRank(rank, bestRank[stageId])) bestRank[stageId] = rank;
-  return { cleared, bestScore, bestRank };
+  // Every completed run pays its score into the wallet (replays earn too).
+  const wallet = p.wallet + Math.max(0, Math.round(score));
+  return { cleared, bestScore, bestRank, wallet, upgrades: { ...p.upgrades } };
 }
 
 function getStorage(): Storage | null {
@@ -82,6 +88,8 @@ export function loadProgress(): CampaignProgress {
       cleared: Array.isArray(parsed.cleared) ? parsed.cleared : [],
       bestScore: parsed.bestScore ?? {},
       bestRank: parsed.bestRank ?? {},
+      wallet: typeof parsed.wallet === 'number' && Number.isFinite(parsed.wallet) ? Math.max(0, parsed.wallet) : 0,
+      upgrades: parsed.upgrades ?? {},
     };
   } catch {
     return emptyProgress();

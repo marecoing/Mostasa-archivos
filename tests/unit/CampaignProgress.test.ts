@@ -57,6 +57,15 @@ describe('withStageCleared', () => {
     expect(p.bestRank['01-once']).toBe('S');
     expect(p.cleared.filter((x) => x === '01-once').length).toBe(1); // no dup
   });
+
+  it('pays every run into the wallet, replays included', () => {
+    let p = withStageCleared(emptyProgress(), '01-once', 1000, 'B');
+    expect(p.wallet).toBe(1000);
+    p = withStageCleared(p, '01-once', 500, 'C'); // replay still earns
+    expect(p.wallet).toBe(1500);
+    p = withStageCleared(p, '02-estacion-oxidada', 2000, 'A');
+    expect(p.wallet).toBe(3500);
+  });
 });
 
 describe('persistence (jsdom localStorage)', () => {

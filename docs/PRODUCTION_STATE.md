@@ -476,9 +476,33 @@
 - 3 tests en `StoryManifest.test.ts` (intro no vacía para los 10 escenarios,
   máx 3 filas visuales por línea, lookup con fallback)
 
+### HITO 038 — Meta-juego: Kiosco de Doña Bronca (tienda de mejoras) ✅
+- `CampaignProgress` extendido: `wallet` (guita) + `upgrades` (niveles por
+  ítem), persistidos; `withStageCleared` **paga el score de cada corrida a la
+  billetera** (los replays también suman); `loadProgress` sanea `wallet`
+  (no negativo, finito). Moneda 100% in-game, sin dinero real (§35)
+- `data/ShopManifest.ts` (puro): 4 mejoras — Mate Reforzado (+15 aguante máx,
+  3 niv), Puños Curtidos (+10% daño, 3 niv), Corazón de Barrio (+1 vida,
+  2 niv), Desayuno Amargo (50 bronca inicial, 1 niv); costo escalado
+  `baseCost*(nivel+1)`; `nextCost`/`canBuy`/`buyUpgrade` (inmutable) +
+  `effectsFor` que deriva los efectos de juego de los niveles comprados
+- `scenes/ShopScene.ts` (nueva): "El Kiosco de Doña Bronca" — billetera,
+  filas con pips de nivel (●○○) y precios, descripción, feedback de compra
+  (comprado / no alcanza / al máximo), navegación por teclado
+- `StageSelectScene`: muestra la guita, tecla **K abre el Kiosco**
+- `GameScene.applyUpgrades()`: al crear/reiniciar aplica maxHp/vidas/
+  multiplicador de daño/bronca inicial desde el progreso; el multiplicador
+  escala el daño de todos los golpes del jugador (combinado con armas)
+- Verificado en Chromium headless: comprar Mate Reforzado descontó 5000→4100,
+  guardado en localStorage; al entrar a un nivel con 3 mejoras compradas el
+  jugador tenía maxHp 115, 4 vidas y daño ×1.1; captura de la tienda revisada;
+  sin errores de runtime
+- 11 tests en `ShopManifest.test.ts` (integridad, costos escalados, canBuy,
+  compra inmutable, efectos) + 1 test de billetera en `CampaignProgress.test.ts`
+
 ## HITOS PENDIENTES
 
-- ... (hitos 038-060)
+- ... (hitos 039-060)
 
 ---
 
@@ -534,11 +558,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | AudioSystem.test.ts             | 4      | ✅ OK  |
 | AudioSettings.test.ts           | 6      | ✅ OK  |
 | StoryManifest.test.ts           | 3      | ✅ OK  |
+| ShopManifest.test.ts            | 11     | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **341**| ✅ OK  |
+| **Total**                       | **349**| ✅ OK  |
 
 ---
 
