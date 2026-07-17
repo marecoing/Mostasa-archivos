@@ -459,9 +459,26 @@
 - 6 tests en `AudioSettings.test.ts` (clamp, sanitize, round-trip, corrupt
   storage, setVolume clampa sin WebAudio, getMix devuelve copia)
 
+### HITO 037 — Cutscenes de texto entre niveles ✅
+- `data/StoryManifest.ts` (puro): intro por escenario — 2-3 líneas con
+  narrador o MOSTASA, tono satírico rioplatense, **todo ficticio** (biblia
+  §5, restricciones legales §35: ninguna referencia a personas reales); el
+  arco narra la ruta del pendrive federal desde el Once hasta la Rosca
+- `scenes/CutsceneScene.ts` (nueva): caja de diálogo con **typewriter** (55
+  chars/seg), etiqueta de hablante en dorado, ENTER completa la línea o
+  avanza, ESC saltea todo; siempre termina lanzando GameScene con el mismo
+  `stageId`; si un escenario no tiene guion pasa directo al juego
+- Flujo: Selección → **Cutscene** → Nivel (la selección ahora lanza
+  `CUTSCENE`, no `GAME` directo)
+- Verificado en Chromium headless: typewriter revela el texto, ENTER lo
+  completa y avanza de línea (capturas del narrador y de MOSTASA), ESC
+  saltea y el juego arranca en el nivel correcto sin errores
+- 3 tests en `StoryManifest.test.ts` (intro no vacía para los 10 escenarios,
+  máx 3 filas visuales por línea, lookup con fallback)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 037-060)
+- ... (hitos 038-060)
 
 ---
 
@@ -516,11 +533,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | SoundBank.test.ts               | 12     | ✅ OK  |
 | AudioSystem.test.ts             | 4      | ✅ OK  |
 | AudioSettings.test.ts           | 6      | ✅ OK  |
+| StoryManifest.test.ts           | 3      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 8      | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **338**| ✅ OK  |
+| **Total**                       | **341**| ✅ OK  |
 
 ---
 

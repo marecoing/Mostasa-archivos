@@ -195,7 +195,7 @@ export class StageSelectScene extends Phaser.Scene {
     }
     this.cameras.main.fadeOut(350, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () =>
-      this.scene.start(SCENE_KEYS.GAME, { stageId: stage.id }),
+      this.scene.start(SCENE_KEYS.CUTSCENE, { stageId: stage.id }),
     );
   }
 
