@@ -376,9 +376,11 @@ export class GameScene extends Phaser.Scene {
     if (!boss) return;
     if (boss.hp <= boss.maxHp * 0.5) {
       this.bossPhase2Done = true;
+      boss.enrage();
       this.camera.triggerShake(SHAKE_MEDIUM);
       this.playVfxAtWorld('bronca_especial', boss.pos.x, boss.pos.y, 80, 1.4);
       this.audio.play('special');
+      this.objectiveText?.setText('¡EL CAPATAZ SE ENFURECE!').setVisible(true);
       this.spawnEnemy(boss.pos.x + 140, 470, 'grunt', 'enemy_006');
       this.spawnEnemy(boss.pos.x - 140, 540, 'grunt', 'enemy_007');
     }
@@ -909,8 +911,20 @@ export class GameScene extends Phaser.Scene {
       const allow = attackingNow < MAX_ATTACKERS;
       enemy.tickPhysics(this.playerPos.x, this.playerPos.y, STAGE_LANE, allow);
       if (!wasAttacking && enemy.fsm.isAttacking()) attackingNow++;
+
+      // Telegraph a freshly-committed boss attack with a distinct tell.
+      if (enemy.attackJustStarted) {
+        const isCharge = enemy.attackJustStarted === 'charge';
+        this.playVfxAtWorld(isCharge ? 'bronca_especial' : 'polvo_caida', enemy.pos.x, enemy.pos.y, 70, isCharge ? 1.2 : 1);
+        this.audio.play(isCharge ? 'heavy_hit' : 'ui_confirm');
+        enemy.attackJustStarted = null;
+      }
+
       const dmg = enemy.consumeAttackHit(this.playerPos.x, this.playerPos.y, this.playerPos.z);
-      if (dmg > 0) this.damagePlayer(dmg, enemy.facing);
+      if (dmg > 0) {
+        this.damagePlayer(dmg, enemy.facing);
+        if (enemy.bossAttack === 'charge') this.camera.triggerShake(SHAKE_MEDIUM);
+      }
     }
   }
 

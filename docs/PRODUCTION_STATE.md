@@ -299,9 +299,31 @@
 - 9 tests en `SoundBank.test.ts` (integridad del banco, rangos de capas, loop) +
   4 en `AudioSystem.test.ts` (degradación segura sin WebAudio, mute, mezcla)
 
+### HITO 031 — Ataques diferenciados del boss + pulido de fases ✅
+- `entities/BossAI.ts`: lógica pura y testeable — `chooseBossAttack()` elige por
+  distancia entre **'melee' (el caño)** a corta distancia y **'charge' (la
+  embestida)** a media distancia; constantes de rango/velocidad/daño/frames del
+  dash (rango de carga ≈ distancia que el dash alcanza, para que cierre y
+  conecte en vez de quedarse corto)
+- `EnemyEntity`: rama de IA específica del boss; al comprometer una carga bloquea
+  el facing y hace un **dash hacia adelante** (620 u/s durante 16 frames) tras
+  la telegrafía; `consumeAttackHit()` distingue la ventana/daño/alcance de la
+  carga (32 de daño, más largo) del golpe normal; `enrage()` (fase 2) sube la
+  velocidad ×1.35 y acorta cooldowns; `attackJustStarted` para que la escena
+  dispare el tell
+- `GameScene`: telegrafía distinta por tipo de ataque del boss (VFX + SFX:
+  `heavy_hit`/bronca para la carga, `ui_confirm`/polvo para el caño); shake
+  extra al conectar la carga; en fase 2 el boss se enfurece con banner
+  "¡EL CAPATAZ SE ENFURECE!"
+- Verificado en Chromium headless: el boss alterna caño/carga según distancia,
+  el dash cierra la brecha (vx=-620, x 620→506) y **conecta** (HP del jugador
+  100→46), `enrage()` sube la velocidad, sin errores de runtime
+- 11 tests en `BossAI.test.ts` (decisión por distancia/profundidad/cooldown,
+  commit de melee/charge, dash hacia adelante, daño de carga una-vez y ventana
+  extendida, enrage idempotente)
+
 ## HITOS PENDIENTES
 
-- HITO 031 — Ataques del boss diferenciados (caño, carga) y pulido de fases
 - HITO 032 — Props decorativos foreground + selección de escenario / campaña
 - ... (hitos 033-060)
 
@@ -357,7 +379,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | EnemyAttack.test.ts             | 10     | ✅ OK  |
 | SoundBank.test.ts               | 9      | ✅ OK  |
 | AudioSystem.test.ts             | 4      | ✅ OK  |
-| **Total**                       | **268**| ✅ OK  |
+| BossAI.test.ts                  | 11     | ✅ OK  |
+| **Total**                       | **279**| ✅ OK  |
 
 ---
 

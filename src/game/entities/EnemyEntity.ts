@@ -2,9 +2,16 @@ import type { Vec3 } from '../core/Physics25D';
 import { isOnGround, applyFriction, GRAVITY, GROUND_Z, FIXED_TIMESTEP } from '../core/Physics25D';
 import { clampEntityToLane } from '../core/Pushbox';
 import type { StageLane } from '../core/Pushbox';
-import { EnemyStateMachine } from './EnemyStateMachine';
+import { EnemyStateMachine, ATTACK_WINDUP } from './EnemyStateMachine';
 import type { EnemyStats } from '../data/EnemyData';
 import type { AttackDef } from '../data/AttackData';
+import {
+  chooseBossAttack,
+  BOSS_CHARGE_SPEED,
+  BOSS_CHARGE_DAMAGE,
+  BOSS_CHARGE_DASH_FRAMES,
+} from './BossAI';
+import type { BossAttack } from './BossAI';
 
 const KNOCKBACK_FRICTION = 300;
 
@@ -31,6 +38,12 @@ export class EnemyEntity {
   attackCooldownLeft = 0;
   /** guards one damage application per attack swing */
   dealtDamageThisAttack = false;
+  /** which boss attack the current swing is (null for regular enemies) */
+  bossAttack: Exclude<BossAttack, 'none'> | null = null;
+  /** set when the boss commits an attack; the scene reads & clears it for FX */
+  attackJustStarted: Exclude<BossAttack, 'none'> | null = null;
+  /** phase-2 rage: faster and more aggressive */
+  enraged = false;
 
   constructor(x: number, y: number, stats: EnemyStats, spriteKey = 'enemy_001') {
     this.pos = { x, y, z: 0 };
@@ -57,14 +70,32 @@ export class EnemyEntity {
    */
   consumeAttackHit(playerX: number, playerY: number, playerZ: number): number {
     if (this.dead || this.dealtDamageThisAttack) return 0;
-    if (!this.fsm.isAttackActive()) return 0;
+    if (!this.fsm.isAttacking()) return 0;
+
+    // A boss charge stays "active" for the whole dash window and deals heavier
+    // damage over a longer reach; the swing uses the normal active frames.
+    let active: boolean;
+    let damage: number;
+    let reach: number;
+    if (this.bossAttack === 'charge') {
+      const f = this.fsm.currentFrame;
+      active = f >= ATTACK_WINDUP && f < ATTACK_WINDUP + BOSS_CHARGE_DASH_FRAMES;
+      damage = BOSS_CHARGE_DAMAGE;
+      reach = this.attackRange + 20;
+    } else {
+      active = this.fsm.isAttackActive();
+      damage = this.attackDamage;
+      reach = this.attackRange + 24;
+    }
+    if (!active) return 0;
+
     if (Math.abs(playerY - this.pos.y) > 40) return 0;
     if (Math.abs(playerZ - this.pos.z) > 60) return 0;
     const dx = playerX - this.pos.x;
     if (this.facing * dx < -12) return 0; // player must be in front
-    if (Math.abs(dx) > this.attackRange + 24) return 0;
+    if (Math.abs(dx) > reach) return 0;
     this.dealtDamageThisAttack = true;
-    return this.attackDamage;
+    return damage;
   }
 
   applyHit(attack: AttackDef, attackerFacing: 1 | -1): void {
@@ -118,12 +149,22 @@ export class EnemyEntity {
 
     if (this.attackCooldownLeft > 0) this.attackCooldownLeft--;
     this.fsm.tick();
-    if (!this.fsm.isAttacking()) this.dealtDamageThisAttack = false;
+    if (!this.fsm.isAttacking()) {
+      this.dealtDamageThisAttack = false;
+      this.bossAttack = null;
+    }
 
     if (this.fsm.isAttacking()) {
-      // Anchored while swinging; face the player during the windup.
-      this.vel.x = 0;
-      this.vel.y = 0;
+      const f = this.fsm.currentFrame;
+      if (this.bossAttack === 'charge' && f >= ATTACK_WINDUP && f < ATTACK_WINDUP + BOSS_CHARGE_DASH_FRAMES) {
+        // Committed dash: lunge forward at the locked facing.
+        this.vel.x = this.facing * BOSS_CHARGE_SPEED;
+        this.vel.y = 0;
+      } else {
+        // Anchored while winding up / swinging / recovering.
+        this.vel.x = 0;
+        this.vel.y = 0;
+      }
     } else if (this.fsm.canMove()) {
       this.tickAI(playerX, playerY, attackAllowed);
     } else if (!this.fsm.isGrabbed()) {
@@ -163,11 +204,23 @@ export class EnemyEntity {
     }
   }
 
+  /** Phase-2 rage: quicker on its feet and quicker to attack. */
+  enrage(): void {
+    if (this.enraged) return;
+    this.enraged = true;
+    this.walkSpeed *= 1.35;
+  }
+
   private tickAI(playerX: number, playerY: number, attackAllowed: boolean): void {
     const dx = playerX - this.pos.x;
     const dy = playerY - this.pos.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     this.facing = dx >= 0 ? 1 : -1;
+
+    if (this.type === 'boss') {
+      this.tickBossAI(dx, dy, dist, attackAllowed);
+      return;
+    }
 
     const inRange = Math.abs(dx) <= this.attackRange && Math.abs(dy) <= 40;
 
@@ -189,6 +242,38 @@ export class EnemyEntity {
       // Close enough to loiter but not yet in strike range → keep pressing in.
       this.fsm.setWalking();
       const scale = (this.walkSpeed * 0.7) / Math.max(1, dist);
+      this.vel.x = dx * scale;
+      this.vel.y = dy * scale;
+    } else {
+      this.fsm.setIdle();
+      this.vel.x = 0;
+      this.vel.y = 0;
+    }
+  }
+
+  private tickBossAI(dx: number, dy: number, dist: number, attackAllowed: boolean): void {
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+
+    if (attackAllowed && this.attackCooldownLeft <= 0) {
+      const choice = chooseBossAttack(absDx, absDy, this.attackRange, true);
+      if (choice !== 'none' && this.fsm.startAttack()) {
+        this.bossAttack = choice;
+        this.attackJustStarted = choice;
+        // The charge covers a bigger commitment, so it costs a full cooldown;
+        // the swing recovers faster. Rage shortens both.
+        const base = choice === 'charge' ? this.attackCooldown : Math.round(this.attackCooldown * 0.75);
+        this.attackCooldownLeft = this.enraged ? Math.round(base * 0.6) : base;
+        this.vel.x = 0;
+        this.vel.y = 0;
+        return; // facing is now locked for the swing/dash
+      }
+    }
+
+    // Otherwise close the distance until in melee reach.
+    if (dist > this.attackRange - 8) {
+      this.fsm.setWalking();
+      const scale = this.walkSpeed / Math.max(1, dist);
       this.vel.x = dx * scale;
       this.vel.y = dy * scale;
     } else {
