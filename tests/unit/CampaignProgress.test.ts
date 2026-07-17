@@ -90,4 +90,13 @@ describe('persistence (jsdom localStorage)', () => {
     recordStageResult('01-once', 3000, 'S');
     expect(isStageUnlocked(stage2, loadProgress().cleared)).toBe(true);
   });
+
+  it('recordStageResult keeps the best combo across runs', () => {
+    recordStageResult('01-once', 1000, 'B', 18);
+    expect(loadProgress().bestCombo).toBe(18);
+    recordStageResult('01-once', 1000, 'B', 9); // smaller combo
+    expect(loadProgress().bestCombo).toBe(18); // unchanged
+    recordStageResult('01-once', 1000, 'B', 27); // new record
+    expect(loadProgress().bestCombo).toBe(27);
+  });
 });

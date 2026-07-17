@@ -4,7 +4,7 @@ import { computeRank, RANK_COLORS } from '../data/RankSystem';
 import type { StageResult } from '../data/RankSystem';
 import { itemKey } from '../systems/AssetLoader';
 import { stageById } from '../data/StageManifest';
-import { recordStageResult, isStageUnlocked, loadProgress } from '../data/CampaignProgress';
+import { recordStageResult, isStageUnlocked } from '../data/CampaignProgress';
 
 export interface ResultsData extends StageResult {
   /** reward item id awarded for clearing (e.g. pendrive_federal) */
@@ -25,9 +25,10 @@ export class ResultsScene extends Phaser.Scene {
     const rank = computeRank(data);
 
     // Persist campaign progress: mark this stage cleared and unlock the next.
-    recordStageResult(data.stageId, data.score, rank);
+    const progress = recordStageResult(data.stageId, data.score, rank, data.maxCombo ?? 0);
     const nextStage = stage?.nextStageId ? stageById(stage.nextStageId) : undefined;
-    const nextUnlocked = nextStage ? isStageUnlocked(nextStage, loadProgress().cleared) : false;
+    const nextUnlocked = nextStage ? isStageUnlocked(nextStage, progress.cleared) : false;
+    const isRecordCombo = (data.maxCombo ?? 0) >= progress.bestCombo && (data.maxCombo ?? 0) > 0;
 
     this.add
       .text(cx, 90, 'ESCENARIO DESPEJADO', {
@@ -58,6 +59,7 @@ export class ResultsScene extends Phaser.Scene {
       `PUNTAJE   ${String(data.score).padStart(7, '0')}`,
       `AGUANTE   ${Math.round(data.hpFraction * 100)}%`,
       `TIEMPO    ${this.fmtTime(data.timeSeconds)}`,
+      `COMBO MÁX ${data.maxCombo ?? 0} HITS${isRecordCombo ? '  ¡RÉCORD!' : ''}`,
       `SIN CAER  ${data.noDeaths ? 'SÍ' : 'NO'}`,
     ];
     this.add

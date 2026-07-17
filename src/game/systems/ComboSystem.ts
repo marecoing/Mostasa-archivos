@@ -30,11 +30,17 @@ export function comboLabel(hits: number): string {
 export class ComboSystem {
   private hits = 0;
   private timer = 0;
+  private peak = 0;
   /** true on the frame the combo just dropped, for one-shot reactions */
   private droppedThisFrame = false;
 
   get count(): number {
     return this.hits;
+  }
+
+  /** Highest chain reached since the last full reset (for run stats). */
+  get maxCombo(): number {
+    return this.peak;
   }
 
   get active(): boolean {
@@ -58,6 +64,7 @@ export class ComboSystem {
   addHit(): number {
     this.hits += 1;
     this.timer = COMBO_TIMEOUT_FRAMES;
+    if (this.hits > this.peak) this.peak = this.hits;
     return this.hits;
   }
 
@@ -75,10 +82,14 @@ export class ComboSystem {
     return this.droppedThisFrame;
   }
 
-  /** Force the combo to end now (e.g. the player got hit). */
-  reset(): void {
+  /**
+   * Force the combo to end now (e.g. the player got hit). Keeps the run peak
+   * unless `full` is set (used when a fresh run starts).
+   */
+  reset(full = false): void {
     this.hits = 0;
     this.timer = 0;
+    if (full) this.peak = 0;
   }
 
   /** Score awarded for a base amount at the current multiplier (rounded). */

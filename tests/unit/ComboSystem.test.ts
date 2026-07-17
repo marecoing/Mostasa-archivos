@@ -85,4 +85,17 @@ describe('ComboSystem', () => {
     expect(c.multiplier).toBe(2);
     expect(c.scoreFor(10)).toBe(20);
   });
+
+  it('tracks the run peak across chains until a full reset', () => {
+    const c = new ComboSystem();
+    for (let i = 0; i < 7; i++) c.addHit();
+    expect(c.maxCombo).toBe(7);
+    c.reset(); // getting hit: chain ends, peak survives
+    expect(c.count).toBe(0);
+    expect(c.maxCombo).toBe(7);
+    for (let i = 0; i < 3; i++) c.addHit(); // shorter chain
+    expect(c.maxCombo).toBe(7); // peak unchanged
+    c.reset(true); // fresh run
+    expect(c.maxCombo).toBe(0);
+  });
 });

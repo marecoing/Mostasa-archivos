@@ -29,10 +29,26 @@ describe('computeRank', () => {
     expect(RANK_ORDER.indexOf(fast)).toBeGreaterThan(RANK_ORDER.indexOf(slow));
   });
 
+  it('bumps rank for a big combo (>=20) and ignores small ones', () => {
+    const base = result({ score: 1600, timeSeconds: 300, hpFraction: 0.5, noDeaths: false });
+    const small = computeRank({ ...base, maxCombo: 8 });
+    const big = computeRank({ ...base, maxCombo: 25 });
+    expect(RANK_ORDER.indexOf(big)).toBeGreaterThan(RANK_ORDER.indexOf(small));
+    expect(computeRank({ ...base, maxCombo: 0 })).toBe(small); // no combo == small combo
+  });
+
   it('awards Rosca only for a flawless, fast, high-score clear', () => {
     expect(computeRank(result({ score: 3200, hpFraction: 1.0, noDeaths: true, timeSeconds: 100 }))).toBe('Rosca');
     // Same score but slower / hurt → at most S
     expect(computeRank(result({ score: 3200, hpFraction: 0.6, noDeaths: false, timeSeconds: 300 }))).toBe('S');
+  });
+
+  it('bumps cannot reach Rosca without the flawless condition', () => {
+    // A-score, no deaths + fast + big combo = 3 bumps → caps at S, not Rosca,
+    // because HP is below the flawless threshold.
+    expect(
+      computeRank(result({ score: 2400, hpFraction: 0.85, noDeaths: true, timeSeconds: 110, maxCombo: 24 })),
+    ).toBe('S');
   });
 
   it('never returns an out-of-range rank', () => {

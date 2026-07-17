@@ -23,12 +23,14 @@ export interface CampaignProgress {
   wallet: number;
   /** purchased upgrade levels, keyed by ShopManifest item id */
   upgrades: Record<string, number>;
+  /** highest combo chain ever reached across the campaign (§12) */
+  bestCombo: number;
 }
 
 const STORAGE_KEY = 'mostasas-rage:progress:v1';
 
 export function emptyProgress(): CampaignProgress {
-  return { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {} };
+  return { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {}, bestCombo: 0 };
 }
 
 /**
@@ -65,7 +67,7 @@ export function withStageCleared(
   if (isBetterRank(rank, bestRank[stageId])) bestRank[stageId] = rank;
   // Every completed run pays its score into the wallet (replays earn too).
   const wallet = p.wallet + Math.max(0, Math.round(score));
-  return { cleared, bestScore, bestRank, wallet, upgrades: { ...p.upgrades } };
+  return { cleared, bestScore, bestRank, wallet, upgrades: { ...p.upgrades }, bestCombo: p.bestCombo };
 }
 
 function getStorage(): Storage | null {
@@ -90,6 +92,7 @@ export function loadProgress(): CampaignProgress {
       bestRank: parsed.bestRank ?? {},
       wallet: typeof parsed.wallet === 'number' && Number.isFinite(parsed.wallet) ? Math.max(0, parsed.wallet) : 0,
       upgrades: parsed.upgrades ?? {},
+      bestCombo: typeof parsed.bestCombo === 'number' && Number.isFinite(parsed.bestCombo) ? Math.max(0, parsed.bestCombo) : 0,
     };
   } catch {
     return emptyProgress();
@@ -106,9 +109,15 @@ export function saveProgress(p: CampaignProgress): void {
   }
 }
 
-/** Load, record a clear, save, and return the updated progress. */
-export function recordStageResult(stageId: string, score: number, rank: Rank): CampaignProgress {
-  const next = withStageCleared(loadProgress(), stageId, score, rank);
+/** Load, record a clear (with optional run combo), save, and return it. */
+export function recordStageResult(
+  stageId: string,
+  score: number,
+  rank: Rank,
+  maxCombo = 0,
+): CampaignProgress {
+  const cleared = withStageCleared(loadProgress(), stageId, score, rank);
+  const next = { ...cleared, bestCombo: Math.max(cleared.bestCombo, Math.max(0, Math.round(maxCombo))) };
   saveProgress(next);
   return next;
 }

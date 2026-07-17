@@ -17,6 +17,8 @@ export interface StageResult {
   noDeaths: boolean;
   /** seconds taken to clear */
   timeSeconds: number;
+  /** highest combo chain reached during the run (Biblia §12) */
+  maxCombo?: number;
 }
 
 /**
@@ -47,10 +49,13 @@ export function computeRank(result: StageResult): Rank {
   let bumps = 0;
   if (result.noDeaths && result.hpFraction >= 0.75) bumps += 1;
   if (result.timeSeconds > 0 && result.timeSeconds <= 120) bumps += 1;
+  if ((result.maxCombo ?? 0) >= 20) bumps += 1; // a big chain shows mastery
 
   rank = bumpRank(rank, bumps);
 
-  // "Rosca" is reserved for a flawless, fast, high-score clear.
+  // Bumps top out at S; "Rosca" is reserved for a flawless, fast, high-score
+  // clear and can only be reached through the condition below.
+  if (RANK_ORDER.indexOf(rank) > RANK_ORDER.indexOf('S')) rank = 'S';
   if (rank === 'S' && result.noDeaths && result.hpFraction >= 0.9 && result.timeSeconds <= 150) {
     rank = 'Rosca';
   }

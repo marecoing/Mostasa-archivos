@@ -518,9 +518,30 @@
 - 8 tests en `ComboSystem.test.ts` (bandas monótonas, labels, timeout
   exacto una vez, refresh en ventana, reset, scoreFor)
 
+### HITO 040 — Combo en resultados + rango + récord persistente ✅
+- `ComboSystem`: rastrea el **pico del run** (`maxCombo`); `reset()` mantiene
+  el pico al recibir daño, `reset(true)` lo limpia al empezar un run nuevo
+- `RankSystem`: `StageResult.maxCombo` opcional; un combo ≥20 **suma un bump**
+  de rango; **fix de balance**: los bumps ahora topan en S y "Rosca" queda
+  reservado exclusivamente a la condición impecable (sin caer + ≥90% vida +
+  ≤150s) — antes 3 bumps escalaban de A directo a Rosca por el clamp
+- `CampaignProgress`: nuevo `bestCombo` (récord de campaña), saneado al
+  cargar; `recordStageResult(stageId, score, rank, maxCombo)` lo actualiza
+- `GameScene`: pasa `maxCombo` a resultados; **fix**: `noDeaths` ahora compara
+  contra las vidas iniciales del run (`runStartLives`) en vez de `=== 3`
+  (roto por la mejora de vidas extra del Kiosco)
+- `ResultsScene`: fila "COMBO MÁX N HITS" con marca **¡RÉCORD!** cuando supera
+  el mejor histórico
+- Verificado en Chromium headless: combo de 24 en el run → resultados muestran
+  "COMBO MÁX 24 HITS ¡RÉCORD!", bestCombo persistido 5→24, y el mismo clear a
+  85% de vida da rango **S** (no Rosca) tras el fix; sin errores de runtime
+- Tests: bump por combo grande + los bumps no alcanzan Rosca sin la condición
+  impecable (`RankSystem`); pico del combo a través de resets (`ComboSystem`);
+  bestCombo entre runs (`CampaignProgress`)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 040-060)
+- ... (hitos 041-060)
 
 ---
 
@@ -570,19 +591,19 @@ Ver `docs/adr/` para Architecture Decision Records.
 | AnimationData.test.ts           | 24     | ✅ OK  |
 | AssetSystems.test.ts            | 20     | ✅ OK  |
 | WaveSystem.test.ts              | 10     | ✅ OK  |
-| RankSystem.test.ts              | 6      | ✅ OK  |
+| RankSystem.test.ts              | 8      | ✅ OK  |
 | EnemyAttack.test.ts             | 10     | ✅ OK  |
 | SoundBank.test.ts               | 12     | ✅ OK  |
 | AudioSystem.test.ts             | 4      | ✅ OK  |
 | AudioSettings.test.ts           | 6      | ✅ OK  |
 | StoryManifest.test.ts           | 3      | ✅ OK  |
 | ShopManifest.test.ts            | 11     | ✅ OK  |
-| ComboSystem.test.ts             | 8      | ✅ OK  |
+| ComboSystem.test.ts             | 9      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
-| CampaignProgress.test.ts        | 8      | ✅ OK  |
+| CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **357**| ✅ OK  |
+| **Total**                       | **361**| ✅ OK  |
 
 ---
 

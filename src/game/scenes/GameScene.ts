@@ -142,6 +142,7 @@ export class GameScene extends Phaser.Scene {
   private hudInfoText!: Phaser.GameObjects.Text;
   private playerIFrames = 0;
   private playerLives = 3;
+  private runStartLives = 3;
   private startingBronca = 0;
 
   private paused = false;
@@ -215,6 +216,7 @@ export class GameScene extends Phaser.Scene {
     this.playerMaxHp = 100 + fx.maxHpBonus;
     this.playerHp = this.playerMaxHp;
     this.playerLives = 3 + fx.extraLives;
+    this.runStartLives = this.playerLives;
     this.damageMultiplier = fx.damageMultiplier;
     this.startingBronca = fx.startingBronca;
     this.broncaMeter = fx.startingBronca;
@@ -222,7 +224,7 @@ export class GameScene extends Phaser.Scene {
     this.playerIFrames = 0;
     this.stageEnded = false;
     this.bossPhase2Done = false;
-    this.combo.reset();
+    this.combo.reset(true); // fresh run: clear the chain and the peak
   }
 
   private setupSystems(): void {
@@ -450,8 +452,9 @@ export class GameScene extends Phaser.Scene {
         stageId: this.stageId,
         score: this.score,
         hpFraction,
-        noDeaths: this.playerLives === 3,
+        noDeaths: this.playerLives === this.runStartLives,
         timeSeconds,
+        maxCombo: this.combo.maxCombo,
         ...(this.stageId === '01-once' ? { rewardItemId: 'pendrive_federal' } : {}),
       });
     });
