@@ -879,6 +879,15 @@
 - `npm run sprites:build` = process + normalize (pipeline reproducible)
 - 432 tests en verde; typecheck/lint/build limpios
 
+### HITO 059 — Corrección de proporción: enemigos enanos ✅
+- Feedback directo: "los enemigos parecen enanos". Con K=3.0 un grunt medía
+  204px vs 273px del héroe (75 %) — proporción de enano
+- `ENEMY_SCREEN_HEIGHT_K` 3.0 → 3.55: grunt 241px (~88 % del héroe, adulto
+  normal), tank 284px (supera al héroe, como corresponde al arquetipo);
+  barra de HP y sombras se adaptan solas (ya ancladas a displayHeight)
+- Verificado en Chromium headless midiendo displayHeight en vivo
+  (player 273 / grunt 241 / tank 284) + captura de composición
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)

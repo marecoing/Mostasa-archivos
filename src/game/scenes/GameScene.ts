@@ -69,7 +69,10 @@ import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 // 3px above the cell bottom, so visible height ≈ frameHeight × scale.
 const PLAYER_SPRITE_SCALE = 1.3;
 const SPRITE_ORIGIN_Y = 0.98;
-const ENEMY_SCREEN_HEIGHT_K = 3.0;
+// Visible enemy height = stats.height × K. With the player at ~273px, K=3.55
+// puts a grunt (68) at ~241px (~90% of the hero) and a tank (80) just above
+// him — human proportions instead of the dwarfish 75% the old K produced.
+const ENEMY_SCREEN_HEIGHT_K = 3.55;
 // The character sheets are rendered darker than the photoreal backdrops; an
 // additive self-overlay lifts their exposure so they read as lit subjects.
 const CHARACTER_LIFT_ALPHA = 0.26;
