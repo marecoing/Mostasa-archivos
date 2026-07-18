@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  paletteForStage, enemyTint, scaleColor, spriteVariant,
+  paletteForStage, enemyTint, scaleColor, spriteVariant, archetypeTone,
   STAGE_ENEMY_PALETTES, DEFAULT_PALETTE,
 } from '../../src/game/systems/EnemyPalette';
 
@@ -37,6 +37,18 @@ describe('spriteVariant', () => {
   });
 });
 
+describe('archetypeTone', () => {
+  it('darkens heavies and brightens quick enemies, neutral for the rest', () => {
+    expect(archetypeTone('tank')).toBeLessThan(1);
+    expect(archetypeTone('speedster')).toBeGreaterThan(1);
+    expect(archetypeTone('zoner')).toBeLessThan(1);
+    expect(archetypeTone('grunt')).toBe(1);
+    expect(archetypeTone('boss')).toBe(1);
+    expect(archetypeTone('miniboss')).toBe(1);
+    expect(archetypeTone('unknown')).toBe(1);
+  });
+});
+
 describe('enemyTint', () => {
   it('produces a valid colour that varies by sprite within a stage', () => {
     const t1 = enemyTint('01-once', 'enemy_001');
@@ -50,5 +62,14 @@ describe('enemyTint', () => {
     const once = enemyTint('01-once', 'enemy_001');
     const rosada = enemyTint('10-casa-rosada-final', 'enemy_001');
     expect(once).not.toBe(rosada);
+  });
+
+  it('biases brightness by archetype for the same sprite and stage', () => {
+    const tank = enemyTint('01-once', 'enemy_001', 'tank');
+    const speed = enemyTint('01-once', 'enemy_001', 'speedster');
+    const grunt = enemyTint('01-once', 'enemy_001', 'grunt');
+    expect(tank).not.toBe(grunt);
+    expect(speed).not.toBe(grunt);
+    expect(tank).not.toBe(speed);
   });
 });

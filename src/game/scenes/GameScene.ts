@@ -869,7 +869,7 @@ export class GameScene extends Phaser.Scene {
       // Hurt flash wins; otherwise the sprite carries its stage palette tint so
       // each escenario's cast reads with its own colour identity (§10).
       if (state === 'hurt') sprite.setTint(0xff8888);
-      else sprite.setTint(enemyTint(this.stageId, enemy.spriteKey));
+      else sprite.setTint(enemyTint(this.stageId, enemy.spriteKey, enemy.type));
 
       // HP bar above the character
       const h = enemy.height * 1.4;

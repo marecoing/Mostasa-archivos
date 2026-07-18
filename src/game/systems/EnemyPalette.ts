@@ -60,7 +60,30 @@ export function spriteVariant(spriteKey: string): number {
   return 0.86 + ((n * 37) % 15) / 100;
 }
 
-/** Final multiply-tint for one enemy sprite on a given stage. */
-export function enemyTint(stageId: string, spriteKey: string): number {
-  return scaleColor(paletteForStage(stageId).tint, spriteVariant(spriteKey));
+/**
+ * Brightness bias per archetype, reinforcing silhouette readability: heavies
+ * read darker/bulkier, quick enemies read lighter. Special enemies keep their
+ * designed look (factor 1). Unknown types are neutral.
+ */
+export function archetypeTone(type: string): number {
+  switch (type) {
+    case 'tank':
+      return 0.9;
+    case 'speedster':
+      return 1.06;
+    case 'zoner':
+      return 0.96;
+    default: // grunt, miniboss, boss, unknown
+      return 1.0;
+  }
+}
+
+/**
+ * Final multiply-tint for one enemy sprite on a given stage. The optional
+ * archetype biases brightness so types stay readable at a glance on top of the
+ * stage's colour identity.
+ */
+export function enemyTint(stageId: string, spriteKey: string, type = ''): number {
+  const factor = spriteVariant(spriteKey) * archetypeTone(type);
+  return scaleColor(paletteForStage(stageId).tint, factor);
 }

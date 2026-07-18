@@ -761,6 +761,17 @@
   `scaleColor` con clamp, `spriteVariant` en rango y variando, `enemyTint`
   varía por sprite dentro del nivel y por nivel para el mismo sprite)
 
+### HITO 054 — Tono por arquetipo sobre el tinte de escenario (bloque A) ✅
+- `EnemyPalette`: `archetypeTone(type)` — sesgo de brillo por arquetipo para
+  reforzar la lectura de silueta (tank 0.9 más pesado/oscuro, speedster 1.06
+  más claro/rápido, zoner 0.96; grunt/miniboss/boss neutros = 1). `enemyTint`
+  ahora acepta `type` opcional y multiplica `spriteVariant × archetypeTone`
+- `GameScene`: pasa `enemy.type` al calcular el tinte, así el tipo de enemigo
+  se distingue de un vistazo sobre la identidad de color del nivel
+- Extiende el pipeline de tinte ya verificado visualmente (mismo camino de
+  render, solo cambia el factor calculado); +2 tests en `EnemyPalette.test.ts`
+  (tono por arquetipo, `enemyTint` varía por tipo con mismo sprite/nivel)
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
@@ -831,12 +842,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | GuidanceArrow.test.ts           | 5      | ✅ OK  |
 | ZoneBonus.test.ts               | 5      | ✅ OK  |
 | EliteSystem.test.ts             | 5      | ✅ OK  |
-| EnemyPalette.test.ts            | 6      | ✅ OK  |
+| EnemyPalette.test.ts            | 8      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **425**| ✅ OK  |
+| **Total**                       | **427**| ✅ OK  |
 
 ---
 
