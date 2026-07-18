@@ -712,9 +712,27 @@
   (`ZoneBonus`), `recordPerfectZone` incrementa+persiste (`CampaignProgress`),
   logro Intocable a las 10 (`AchievementManifest`), `perfectZones` en stats
 
+### HITO 051 — Enemigos elite (variantes duras por dificultad) ✅
+- `systems/EliteSystem.ts` (puro): `eliteEveryN(difficultyId)` (Normal 0 / sin
+  elites, Difícil cada 5, Furia cada 3); `isEliteSpawn(ordinal, everyN)`
+  (promoción determinista del N-ésimo spawn regular); constantes de
+  multiplicadores (HP ×2.2, daño ×1.4), escala (×1.22) y bonus de muerte (120)
+- `EnemyEntity`: campos `elite`/`deathRewarded` + `makeElite(hpMult, dmgMult)`
+  (escala HP/daño, idempotente)
+- `GameScene`: contador de spawns regulares (`eliteSpawnOrdinal`), promueve a
+  elite según la cadencia de la dificultad (solo enemigos comunes, no
+  bosses/minibosses); render diferenciado sin desteñir el sprite — **más
+  grande + aura roja en los pies**; bonus de guita una-sola-vez al caer un
+  elite (escalado por dificultad)
+- Verificado en Chromium headless (Furia): cadencia 3, los spawns 3° y 6°
+  elite con HP 238 vs 108 y daño 18 vs 13; matar un elite dio +192 (120×1.6);
+  aura roja visible en la captura; sin errores de runtime
+- 5 tests en `EliteSystem.test.ts` (cadencia por dificultad, promoción cada N,
+  frecuencia ~1/N, `makeElite` escala HP/daño y es idempotente)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 051-060)
+- ... (hitos 052-060)
 
 ---
 
@@ -781,11 +799,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | StageProgress.test.ts           | 7      | ✅ OK  |
 | GuidanceArrow.test.ts           | 5      | ✅ OK  |
 | ZoneBonus.test.ts               | 5      | ✅ OK  |
+| EliteSystem.test.ts             | 5      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **415**| ✅ OK  |
+| **Total**                       | **419**| ✅ OK  |
 
 ---
 

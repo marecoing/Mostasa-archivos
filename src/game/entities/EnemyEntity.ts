@@ -44,6 +44,10 @@ export class EnemyEntity {
   attackJustStarted: Exclude<BossAttack, 'none'> | null = null;
   /** phase-2 rage: faster and more aggressive */
   enraged = false;
+  /** elite variant: tougher, bigger, worth a bonus (§10) */
+  elite = false;
+  /** guards the one-time elite kill reward */
+  deathRewarded = false;
 
   constructor(x: number, y: number, stats: EnemyStats, spriteKey = 'enemy_001') {
     this.pos = { x, y, z: 0 };
@@ -209,6 +213,15 @@ export class EnemyEntity {
     if (this.enraged) return;
     this.enraged = true;
     this.walkSpeed *= 1.35;
+  }
+
+  /** Promote to an elite variant: tougher and hits harder (§10). */
+  makeElite(hpMult: number, damageMult: number): void {
+    if (this.elite) return;
+    this.elite = true;
+    this.maxHp = Math.round(this.maxHp * hpMult);
+    this.hp = this.maxHp;
+    this.attackDamage = Math.round(this.attackDamage * damageMult);
   }
 
   private tickAI(playerX: number, playerY: number, attackAllowed: boolean): void {

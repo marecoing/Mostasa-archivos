@@ -48,6 +48,10 @@ import { damageStyle } from '../systems/DamageNumbers';
 import { progressFraction, zoneMarkers, zoneMarkerColor } from '../systems/StageProgress';
 import { showGuidance } from '../systems/GuidanceArrow';
 import { zoneClearReward, ZONE_PERFECT_BONUS } from '../systems/ZoneBonus';
+import {
+  eliteEveryN, isEliteSpawn,
+  ELITE_HP_MULT, ELITE_DAMAGE_MULT, ELITE_SCALE, ELITE_KILL_BONUS,
+} from '../systems/EliteSystem';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -144,6 +148,9 @@ export class GameScene extends Phaser.Scene {
   private diffEnemyHp = 1;
   private diffEnemyDamage = 1;
   private diffScore = 1;
+  /** elite-promotion cadence (0 = none) and running spawn counter (§10). */
+  private eliteCadence = 0;
+  private eliteSpawnOrdinal = 0;
 
   private waveSystem!: WaveSystem;
   private waveGateMinX = 0;
@@ -238,6 +245,8 @@ export class GameScene extends Phaser.Scene {
     this.diffEnemyHp = diff.enemyHp;
     this.diffEnemyDamage = diff.enemyDamage;
     this.diffScore = diff.score;
+    this.eliteCadence = eliteEveryN(diff.id);
+    this.eliteSpawnOrdinal = 0;
     const fx = effectsFor(loadProgress());
     this.playerMaxHp = 100 + fx.maxHpBonus;
     this.playerHp = this.playerMaxHp;
@@ -651,6 +660,13 @@ export class GameScene extends Phaser.Scene {
     if (this.diffEnemyDamage !== 1) {
       enemy.attackDamage = Math.round(enemy.attackDamage * this.diffEnemyDamage);
     }
+    // Elite promotion — regular enemies only (bosses are already special, §10).
+    if (type !== 'boss' && type !== 'miniboss') {
+      this.eliteSpawnOrdinal += 1;
+      if (isEliteSpawn(this.eliteSpawnOrdinal, this.eliteCadence)) {
+        enemy.makeElite(ELITE_HP_MULT, ELITE_DAMAGE_MULT);
+      }
+    }
     const shadow = this.add.graphics().setDepth(0);
     const sprite = this.add.sprite(0, 0, spriteKey);
     sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
@@ -798,6 +814,11 @@ export class GameScene extends Phaser.Scene {
       if (!enemy || !hud || !shadow || !sprite) continue;
 
       if (enemy.dead) {
+        // One-time elite kill bonus (§10).
+        if (enemy.elite && !enemy.deathRewarded) {
+          enemy.deathRewarded = true;
+          this.addScore(ELITE_KILL_BONUS);
+        }
         hud.setVisible(false);
         shadow.setVisible(false);
         sprite.setVisible(false);
@@ -810,11 +831,18 @@ export class GameScene extends Phaser.Scene {
       shadow.clear();
       shadow.fillStyle(0x000000, 0.35);
       shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 12, 13);
+      // Elites get a red aura ring at the feet.
+      if (enemy.elite) {
+        shadow.fillStyle(0xff2222, 0.18);
+        shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 30, 22);
+        shadow.lineStyle(2, 0xff3333, 0.7);
+        shadow.strokeEllipse(sx, sy + 4, enemy.halfW * 2 + 26, 18);
+      }
       shadow.setDepth(enemy.pos.y - 1);
 
       // Character sprite driven by enemy FSM state
       const grid = gridFor(enemy.spriteKey);
-      const scale = (enemy.height * ENEMY_SCREEN_HEIGHT_K) / grid.frameHeight;
+      const scale = ((enemy.height * ENEMY_SCREEN_HEIGHT_K) / grid.frameHeight) * (enemy.elite ? ELITE_SCALE : 1);
       sprite.setScale(scale);
       sprite.setPosition(screenX, screenY);
       sprite.setFlipX(enemy.facing === -1);
