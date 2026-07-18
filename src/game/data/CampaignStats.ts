@@ -22,6 +22,8 @@ export interface CampaignStats {
   topRank: Rank | null;
   /** count of stages graded S or Rosca */
   sRankCount: number;
+  /** lifetime no-damage zone clears */
+  perfectZones: number;
 }
 
 export function computeStats(p: CampaignProgress): CampaignStats {
@@ -47,5 +49,6 @@ export function computeStats(p: CampaignProgress): CampaignStats {
     wallet: p.wallet,
     topRank,
     sRankCount,
+    perfectZones: p.perfectZones,
   };
 }

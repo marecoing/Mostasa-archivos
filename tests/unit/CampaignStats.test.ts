@@ -15,6 +15,11 @@ describe('computeStats', () => {
     expect(st.wallet).toBe(0);
     expect(st.topRank).toBeNull();
     expect(st.sRankCount).toBe(0);
+    expect(st.perfectZones).toBe(0);
+  });
+
+  it('surfaces the lifetime perfect-zone count', () => {
+    expect(computeStats({ ...emptyProgress(), perfectZones: 7 }).perfectZones).toBe(7);
   });
 
   it('aggregates clears, scores, top rank and S-rank count', () => {

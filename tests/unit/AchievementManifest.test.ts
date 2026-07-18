@@ -52,6 +52,11 @@ describe('pendingAchievements / grantAchievements', () => {
     expect(ids).toContain('imparable'); // >=30
   });
 
+  it('unlocks Intocable at 10 lifetime perfect zones', () => {
+    expect(pendingAchievements({ ...emptyProgress(), perfectZones: 9 }).ids).not.toContain('intocable');
+    expect(pendingAchievements({ ...emptyProgress(), perfectZones: 10 }).ids).toContain('intocable');
+  });
+
   it('unlocks S-rank and campaign-complete achievements', () => {
     let p: CampaignProgress = emptyProgress();
     for (const s of STAGES) p = withStageCleared(p, s.id, 1000, s.index === 1 ? 'S' : 'C');

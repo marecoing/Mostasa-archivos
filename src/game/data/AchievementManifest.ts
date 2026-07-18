@@ -63,6 +63,13 @@ export const ACHIEVEMENTS: Achievement[] = [
     check: (p) => computeStats(p).totalBestScore >= 20000,
   },
   {
+    id: 'intocable',
+    name: 'Intocable',
+    description: 'Despejá 10 zonas sin recibir un solo golpe',
+    reward: 1200,
+    check: (p) => p.perfectZones >= 10,
+  },
+  {
     id: 'la_rosca_cayo',
     name: 'La Rosca Cayó',
     description: 'Despejá las 10 zonas de la campaña',

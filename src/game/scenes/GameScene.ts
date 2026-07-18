@@ -53,7 +53,7 @@ import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
 import { variantForStage } from '../systems/audio/SoundBank';
 import { loadAudioSettings, saveAudioSettings } from '../data/AudioSettings';
-import { loadProgress } from '../data/CampaignProgress';
+import { loadProgress, recordPerfectZone } from '../data/CampaignProgress';
 import { effectsFor } from '../data/ShopManifest';
 import { loadDifficulty } from '../data/DifficultyManifest';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
@@ -164,6 +164,8 @@ export class GameScene extends Phaser.Scene {
   private startingBronca = 0;
   /** whether the player was hit during the current combat zone (§12) */
   private tookDamageThisZone = false;
+  /** consecutive perfect (no-damage) zone clears this run */
+  private perfectStreak = 0;
 
   private paused = false;
   private pauseContainer?: Phaser.GameObjects.Container;
@@ -249,6 +251,7 @@ export class GameScene extends Phaser.Scene {
     this.stageEnded = false;
     this.bossPhase2Done = false;
     this.tookDamageThisZone = false;
+    this.perfectStreak = 0;
     this.combo.reset(true); // fresh run: clear the chain and the peak
   }
 
@@ -547,11 +550,15 @@ export class GameScene extends Phaser.Scene {
       this.camera.unlock();
     }
     if (actions.zoneCleared) {
-      const reward = zoneClearReward(this.tookDamageThisZone);
+      const reward = zoneClearReward(this.tookDamageThisZone, this.perfectStreak);
+      this.perfectStreak = reward.streak;
       this.addScore(reward.score);
       this.audio.play('zone_clear');
       if (reward.perfect) {
-        this.flashBanner('¡ZONA PERFECTA!  +$' + Math.round(ZONE_PERFECT_BONUS * this.diffScore), '#44ff88');
+        recordPerfectZone(); // lifetime counter (feeds the "Intocable" achievement)
+        const bonus = Math.round(ZONE_PERFECT_BONUS * reward.multiplier * this.diffScore);
+        const streakTag = reward.streak >= 2 ? ` x${reward.streak}` : '';
+        this.flashBanner(`¡ZONA PERFECTA${streakTag}!  +$${bonus}`, '#44ff88');
       }
     }
 

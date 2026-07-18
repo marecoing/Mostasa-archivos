@@ -27,12 +27,17 @@ export interface CampaignProgress {
   bestCombo: number;
   /** ids of achievements already unlocked (and paid out) */
   achievements: string[];
+  /** lifetime count of zones cleared without taking damage (§12) */
+  perfectZones: number;
 }
 
 const STORAGE_KEY = 'mostasas-rage:progress:v1';
 
 export function emptyProgress(): CampaignProgress {
-  return { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {}, bestCombo: 0, achievements: [] };
+  return {
+    cleared: [], bestScore: {}, bestRank: {}, wallet: 0,
+    upgrades: {}, bestCombo: 0, achievements: [], perfectZones: 0,
+  };
 }
 
 /**
@@ -72,6 +77,7 @@ export function withStageCleared(
   return {
     cleared, bestScore, bestRank, wallet,
     upgrades: { ...p.upgrades }, bestCombo: p.bestCombo, achievements: [...p.achievements],
+    perfectZones: p.perfectZones,
   };
 }
 
@@ -99,6 +105,7 @@ export function loadProgress(): CampaignProgress {
       upgrades: parsed.upgrades ?? {},
       bestCombo: typeof parsed.bestCombo === 'number' && Number.isFinite(parsed.bestCombo) ? Math.max(0, parsed.bestCombo) : 0,
       achievements: Array.isArray(parsed.achievements) ? parsed.achievements : [],
+      perfectZones: typeof parsed.perfectZones === 'number' && Number.isFinite(parsed.perfectZones) ? Math.max(0, parsed.perfectZones) : 0,
     };
   } catch {
     return emptyProgress();
@@ -124,6 +131,14 @@ export function recordStageResult(
 ): CampaignProgress {
   const cleared = withStageCleared(loadProgress(), stageId, score, rank);
   const next = { ...cleared, bestCombo: Math.max(cleared.bestCombo, Math.max(0, Math.round(maxCombo))) };
+  saveProgress(next);
+  return next;
+}
+
+/** Load, increment the lifetime perfect-zone counter, save, and return it. */
+export function recordPerfectZone(): CampaignProgress {
+  const p = loadProgress();
+  const next = { ...p, perfectZones: p.perfectZones + 1 };
   saveProgress(next);
   return next;
 }

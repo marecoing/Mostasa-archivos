@@ -40,6 +40,7 @@ export class StatsScene extends Phaser.Scene {
       `RANGOS S / ROSCA   ${st.sRankCount}`,
       `MEJOR RANGO        ${topRank}`,
       `COMBO RÉCORD       ${st.bestCombo} HITS`,
+      `ZONAS PERFECTAS    ${st.perfectZones}`,
       `PUNTAJE TOTAL      ${st.totalBestScore}`,
       `GUITA              $ ${st.wallet}`,
     ];

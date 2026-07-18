@@ -7,6 +7,7 @@ import {
   loadProgress,
   saveProgress,
   recordStageResult,
+  recordPerfectZone,
 } from '../../src/game/data/CampaignProgress';
 import { STAGES, stageById } from '../../src/game/data/StageManifest';
 
@@ -98,5 +99,12 @@ describe('persistence (jsdom localStorage)', () => {
     expect(loadProgress().bestCombo).toBe(18); // unchanged
     recordStageResult('01-once', 1000, 'B', 27); // new record
     expect(loadProgress().bestCombo).toBe(27);
+  });
+
+  it('recordPerfectZone increments the lifetime counter and persists', () => {
+    expect(loadProgress().perfectZones).toBe(0);
+    recordPerfectZone();
+    recordPerfectZone();
+    expect(loadProgress().perfectZones).toBe(2);
   });
 });

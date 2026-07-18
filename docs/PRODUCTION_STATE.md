@@ -692,9 +692,29 @@
 - 3 tests en `ZoneBonus.test.ts` (solo base con daño, base+bonus impecable,
   el impecable siempre paga más)
 
+### HITO 050 — Racha de zonas perfectas + contador persistente + logro ✅
+- `ZoneBonus.ts`: `perfectStreakMultiplier(streak)` (1ª ×1, 2ª ×1.5, 3ª+ ×2
+  con tope); `zoneClearReward(tookDamage, streak)` ahora devuelve la nueva
+  racha y el multiplicador, y aplica el multiplicador al bonus perfecto;
+  recibir daño rompe la racha
+- `CampaignProgress`: nuevo `perfectZones` (contador de por vida, saneado) +
+  `recordPerfectZone()` (carga, incrementa, guarda)
+- `GameScene`: `perfectStreak` por run (reset al recibir daño-rompe-zona y al
+  reiniciar); al despejar una zona perfecta guarda el contador y muestra el
+  flash "¡ZONA PERFECTA xN! +$M" con el bonus escalado por racha y dificultad
+- Logro **Intocable** (`AchievementManifest`): 10 zonas perfectas de por vida
+  → $1200; `CampaignStats` expone `perfectZones` y la Libreta muestra
+  "ZONAS PERFECTAS N"
+- Verificado en Chromium headless: dos zonas perfectas seguidas → racha 1→2,
+  score 500 → 1150 (bonus ×1.5 en la segunda), flash "¡ZONA PERFECTA x2!
+  +$450", y `perfectZones` persistido = 2; sin errores de runtime
+- Tests: multiplicador de racha 1/1.5/2 con tope y recompensa creciente
+  (`ZoneBonus`), `recordPerfectZone` incrementa+persiste (`CampaignProgress`),
+  logro Intocable a las 10 (`AchievementManifest`), `perfectZones` en stats
+
 ## HITOS PENDIENTES
 
-- ... (hitos 050-060)
+- ... (hitos 051-060)
 
 ---
 
@@ -752,20 +772,20 @@ Ver `docs/adr/` para Architecture Decision Records.
 | StoryManifest.test.ts           | 3      | ✅ OK  |
 | ShopManifest.test.ts            | 11     | ✅ OK  |
 | ComboSystem.test.ts             | 9      | ✅ OK  |
-| CampaignStats.test.ts           | 4      | ✅ OK  |
-| AchievementManifest.test.ts     | 7      | ✅ OK  |
+| CampaignStats.test.ts           | 5      | ✅ OK  |
+| AchievementManifest.test.ts     | 8      | ✅ OK  |
 | DifficultyManifest.test.ts      | 6      | ✅ OK  |
 | BossBar.test.ts                 | 8      | ✅ OK  |
 | ComboFeedback.test.ts           | 6      | ✅ OK  |
 | DamageNumbers.test.ts           | 4      | ✅ OK  |
 | StageProgress.test.ts           | 7      | ✅ OK  |
 | GuidanceArrow.test.ts           | 5      | ✅ OK  |
-| ZoneBonus.test.ts               | 3      | ✅ OK  |
+| ZoneBonus.test.ts               | 5      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
-| CampaignProgress.test.ts        | 10     | ✅ OK  |
+| CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **410**| ✅ OK  |
+| **Total**                       | **415**| ✅ OK  |
 
 ---
 
