@@ -677,9 +677,24 @@
 - 5 tests en `GuidanceArrow.test.ts` (muestra al viajar con camino, oculta al
   pelear / con enemigos / en pausa / terminado / cerca del final)
 
+### HITO 049 — Bonus de "Zona Perfecta" ✅
+- `systems/ZoneBonus.ts` (puro): `zoneClearReward(tookDamage)` → base 200
+  siempre + 300 extra si se despejó la zona sin recibir daño; constantes
+  `ZONE_CLEAR_BASE`/`ZONE_PERFECT_BONUS`
+- `GameScene`: bandera `tookDamageThisZone` (se resetea al bloquear la cámara
+  al iniciar cada zona, se marca en `damagePlayer`, se limpia al reiniciar el
+  run); al despejar una zona usa `zoneClearReward` y, si fue perfecta, muestra
+  el flash verde "¡ZONA PERFECTA! +$N" (recompensa escalada por dificultad);
+  `flashBanner` ahora acepta color
+- Verificado en Chromium headless: despejar la zona 1 recibiendo daño dio solo
+  +200; simulando un clear sin daño dio +500 (200+300) con el flash verde
+  "¡ZONA PERFECTA! +$300"; captura revisada; sin errores de runtime
+- 3 tests en `ZoneBonus.test.ts` (solo base con daño, base+bonus impecable,
+  el impecable siempre paga más)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 049-060)
+- ... (hitos 050-060)
 
 ---
 
@@ -745,11 +760,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | DamageNumbers.test.ts           | 4      | ✅ OK  |
 | StageProgress.test.ts           | 7      | ✅ OK  |
 | GuidanceArrow.test.ts           | 5      | ✅ OK  |
+| ZoneBonus.test.ts               | 3      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **407**| ✅ OK  |
+| **Total**                       | **410**| ✅ OK  |
 
 ---
 

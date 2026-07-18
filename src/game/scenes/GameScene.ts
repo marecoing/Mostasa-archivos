@@ -47,6 +47,7 @@ import { impactScale, crossedComboBand, usesHeavyShake } from '../systems/ComboF
 import { damageStyle } from '../systems/DamageNumbers';
 import { progressFraction, zoneMarkers, zoneMarkerColor } from '../systems/StageProgress';
 import { showGuidance } from '../systems/GuidanceArrow';
+import { zoneClearReward, ZONE_PERFECT_BONUS } from '../systems/ZoneBonus';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -161,6 +162,8 @@ export class GameScene extends Phaser.Scene {
   private playerLives = 3;
   private runStartLives = 3;
   private startingBronca = 0;
+  /** whether the player was hit during the current combat zone (§12) */
+  private tookDamageThisZone = false;
 
   private paused = false;
   private pauseContainer?: Phaser.GameObjects.Container;
@@ -245,6 +248,7 @@ export class GameScene extends Phaser.Scene {
     this.playerIFrames = 0;
     this.stageEnded = false;
     this.bossPhase2Done = false;
+    this.tookDamageThisZone = false;
     this.combo.reset(true); // fresh run: clear the chain and the peak
   }
 
@@ -537,13 +541,18 @@ export class GameScene extends Phaser.Scene {
       const center = (actions.lockCamera.minX + actions.lockCamera.maxX) / 2;
       const camPos = Math.max(0, Math.min(STAGE_LANE.maxX - GAME_WIDTH, center - GAME_WIDTH / 2));
       this.camera.lock(camPos, camPos);
+      this.tookDamageThisZone = false; // fresh chance at a perfect clear
     }
     if (actions.unlockCamera) {
       this.camera.unlock();
     }
     if (actions.zoneCleared) {
-      this.addScore(200);
+      const reward = zoneClearReward(this.tookDamageThisZone);
+      this.addScore(reward.score);
       this.audio.play('zone_clear');
+      if (reward.perfect) {
+        this.flashBanner('¡ZONA PERFECTA!  +$' + Math.round(ZONE_PERFECT_BONUS * this.diffScore), '#44ff88');
+      }
     }
 
     // Movement gate: confine the player to the active arena while fighting.
@@ -589,10 +598,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Brief centred banner that fades out (e.g. boss phase change). */
-  private flashBanner(text: string): void {
+  private flashBanner(text: string, color = '#ff5533'): void {
     const t = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.28, text, {
-        fontFamily: 'monospace', fontSize: '22px', color: '#ff5533',
+        fontFamily: 'monospace', fontSize: '22px', color,
         stroke: '#000000', strokeThickness: 4,
       })
       .setOrigin(0.5)
@@ -1228,6 +1237,7 @@ export class GameScene extends Phaser.Scene {
     this.playerHp = Math.max(0, this.playerHp - dmg);
     this.updateAguanteBar();
     this.playerIFrames = 48;
+    this.tookDamageThisZone = true; // forfeits the perfect-zone bonus
     this.combo.reset(); // getting hit breaks the chain
     this.updateComboHud();
     this.camera.triggerShake(SHAKE_MEDIUM);
