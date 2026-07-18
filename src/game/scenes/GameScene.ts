@@ -115,6 +115,7 @@ export class GameScene extends Phaser.Scene {
   private enemyGraphics: Phaser.GameObjects.Graphics[] = [];
   private enemyShadows: Phaser.GameObjects.Graphics[] = [];
   private enemySprites: Phaser.GameObjects.Sprite[] = [];
+  private enemyLabels: Phaser.GameObjects.Text[] = [];
 
   private grabbedEnemyIndex = -1;
   private hitstopFrames = 0;
@@ -672,10 +673,22 @@ export class GameScene extends Phaser.Scene {
     sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     playState(sprite, spriteKey, 'idle');
     const hud = this.add.graphics().setDepth(1);
+    const label = this.add
+      .text(0, 0, 'ELITE', {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#ff5555',
+        fontStyle: 'bold',
+        stroke: '#2a0000',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5, 1)
+      .setVisible(false);
     this.enemies.push(enemy);
     this.enemyShadows.push(shadow);
     this.enemySprites.push(sprite);
     this.enemyGraphics.push(hud);
+    this.enemyLabels.push(label);
   }
 
   private createGround(): void {
@@ -811,7 +824,8 @@ export class GameScene extends Phaser.Scene {
       const hud = this.enemyGraphics[i];
       const shadow = this.enemyShadows[i];
       const sprite = this.enemySprites[i];
-      if (!enemy || !hud || !shadow || !sprite) continue;
+      const label = this.enemyLabels[i];
+      if (!enemy || !hud || !shadow || !sprite || !label) continue;
 
       if (enemy.dead) {
         // One-time elite kill bonus (§10).
@@ -822,6 +836,7 @@ export class GameScene extends Phaser.Scene {
         hud.setVisible(false);
         shadow.setVisible(false);
         sprite.setVisible(false);
+        label.setVisible(false);
         continue;
       }
 
@@ -864,6 +879,16 @@ export class GameScene extends Phaser.Scene {
       hud.fillStyle(hpRatio > 0.5 ? 0x22cc44 : hpRatio > 0.25 ? 0xccaa22 : 0xcc2222, 1);
       hud.fillRect(screenX - 20, screenY - h - 11, Math.round(40 * hpRatio), 4);
       hud.setDepth(enemy.pos.y + 1);
+
+      // Elite tag floats just above the HP bar, gently bobbing for visibility.
+      if (enemy.elite) {
+        const bob = Math.sin(this.time.now * 0.007 + i) * 2;
+        label.setPosition(screenX, screenY - h - 14 + bob);
+        label.setDepth(enemy.pos.y + 2);
+        label.setVisible(true);
+      } else if (label.visible) {
+        label.setVisible(false);
+      }
     }
   }
 

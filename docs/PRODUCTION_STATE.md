@@ -730,6 +730,17 @@
 - 5 tests en `EliteSystem.test.ts` (cadencia por dificultad, promoción cada N,
   frecuencia ~1/N, `makeElite` escala HP/daño y es idempotente)
 
+### HITO 052 — Etiqueta flotante "ELITE" sobre enemigos elite ✅
+- `GameScene`: pool paralelo `enemyLabels` (un `Text` por enemigo, oculto por
+  defecto); se muestra en rojo con contorno oscuro solo sobre elites, flotando
+  justo encima de la barra de HP con un leve bob senoidal para legibilidad; se
+  oculta al morir el enemigo o si deja de ser elite
+- Complementa el render de Hito 051 (aura roja + escala) dando identificación
+  textual inmediata de la amenaza, sin desteñir el sprite
+- Verificado en Chromium headless: grunts promovidos a elite muestran la
+  etiqueta roja "ELITE" sobre la cabeza junto al aura en los pies; sin errores
+  de runtime; 419 tests, typecheck/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
