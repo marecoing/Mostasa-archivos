@@ -42,6 +42,7 @@ import { WeaponEntity, effectiveHitDamage } from '../entities/WeaponEntity';
 import type { EquippedWeapon } from '../entities/WeaponEntity';
 import { WaveSystem } from '../systems/WaveSystem';
 import { ComboSystem } from '../systems/ComboSystem';
+import { bossBarView, bossBarColor } from '../systems/BossBar';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -140,6 +141,9 @@ export class GameScene extends Phaser.Scene {
   private waveSystem!: WaveSystem;
   private waveGateMinX = 0;
   private objectiveText?: Phaser.GameObjects.Text;
+  private bossBarBg?: Phaser.GameObjects.Graphics;
+  private bossBarFill?: Phaser.GameObjects.Graphics;
+  private bossBarLabel?: Phaser.GameObjects.Text;
   private stageStartMs = 0;
   private bossPhase2Done = false;
   private stageEnded = false;
@@ -383,6 +387,59 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(320)
       .setVisible(false);
+
+    this.createBossBar();
+  }
+
+  // Boss-bar geometry. Kept as literals (not static fields reading GAME_WIDTH)
+  // to avoid a circular-import TDZ when this class is evaluated.
+  private readonly bossBarW = 620;
+  private readonly bossBarY = 58;
+  private get bossBarX(): number {
+    return (GAME_WIDTH - this.bossBarW) / 2;
+  }
+
+  private createBossBar(): void {
+    this.bossBarLabel = this.add
+      .text(GAME_WIDTH / 2, this.bossBarY - 14, '', {
+        fontFamily: 'monospace', fontSize: '14px', color: '#ffdddd',
+        stroke: '#000000', strokeThickness: 3,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(322)
+      .setVisible(false);
+    this.bossBarBg = this.add.graphics().setScrollFactor(0).setDepth(321).setVisible(false);
+    this.bossBarBg.fillStyle(0x120a0a, 0.9);
+    this.bossBarBg.fillRect(this.bossBarX - 2, this.bossBarY - 2, this.bossBarW + 4, 16);
+    this.bossBarBg.lineStyle(1, 0xcc4422, 0.8);
+    this.bossBarBg.strokeRect(this.bossBarX - 2, this.bossBarY - 2, this.bossBarW + 4, 16);
+    this.bossBarFill = this.add.graphics().setScrollFactor(0).setDepth(322).setVisible(false);
+  }
+
+  /** Update the dedicated boss health bar from the active zone + boss enemy. */
+  private updateBossBar(zoneKind: string | undefined): void {
+    const bossType = zoneKind === 'boss' ? 'boss' : zoneKind === 'mini_boss' ? 'miniboss' : null;
+    const boss = bossType ? this.enemies.find((e) => e && !e.dead && e.type === bossType) : undefined;
+    const enc = encountersForStage(this.stageId);
+    const view = bossBarView({
+      zoneKind,
+      fighting: this.waveSystem.currentPhase === 'fighting',
+      bossHp: boss ? boss.hp : null,
+      bossMaxHp: boss ? boss.maxHp : null,
+      bossEnraged: boss ? boss.enraged : false,
+      miniBossLabel: enc.miniBossLabel,
+      bossLabel: enc.bossLabel,
+    });
+    this.bossBarLabel?.setVisible(view.visible);
+    this.bossBarBg?.setVisible(view.visible);
+    this.bossBarFill?.setVisible(view.visible);
+    if (!view.visible || !this.bossBarFill) return;
+    this.bossBarLabel?.setText(view.label);
+    this.bossBarFill.clear();
+    this.bossBarFill.fillStyle(bossBarColor(view.fraction, view.enraged), 1);
+    const w = Math.round(this.bossBarW * view.fraction);
+    if (w > 0) this.bossBarFill.fillRect(this.bossBarX, this.bossBarY, w, 12);
   }
 
   /** Advance the encounter state and apply its actions. */
@@ -418,12 +475,14 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // Objective banner.
+    // Dedicated boss bar owns the label for boss/mini-boss zones.
+    this.updateBossBar(zone?.kind);
+
+    // Objective banner (for regular wave zones; boss zones use the boss bar).
     if (this.objectiveText) {
-      if (this.waveSystem.currentPhase === 'fighting') {
-        const enc = encountersForStage(this.stageId);
-        const label = zone?.kind === 'boss' ? enc.bossLabel : zone?.kind === 'mini_boss' ? enc.miniBossLabel : '¡LIMPIÁ LA ZONA!';
-        this.objectiveText.setText(`${label}  ENEMIGOS: ${alive}`).setVisible(true);
+      const isBossZone = zone?.kind === 'boss' || zone?.kind === 'mini_boss';
+      if (this.waveSystem.currentPhase === 'fighting' && !isBossZone) {
+        this.objectiveText.setText(`¡LIMPIÁ LA ZONA!  ENEMIGOS: ${alive}`).setVisible(true);
       } else {
         this.objectiveText.setVisible(false);
       }
@@ -441,10 +500,23 @@ export class GameScene extends Phaser.Scene {
       this.camera.triggerShake(SHAKE_MEDIUM);
       this.playVfxAtWorld('bronca_especial', boss.pos.x, boss.pos.y, 80, 1.4);
       this.audio.play('special');
-      this.objectiveText?.setText('¡EL JEFE SE ENFURECE!').setVisible(true);
+      this.flashBanner('¡EL JEFE SE ENFURECE!');
       this.spawnEnemy(boss.pos.x + 140, 470, 'grunt', 'enemy_006');
       this.spawnEnemy(boss.pos.x - 140, 540, 'grunt', 'enemy_007');
     }
+  }
+
+  /** Brief centred banner that fades out (e.g. boss phase change). */
+  private flashBanner(text: string): void {
+    const t = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.28, text, {
+        fontFamily: 'monospace', fontSize: '22px', color: '#ff5533',
+        stroke: '#000000', strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(330);
+    this.tweens.add({ targets: t, alpha: 0, scale: 1.3, duration: 1400, onComplete: () => t.destroy() });
   }
 
   private finishStage(): void {

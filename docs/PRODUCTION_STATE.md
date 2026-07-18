@@ -594,9 +594,30 @@
 - 6 tests en `DifficultyManifest.test.ts` (multiplicadores crecientes, lookup
   con fallback, ciclo con wrap, persistencia + saneo de id inválido)
 
+### HITO 044 — Barra de vida dedicada del jefe + pulido de fases ✅
+- `systems/BossBar.ts` (puro): `bossBarView(input)` decide visibilidad, label
+  (bossLabel/miniBossLabel según kind), fracción clampada 0..1 y flag enraged;
+  `bossBarColor(fraction, enraged)` (verde→ámbar→rojo, rojo intenso si
+  enfurecido). Solo visible en zona boss/mini_boss en fase de combate con jefe
+  vivo
+- `GameScene`: barra superior centrada (label + fondo + relleno que sigue
+  hp/maxHp del jefe); `updateBossBar(zoneKind)` busca el enemigo tipo
+  boss/miniboss de la zona activa; el banner de objetivo deja de duplicar el
+  nombre del jefe (la barra lo posee); el mensaje de fase 2 pasó a un
+  `flashBanner` transitorio ("¡EL JEFE SE ENFURECE!") que se desvanece
+- **Bugfix TDZ**: los campos `static` de geometría leían `GAME_WIDTH` al
+  evaluar la clase → crash "Cannot access 'p' before initialization" (GameConfig
+  importa las escenas antes de declarar GAME_WIDTH); movidos a getter/campos de
+  instancia computados en runtime
+- Verificado en Chromium headless: barra llena con "¡EL CAPATAZ NOCTURNO!",
+  y al 35% + enfurecido la barra se encoge a rojo intenso con el flash de
+  fase 2; sin errores de runtime
+- 8 tests en `BossBar.test.ts` (visibilidad por kind/fase/jefe, label por
+  kind, clamp de fracción, flag enraged, colores por HP y enraged)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 044-060)
+- ... (hitos 045-060)
 
 ---
 
@@ -657,11 +678,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | CampaignStats.test.ts           | 4      | ✅ OK  |
 | AchievementManifest.test.ts     | 7      | ✅ OK  |
 | DifficultyManifest.test.ts      | 6      | ✅ OK  |
+| BossBar.test.ts                 | 8      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **378**| ✅ OK  |
+| **Total**                       | **385**| ✅ OK  |
 
 ---
 
