@@ -816,6 +816,26 @@
 - Sin cambios de lógica pura → sin tests nuevos; 433 tests siguen en verde,
   typecheck/build limpios
 
+### HITO 057 — Presencia en pantalla: escala de personajes + exposición ✅
+- Segunda pasada tras el rechazo del resultado anterior. Diagnóstico honesto:
+  el problema dominante no eran los props sino que **los personajes eran
+  miniaturas** (~18 % de la altura del cuadro con el aire interno del frame;
+  un beat'em up clásico usa 28–35 %) y además se renderizaban subexpuestos
+  frente a los fondos fotorrealistas
+- **Escala:** `PLAYER_SPRITE_SCALE` 0.9 → 1.45 y `ENEMY_SCREEN_HEIGHT_K`
+  1.9 → 3.05 (misma proporción relativa jugador/enemigos). Mostasa pasa a
+  ~38 % de la pantalla: presencia de protagonista
+- **Exposición:** overlay aditivo del propio sprite encima de cada personaje
+  (`createLiftSprite`/`syncLift`, alpha 0.26) que levanta su iluminación a
+  "sujeto iluminado" sin tocar el arte fuente; respeta el alpha del sprite
+  (parpadeo de i-frames)
+- Sombras del jugador ampliadas al nuevo tamaño; barra de HP enemiga ahora
+  relativa a `sprite.displayHeight` (sigue la cabeza a cualquier escala)
+- Verificado en Chromium headless a 1280×720 nativo: Mostasa (camisa clara),
+  grunt (chaleco) y tank (negro) se leen nítidos, iluminados y con escala de
+  género junto al cajón (ahora a la rodilla); sin errores de runtime
+- Render puro → sin tests nuevos; 433 tests en verde, typecheck/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
