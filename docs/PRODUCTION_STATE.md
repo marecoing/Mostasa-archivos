@@ -631,9 +631,24 @@
 - 6 tests en `ComboFeedback.test.ts` (escala monótona, cruce de bandas exacto
   y consistente con `comboMultiplier`, shake pesado desde x2)
 
+### HITO 046 — Números de daño flotantes ✅
+- `systems/DamageNumbers.ts` (puro): `damageStyle(damage)` mapea el daño a
+  color+tamaño por bandas — blanco chico (<10), ámbar (10-17), naranja (18-29),
+  rojo grande (≥30); presentación testeable sin Phaser
+- `GameScene`: al conectar un golpe a un enemigo vulnerable, `spawnDamageNumber`
+  proyecta la posición a pantalla (con FLOOR_OFFSET) y crea un texto que sube
+  y se desvanece (jitter horizontal para que no se apilen); también en el
+  especial radial (30 por enemigo); solo se muestra si el enemigo era
+  vulnerable (no números en frames invulnerables)
+- Verificado en Chromium headless: golpeando una multitud se generaron 15
+  números en pocos golpes; captura con "16" y "10" flotando sobre los
+  enemigos + chispas; sin errores de runtime
+- 4 tests en `DamageNumbers.test.ts` (4 bandas de color distintas, tamaño
+  no-decreciente, banda máxima, límites de banda)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 046-060)
+- ... (hitos 047-060)
 
 ---
 
@@ -696,11 +711,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | DifficultyManifest.test.ts      | 6      | ✅ OK  |
 | BossBar.test.ts                 | 8      | ✅ OK  |
 | ComboFeedback.test.ts           | 6      | ✅ OK  |
+| DamageNumbers.test.ts           | 4      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **391**| ✅ OK  |
+| **Total**                       | **395**| ✅ OK  |
 
 ---
 

@@ -44,6 +44,7 @@ import { WaveSystem } from '../systems/WaveSystem';
 import { ComboSystem } from '../systems/ComboSystem';
 import { bossBarView, bossBarColor } from '../systems/BossBar';
 import { impactScale, crossedComboBand, usesHeavyShake } from '../systems/ComboFeedback';
+import { damageStyle } from '../systems/DamageNumbers';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -75,6 +76,8 @@ const THROW_VEL_Z = 220;
 const BRONCA_PER_HIT = 18;
 const BRONCA_MAX = 100;
 const SPECIAL_RADIUS = 200;
+/** Damage the radial special deals per enemy (matches EnemyEntity). */
+const SPECIAL_DAMAGE = 30;
 /** Base score per landed hit, before the combo multiplier (§12). */
 const HIT_BASE_SCORE = 10;
 
@@ -993,7 +996,9 @@ export class GameScene extends Phaser.Scene {
       for (const idx of hits) {
         const enemy = this.enemies[idx];
         if (!enemy) continue;
+        const dealt = enemy.fsm.isVulnerable() ? atk.damage : 0;
         enemy.applyHit(atk, this.playerFacing);
+        if (dealt > 0) this.spawnDamageNumber(dealt, enemy.pos.x, enemy.pos.y, enemy.pos.z + enemy.height);
         connected = true;
         this.broncaMeter = Math.min(BRONCA_MAX, this.broncaMeter + BRONCA_PER_HIT);
         this.updateBroncaBar();
@@ -1195,7 +1200,10 @@ export class GameScene extends Phaser.Scene {
   private handleSpecialRadial(): void {
     const hits = getRadialHits(this.playerPos.x, this.playerPos.y, this.enemies, SPECIAL_RADIUS);
     for (const idx of hits) {
-      this.enemies[idx]?.applySpecialHit();
+      const enemy = this.enemies[idx];
+      if (!enemy || enemy.dead) continue;
+      enemy.applySpecialHit();
+      this.spawnDamageNumber(SPECIAL_DAMAGE, enemy.pos.x, enemy.pos.y, enemy.pos.z + enemy.height);
     }
     this.playVfxAtWorld('bronca_especial', this.playerPos.x, this.playerPos.y, 70);
     this.camera.triggerShake(SHAKE_MEDIUM);
@@ -1207,6 +1215,29 @@ export class GameScene extends Phaser.Scene {
     const camX = this.camera?.worldX ?? 0;
     const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET);
     this.vfx.play(id, screenX, screenY, worldY + 200, scaleMul);
+  }
+
+  /** Floating damage number rising off a struck enemy (Biblia §12). */
+  private spawnDamageNumber(damage: number, worldX: number, worldY: number, worldZ: number): void {
+    const camX = this.camera?.worldX ?? 0;
+    const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET);
+    const style = damageStyle(damage);
+    const jitter = Math.round((Math.random() - 0.5) * 24);
+    const t = this.add
+      .text(screenX + jitter, screenY - 10, String(damage), {
+        fontFamily: 'monospace', fontSize: `${style.size}px`, color: style.color,
+        stroke: '#000000', strokeThickness: 4, fontStyle: 'bold',
+      })
+      .setOrigin(0.5, 1)
+      .setDepth(worldY + 400);
+    this.tweens.add({
+      targets: t,
+      y: t.y - 46,
+      alpha: 0,
+      duration: 620,
+      ease: 'Quad.easeOut',
+      onComplete: () => t.destroy(),
+    });
   }
 
   private onBreakableDestroyed(b: BreakableEntity): void {
