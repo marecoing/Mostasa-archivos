@@ -836,6 +836,49 @@
   género junto al cajón (ahora a la rodilla); sin errores de runtime
 - Render puro → sin tests nuevos; 433 tests en verde, typecheck/build limpios
 
+### HITO 058 — Sprites rotos: re-segmentación y reempaquetado de las hojas ✅
+- Respuesta al reclamo "el sprite de los personajes no es completo, se siguen
+  viendo con bugs". Causa raíz confirmada mirando las hojas: **el arte subido
+  no está alineado a la grilla fija de 140px** que asumía el juego (cada fila
+  tiene ~9-14 figuras en posiciones irregulares, bandas de altura irregular y
+  líneas separadoras dibujadas encima de las figuras cada 140px). Cortar con
+  grilla fija producía cuerpos cortados + pedazos del frame vecino
+- **`scripts/png-lib.mjs`**: codec PNG compartido (decode RGB/RGBA, encode
+  RGBA), extraído del procesador existente
+- **`scripts/process-sprites.mjs`**: nuevo paso `inpaintGridLines` — repinta
+  las franjas de ±3px en cada múltiplo de 140 (filas y columnas) interpolando
+  desde los vecinos, antes del key-out; elimina las líneas que cruzaban a los
+  personajes por el pecho
+- **`scripts/normalize-sprites.mjs`** (nuevo): re-segmenta cada hoja keyed por
+  **componentes conectados** (vecindario 5×5 puentea el anti-aliasing),
+  re-adjunta fragmentos huérfanos (un puño extendido, un zapato) al cuerpo más
+  cercano, divide componentes anómalamente altos (dos figuras pegadas) por su
+  costura más débil, agrupa las figuras en filas por centro vertical y
+  reempaqueta TODO en celdas uniformes con los pies anclados al fondo de la
+  celda, ciclando los frames de cada fila para llenar todas las columnas
+- Resultado: las 11 hojas quedan en grillas limpias (Mostasa 10×9 de 122×210,
+  comunes 9-10 columnas, etc.) con una figura completa por celda
+- `AnimationData`: `CHARACTER_GRIDS` regenerado desde la salida del
+  normalizador; `MOSTASA_ANIMS` remapeado al layout real de 9 filas (idle,
+  walk, dash/jab, puños, patadas, avance/guardia, hurt, down+crawl+rise,
+  victoria) con sub-rangos por golpe (light_1 = jab 0-4, light_2 = 5-9,
+  light_3/heavy = patadas, special = fila victoria); enemigos remapeados
+  (hurt/down/get_up ahora usan las filas reales de caída/arrastre/levantada);
+  clip `dodge` nuevo
+- `GameScene`: rim-outline **eliminado** (a escala grande producía un
+  duplicado fantasma del personaje — diagnosticado con capturas por capas);
+  la legibilidad la dan el lift de exposición + sombras; `SPRITE_ORIGIN_Y`
+  0.98 (pies al fondo de la celda normalizada), `PLAYER_SPRITE_SCALE` 1.3,
+  `ENEMY_SCREEN_HEIGHT_K` 3.0
+- Tests: `AnimationData.test.ts` reescrito — ahora valida que **cada grilla
+  embaldosa exactamente su PNG real** (lee el header del archivo) y que cada
+  clip cabe en la grilla de cada hoja que lo usa (mapeo por `enemyAnimsFor`)
+- Verificado en Chromium headless con primeros planos: Mostasa completo y
+  limpio en idle/caminata/golpe (sin fantasma, sin líneas, sin fragmentos);
+  grunt y tank completos y animados en la toma amplia
+- `npm run sprites:build` = process + normalize (pipeline reproducible)
+- 432 tests en verde; typecheck/lint/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
@@ -885,7 +928,7 @@ Ver `docs/adr/` para Architecture Decision Records.
 | PlayerStateMachine.test.ts      | 59     | ✅ OK  |
 | EnemyStateMachine.test.ts       | 35     | ✅ OK  |
 | CombatSystem.test.ts            | 26     | ✅ OK  |
-| AnimationData.test.ts           | 24     | ✅ OK  |
+| AnimationData.test.ts           | 23     | ✅ OK  |
 | AssetSystems.test.ts            | 20     | ✅ OK  |
 | WaveSystem.test.ts              | 10     | ✅ OK  |
 | RankSystem.test.ts              | 8      | ✅ OK  |
@@ -911,7 +954,7 @@ Ver `docs/adr/` para Architecture Decision Records.
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **433**| ✅ OK  |
+| **Total**                       | **432**| ✅ OK  |
 
 ---
 

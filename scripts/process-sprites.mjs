@@ -134,6 +134,42 @@ function encodePng(width, height, rgba) {
   return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', compressed), chunk('IEND', Buffer.alloc(0))]);
 }
 
+// ─── Grid-line inpainting ───────────────────────────────────────────────
+/**
+ * The uploaded sheets have thin dark separator lines drawn every 140px, ON
+ * TOP of figures that overflow their nominal cells. Interpolate those rows
+ * and columns away from vertical/horizontal neighbours before keying, so the
+ * lines never survive into the game art.
+ */
+function inpaintGridLines(width, height, rgba) {
+  const STEP = 140;
+  const BAND = 3;   // half-width of the strip to repaint (lines are up to ~5px)
+  const REACH = 6;  // sample interpolation sources this far outside the strip
+  const at = (x, y) => (y * width + x) * 4;
+  // The whole strip is repainted from samples just outside it — empirically
+  // the only variant that removes the lines without shattering figures into
+  // fragments (conditional repaints leave anti-aliased line remnants that
+  // break connectivity for the normalizer).
+  for (let gy = STEP; gy < height; gy += STEP) {
+    for (let y = gy - BAND; y <= gy + BAND; y++) {
+      if (y < REACH || y >= height - REACH) continue;
+      for (let x = 0; x < width; x++) {
+        const a = at(x, gy - BAND - 3), b = at(x, gy + BAND + 3), d = at(x, y);
+        for (let c = 0; c < 3; c++) rgba[d + c] = (rgba[a + c] + rgba[b + c]) >> 1;
+      }
+    }
+  }
+  for (let gx = STEP; gx < width; gx += STEP) {
+    for (let x = gx - BAND; x <= gx + BAND; x++) {
+      if (x < REACH || x >= width - REACH) continue;
+      for (let y = 0; y < height; y++) {
+        const a = at(gx - BAND - 3, y), b = at(gx + BAND + 3, y), d = at(x, y);
+        for (let c = 0; c < 3; c++) rgba[d + c] = (rgba[a + c] + rgba[b + c]) >> 1;
+      }
+    }
+  }
+}
+
 // ─── Magenta key-out + despill ──────────────────────────────────────────
 /**
  * A pixel is "magenta" when R and B are high while G is low.
@@ -199,6 +235,7 @@ for (const ch of CHARACTERS) {
   const expectedH = ch.rows * FRAME;
   const okDims = width === COLS * FRAME && height === expectedH;
 
+  inpaintGridLines(width, height, rgba);
   const { out, cleared } = keyMagenta(width, height, rgba);
   const png = encodePng(width, height, out);
   writeFileSync(join(outDir, `${ch.id}.png`), png);

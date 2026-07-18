@@ -1,19 +1,20 @@
 /**
  * Animation data for character sprite sheets.
  *
- * IMPORTANT: the uploaded Escenario 1 sheets are NOT a uniform 140×140 grid.
- * Measured frame sizes (width is always 140 = 1120/8 columns):
- *   Mostasa   1120×1680 → 8 rows × 210px
- *   Common    1120×1400 → 8 rows × 175px   (enemies 001-008)
- *   Mini-boss 1120×1540 → 10 rows × 154px  (enemy 009)
- *   Boss      1120×1680 → 8 rows × 210px   (enemy 010)
+ * The sheets in public/assets/characters are the output of
+ * `npm run sprites:process` + `node scripts/normalize-sprites.mjs`: the
+ * uploaded art was NOT grid-aligned, so the normalizer re-slices it by
+ * connected components and repacks uniform cells (feet anchored at the cell
+ * bottom, each row's frames cycled to fill every column). The grids below
+ * come from the normalizer's output — regenerate them together.
  *
- * Row layout (common 8-row sheets, verified visually):
- *   0 idle | 1 walk | 2 run | 3 punch | 4 kick | 5 weapon |
- *   6 knockdown | 7 downed/get-up
- * Mostasa 8-row layout:
- *   0 idle | 1 walk | 2 run | 3 punch | 4 heavy/kick | 5 special |
- *   6 hurt | 7 knockdown/get-up
+ * Row layout (verified visually on the normalized sheets):
+ *   Mostasa (9 rows):  0 idle | 1 walk | 2 dash/jab | 3 punches | 4 kicks |
+ *                      5 advance/guard | 6 hurt | 7 down+crawl+rise | 8 victory
+ *   Common  (8 rows):  0 idle | 1 walk | 2 run | 3 punch | 4 kick |
+ *                      5 weapon | 6 fall+crawl+rise | 7 crouch→lying
+ *   Mini-boss (10 rows): 0 idle | 1 walk | 2 run | 3 threat | 4 poke |
+ *                      5 whip overhead | 6 whip sweep | 7 carry | 8 stagger | 9 lying
  */
 
 export const SPRITE_COLS = 8;
@@ -27,17 +28,17 @@ export interface CharacterGrid {
 
 /** Per-sheet frame geometry. Keyed by texture key. */
 export const CHARACTER_GRIDS: Record<string, CharacterGrid> = {
-  mostasa: { frameWidth: 140, frameHeight: 210, cols: 8, rows: 8 },
-  enemy_001: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_002: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_003: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_004: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_005: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_006: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_007: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_008: { frameWidth: 140, frameHeight: 175, cols: 8, rows: 8 },
-  enemy_009: { frameWidth: 140, frameHeight: 154, cols: 8, rows: 10 },
-  enemy_010: { frameWidth: 140, frameHeight: 210, cols: 8, rows: 8 },
+  mostasa: { frameWidth: 122, frameHeight: 210, cols: 10, rows: 9 },
+  enemy_001: { frameWidth: 164, frameHeight: 184, cols: 10, rows: 8 },
+  enemy_002: { frameWidth: 172, frameHeight: 200, cols: 9, rows: 8 },
+  enemy_003: { frameWidth: 152, frameHeight: 198, cols: 9, rows: 8 },
+  enemy_004: { frameWidth: 132, frameHeight: 176, cols: 9, rows: 9 },
+  enemy_005: { frameWidth: 108, frameHeight: 168, cols: 10, rows: 9 },
+  enemy_006: { frameWidth: 130, frameHeight: 176, cols: 10, rows: 9 },
+  enemy_007: { frameWidth: 166, frameHeight: 188, cols: 9, rows: 8 },
+  enemy_008: { frameWidth: 170, frameHeight: 180, cols: 10, rows: 8 },
+  enemy_009: { frameWidth: 226, frameHeight: 166, cols: 8, rows: 10 },
+  enemy_010: { frameWidth: 134, frameHeight: 204, cols: 10, rows: 9 },
 };
 
 export function gridFor(spriteKey: string): CharacterGrid {
@@ -76,22 +77,23 @@ function clip(
  * Keyed by PlayerStateMachine state id string.
  */
 export const MOSTASA_ANIMS: Record<string, AnimClip> = {
-  idle:       clip(0, 0, 8, 8, true),
-  walk:       clip(1, 0, 8, 12, true),
-  run:        clip(2, 0, 8, 15, true),
-  light_1:    clip(3, 0, 8, 26),
-  light_2:    clip(3, 0, 8, 26),
-  light_3:    clip(4, 0, 8, 22),
-  heavy:      clip(4, 0, 8, 16),
-  air_attack: clip(3, 0, 8, 24),
-  jump:       clip(2, 0, 8, 12),
+  idle:       clip(0, 0, 10, 8, true),
+  walk:       clip(1, 0, 10, 12, true),
+  run:        clip(1, 0, 10, 18, true),
+  light_1:    clip(3, 0, 5, 26),
+  light_2:    clip(3, 5, 5, 26),
+  light_3:    clip(4, 5, 4, 22),
+  heavy:      clip(4, 4, 6, 16),
+  air_attack: clip(3, 3, 4, 24),
+  jump:       clip(2, 0, 1, 10),
   land:       clip(0, 0, 2, 12),
-  grab:       clip(4, 0, 8, 14),
-  throw:      clip(4, 0, 8, 18),
-  special:    clip(5, 0, 8, 16),
-  hurt:       clip(6, 0, 6, 18),
-  down:       clip(7, 0, 8, 12),
-  get_up:     clip(7, 0, 8, 22, false, true),
+  grab:       clip(5, 0, 4, 14),
+  throw:      clip(5, 4, 6, 18),
+  special:    clip(8, 0, 10, 18),
+  hurt:       clip(6, 0, 4, 18),
+  down:       clip(7, 0, 3, 8),
+  get_up:     clip(7, 3, 7, 16),
+  dodge:      clip(2, 0, 3, 14),
 };
 
 /**
@@ -99,34 +101,34 @@ export const MOSTASA_ANIMS: Record<string, AnimClip> = {
  * 6 knockdown 7 downed. get_up reuses the knockdown row reversed.
  */
 export const ENEMY_ANIMS_COMMON: Record<string, AnimClip> = {
-  idle:    clip(0, 0, 8, 8, true),
-  walk:    clip(1, 0, 8, 12, true),
-  attack:  clip(3, 0, 8, 14),
-  hurt:    clip(6, 0, 4, 18),
-  down:    clip(6, 0, 8, 12),
-  get_up:  clip(6, 0, 8, 22, false, true),
+  idle:    clip(0, 0, 9, 8, true),
+  walk:    clip(1, 0, 9, 12, true),
+  attack:  clip(3, 0, 9, 14),
+  hurt:    clip(6, 0, 2, 14),
+  down:    clip(7, 0, 8, 12),
+  get_up:  clip(6, 4, 5, 14),
   grabbed: clip(6, 0, 1, 1),
 };
 
-/** Mini-boss (10 rows × 154). Attacks occupy rows 3-7; knockdown 8, downed 9. */
+/** Mini-boss (10 rows): poke attack row 4, stagger row 8, lying row 9. */
 export const ENEMY_ANIMS_MINIBOSS: Record<string, AnimClip> = {
   idle:    clip(0, 0, 8, 8, true),
   walk:    clip(1, 0, 8, 12, true),
-  attack:  clip(3, 0, 8, 14),
-  hurt:    clip(8, 0, 4, 18),
-  down:    clip(8, 0, 8, 12),
-  get_up:  clip(8, 0, 8, 22, false, true),
+  attack:  clip(4, 0, 8, 14),
+  hurt:    clip(8, 0, 3, 16),
+  down:    clip(9, 0, 6, 10),
+  get_up:  clip(8, 2, 5, 14),
   grabbed: clip(8, 0, 1, 1),
 };
 
-/** Boss (8 rows × 210) — same layout family as the common sheets. */
+/** Boss (9 rows) — same layout family as the common sheets. */
 export const ENEMY_ANIMS_BOSS: Record<string, AnimClip> = {
-  idle:    clip(0, 0, 8, 8, true),
-  walk:    clip(1, 0, 8, 12, true),
-  attack:  clip(3, 0, 8, 14),
-  hurt:    clip(6, 0, 5, 18),
-  down:    clip(6, 0, 8, 12),
-  get_up:  clip(6, 0, 8, 22, false, true),
+  idle:    clip(0, 0, 10, 8, true),
+  walk:    clip(1, 0, 10, 12, true),
+  attack:  clip(3, 0, 10, 14),
+  hurt:    clip(6, 0, 2, 14),
+  down:    clip(7, 0, 8, 12),
+  get_up:  clip(6, 4, 5, 14),
   grabbed: clip(6, 0, 1, 1),
 };
 

@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import {
   MOSTASA_ANIMS,
   ENEMY_ANIMS_COMMON,
@@ -8,27 +10,21 @@ import {
   clipFrames,
   gridFor,
   CHARACTER_GRIDS,
-  SPRITE_COLS,
 } from '../../src/game/data/AnimationData';
 import type { AnimClip } from '../../src/game/data/AnimationData';
 
-describe('CHARACTER_GRIDS (measured sheet geometry)', () => {
-  it('every grid tiles its sheet exactly (cols*fw x rows*fh)', () => {
-    const sheetHeights: Record<string, number> = {
-      mostasa: 1680, enemy_001: 1400, enemy_002: 1400, enemy_003: 1400,
-      enemy_004: 1400, enemy_005: 1400, enemy_006: 1400, enemy_007: 1400,
-      enemy_008: 1400, enemy_009: 1540, enemy_010: 1680,
-    };
-    for (const [key, g] of Object.entries(CHARACTER_GRIDS)) {
-      expect(g.cols * g.frameWidth, `${key} width`).toBe(1120);
-      expect(g.rows * g.frameHeight, `${key} height`).toBe(sheetHeights[key]);
-    }
-  });
+/** Read a PNG's IHDR dimensions straight from the file header. */
+function pngSize(file: string): { width: number; height: number } {
+  const buf = readFileSync(join(__dirname, '../../public/assets/characters', file));
+  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+}
 
-  it('uses 140px-wide, 8-column frames on every sheet', () => {
+describe('CHARACTER_GRIDS (normalized sheet geometry)', () => {
+  it('every grid tiles its actual PNG exactly (cols*fw × rows*fh)', () => {
     for (const [key, g] of Object.entries(CHARACTER_GRIDS)) {
-      expect(g.frameWidth, `${key}`).toBe(140);
-      expect(g.cols, `${key}`).toBe(8);
+      const { width, height } = pngSize(`${key}.png`);
+      expect(g.cols * g.frameWidth, `${key} width`).toBe(width);
+      expect(g.rows * g.frameHeight, `${key} height`).toBe(height);
     }
   });
 
@@ -46,18 +42,36 @@ describe('clipFrames', () => {
 
   it('offsets by row * cols', () => {
     const c: AnimClip = { row: 2, startFrame: 0, frameCount: 4, frameRate: 8, loop: false, reverse: false };
-    expect(clipFrames(c)).toEqual([16, 17, 18, 19]);
+    expect(clipFrames(c, 10)).toEqual([20, 21, 22, 23]);
   });
 
   it('respects startFrame within a row', () => {
-    const c: AnimClip = { row: 10, startFrame: 4, frameCount: 4, frameRate: 8, loop: false, reverse: false };
-    expect(clipFrames(c)).toEqual([84, 85, 86, 87]);
+    const c: AnimClip = { row: 1, startFrame: 4, frameCount: 4, frameRate: 8, loop: false, reverse: false };
+    expect(clipFrames(c, 10)).toEqual([14, 15, 16, 17]);
   });
 
   it('returns frames back-to-front when reversed', () => {
-    const c: AnimClip = { row: 8, startFrame: 0, frameCount: 8, frameRate: 8, loop: false, reverse: true };
-    expect(clipFrames(c)).toEqual([71, 70, 69, 68, 67, 66, 65, 64]);
+    const c: AnimClip = { row: 1, startFrame: 0, frameCount: 4, frameRate: 8, loop: false, reverse: true };
+    expect(clipFrames(c, 10)).toEqual([13, 12, 11, 10]);
   });
+});
+
+/** The animation config each sheet actually renders with. */
+function configForSheet(key: string): Record<string, AnimClip> {
+  return key === 'mostasa' ? MOSTASA_ANIMS : enemyAnimsFor(key);
+}
+
+describe('clips fit the grid of every sheet that uses them', () => {
+  for (const key of Object.keys(CHARACTER_GRIDS)) {
+    it(`${key}: every clip stays inside ${CHARACTER_GRIDS[key]!.cols}×${CHARACTER_GRIDS[key]!.rows}`, () => {
+      const g = CHARACTER_GRIDS[key]!;
+      for (const [state, c] of Object.entries(configForSheet(key))) {
+        expect(c.row, `${key}.${state} row`).toBeGreaterThanOrEqual(0);
+        expect(c.row, `${key}.${state} row`).toBeLessThanOrEqual(g.rows - 1);
+        expect(c.startFrame + c.frameCount, `${key}.${state} overflows row`).toBeLessThanOrEqual(g.cols);
+      }
+    });
+  }
 });
 
 describe('MOSTASA_ANIMS integrity', () => {
@@ -65,23 +79,10 @@ describe('MOSTASA_ANIMS integrity', () => {
     const required = [
       'idle', 'walk', 'run', 'jump', 'land',
       'light_1', 'light_2', 'light_3', 'heavy', 'air_attack',
-      'grab', 'throw', 'special', 'hurt', 'down', 'get_up',
+      'grab', 'throw', 'special', 'hurt', 'down', 'get_up', 'dodge',
     ];
     for (const state of required) {
       expect(MOSTASA_ANIMS[state], `missing clip for ${state}`).toBeDefined();
-    }
-  });
-
-  it('never references a column beyond the sheet width', () => {
-    for (const [state, c] of Object.entries(MOSTASA_ANIMS)) {
-      expect(c.startFrame + c.frameCount, `${state} overflows row`).toBeLessThanOrEqual(SPRITE_COLS);
-    }
-  });
-
-  it('stays within the 8 rows of Mostasa\'s sheet (0-7)', () => {
-    for (const [state, c] of Object.entries(MOSTASA_ANIMS)) {
-      expect(c.row, `${state} row out of range`).toBeGreaterThanOrEqual(0);
-      expect(c.row, `${state} row out of range`).toBeLessThanOrEqual(7);
     }
   });
 
@@ -94,39 +95,19 @@ describe('MOSTASA_ANIMS integrity', () => {
 });
 
 describe('ENEMY_ANIMS integrity', () => {
-  const required = ['idle', 'walk', 'hurt', 'down', 'get_up', 'grabbed'];
+  const required = ['idle', 'walk', 'attack', 'hurt', 'down', 'get_up', 'grabbed'];
 
-  const configs: [string, Record<string, AnimClip>, number][] = [
-    ['common', ENEMY_ANIMS_COMMON, 8],
-    ['miniboss', ENEMY_ANIMS_MINIBOSS, 10],
-    ['boss', ENEMY_ANIMS_BOSS, 8],
+  const configs: [string, Record<string, AnimClip>][] = [
+    ['common', ENEMY_ANIMS_COMMON],
+    ['miniboss', ENEMY_ANIMS_MINIBOSS],
+    ['boss', ENEMY_ANIMS_BOSS],
   ];
 
-  for (const [name, config, rowCount] of configs) {
-    describe(name, () => {
-      it('defines a clip for every enemy FSM state', () => {
-        for (const state of required) {
-          expect(config[state], `${name} missing clip for ${state}`).toBeDefined();
-        }
-      });
-
-      it('never references a column beyond the sheet width', () => {
-        for (const [state, c] of Object.entries(config)) {
-          expect(c.startFrame + c.frameCount, `${name}.${state} overflows row`).toBeLessThanOrEqual(SPRITE_COLS);
-        }
-      });
-
-      it(`stays within the ${rowCount} rows of its sheet`, () => {
-        for (const [state, c] of Object.entries(config)) {
-          expect(c.row, `${name}.${state} row out of range`).toBeGreaterThanOrEqual(0);
-          expect(c.row, `${name}.${state} row out of range`).toBeLessThanOrEqual(rowCount - 1);
-        }
-      });
-
-      it('rises from the knockdown row (get_up reuses down, reversed)', () => {
-        expect(config['get_up']?.reverse).toBe(true);
-        expect(config['get_up']?.row).toBe(config['down']?.row);
-      });
+  for (const [name, config] of configs) {
+    it(`${name} defines a clip for every enemy FSM state`, () => {
+      for (const state of required) {
+        expect(config[state], `${name} missing clip for ${state}`).toBeDefined();
+      }
     });
   }
 

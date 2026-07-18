@@ -64,17 +64,12 @@ import { effectsFor } from '../data/ShopManifest';
 import { loadDifficulty } from '../data/DifficultyManifest';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 
-// Beat'em up screen presence: fighters should stand ~30% of the frame height
-// (Streets-of-Rage range), not the miniature ~18% the art shipped at. The
-// sheets include internal padding, so scales run higher than they look.
-const PLAYER_SPRITE_SCALE = 1.45;
-const SPRITE_ORIGIN_Y = 0.95;
-const ENEMY_SCREEN_HEIGHT_K = 3.05;
-// Character rim-light: a warm additive halo that separates sprites from the
-// photoreal backdrops so they never read as "invisible".
-const CHARACTER_RIM_TINT = 0xffd9a0;
-const CHARACTER_RIM_ALPHA = 0.6;
-const CHARACTER_RIM_SCALE = 1.08;
+// Beat'em up screen presence: fighters stand ~30-38% of the frame height
+// (Streets-of-Rage range). The normalized sheets are tight boxes with feet
+// 3px above the cell bottom, so visible height ≈ frameHeight × scale.
+const PLAYER_SPRITE_SCALE = 1.3;
+const SPRITE_ORIGIN_Y = 0.98;
+const ENEMY_SCREEN_HEIGHT_K = 3.0;
 // The character sheets are rendered darker than the photoreal backdrops; an
 // additive self-overlay lifts their exposure so they read as lit subjects.
 const CHARACTER_LIFT_ALPHA = 0.26;
@@ -116,7 +111,6 @@ export class GameScene extends Phaser.Scene {
   private playerVel: Vec3 = { x: 0, y: 0, z: 0 };
   private playerFacing: 1 | -1 = 1;
   private playerSprite!: Phaser.GameObjects.Sprite;
-  private playerOutline!: Phaser.GameObjects.Sprite;
   private playerLift!: Phaser.GameObjects.Sprite;
   private playerShadow!: Phaser.GameObjects.Graphics;
   private groundGraphics!: Phaser.GameObjects.Graphics;
@@ -134,7 +128,6 @@ export class GameScene extends Phaser.Scene {
   private enemyShadows: Phaser.GameObjects.Graphics[] = [];
   private enemySprites: Phaser.GameObjects.Sprite[] = [];
   private enemyLabels: Phaser.GameObjects.Text[] = [];
-  private enemyOutlines: Phaser.GameObjects.Sprite[] = [];
   private enemyLifts: Phaser.GameObjects.Sprite[] = [];
 
   private grabbedEnemyIndex = -1;
@@ -692,7 +685,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
     const shadow = this.add.graphics().setDepth(0);
-    const outline = this.createOutlineSprite(spriteKey);
     const sprite = this.add.sprite(0, 0, spriteKey);
     sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     playState(sprite, spriteKey, 'idle');
@@ -714,7 +706,6 @@ export class GameScene extends Phaser.Scene {
     this.enemySprites.push(sprite);
     this.enemyGraphics.push(hud);
     this.enemyLabels.push(label);
-    this.enemyOutlines.push(outline);
     this.enemyLifts.push(lift);
   }
 
@@ -788,21 +779,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * A rim-light silhouette drawn just behind a character so its shape pops off
-   * the busy photoreal backgrounds. Same texture/frame as the character, tinted
-   * a warm light and drawn additively at a slightly larger scale, so only the
-   * halo around the edges shows once the opaque character is layered on top.
-   */
-  private createOutlineSprite(textureKey: string): Phaser.GameObjects.Sprite {
-    const o = this.add.sprite(0, 0, textureKey);
-    o.setOrigin(0.5, SPRITE_ORIGIN_Y);
-    o.setTint(CHARACTER_RIM_TINT);
-    o.setBlendMode(Phaser.BlendModes.ADD);
-    o.setAlpha(CHARACTER_RIM_ALPHA);
-    return o;
-  }
-
-  /**
    * An additive self-overlay drawn on top of a character to lift its exposure:
    * the sheets render darker than the photoreal stages, and this brings the
    * fighters up to "lit subject" levels without touching the source art.
@@ -832,25 +808,8 @@ export class GameScene extends Phaser.Scene {
     lift.setAlpha(sprite.visible ? CHARACTER_LIFT_ALPHA * sprite.alpha : 0);
   }
 
-  /** Sync an outline sprite to its character's current frame/pose/depth. */
-  private syncOutline(
-    outline: Phaser.GameObjects.Sprite,
-    sprite: Phaser.GameObjects.Sprite,
-    screenX: number,
-    screenY: number,
-    depth: number,
-  ): void {
-    outline.setFrame(sprite.frame.name);
-    outline.setPosition(screenX, screenY);
-    outline.setFlipX(sprite.flipX);
-    outline.setScale(sprite.scaleX * CHARACTER_RIM_SCALE, sprite.scaleY * CHARACTER_RIM_SCALE);
-    outline.setDepth(depth - 0.5);
-    outline.setVisible(sprite.visible);
-  }
-
   private createPlayerSprite(): void {
     this.playerShadow = this.add.graphics();
-    this.playerOutline = this.createOutlineSprite('mostasa');
     this.playerSprite = this.add.sprite(0, 0, 'mostasa');
     this.playerSprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     this.playerSprite.setScale(PLAYER_SPRITE_SCALE);
@@ -893,7 +852,6 @@ export class GameScene extends Phaser.Scene {
     this.playerSprite.setPosition(screenX, screenY);
     this.playerSprite.setFlipX(this.playerFacing === -1);
     this.playerSprite.setDepth(this.playerPos.y);
-    this.syncOutline(this.playerOutline, this.playerSprite, screenX, screenY, this.playerPos.y);
     this.syncLift(this.playerLift, this.playerSprite, screenX, screenY, this.playerPos.y);
 
     // Damage flash tint
@@ -925,9 +883,8 @@ export class GameScene extends Phaser.Scene {
       const shadow = this.enemyShadows[i];
       const sprite = this.enemySprites[i];
       const label = this.enemyLabels[i];
-      const outline = this.enemyOutlines[i];
       const lift = this.enemyLifts[i];
-      if (!enemy || !hud || !shadow || !sprite || !label || !outline || !lift) continue;
+      if (!enemy || !hud || !shadow || !sprite || !label || !lift) continue;
 
       if (enemy.dead) {
         // One-time elite kill bonus (§10).
@@ -939,7 +896,6 @@ export class GameScene extends Phaser.Scene {
         shadow.setVisible(false);
         sprite.setVisible(false);
         label.setVisible(false);
-        outline.setVisible(false);
         lift.setVisible(false);
         continue;
       }
@@ -970,7 +926,6 @@ export class GameScene extends Phaser.Scene {
       sprite.setFlipX(enemy.facing === -1);
       sprite.setDepth(enemy.pos.y);
       playState(sprite, enemy.spriteKey, enemy.fsm.currentState);
-      this.syncOutline(outline, sprite, screenX, screenY, enemy.pos.y);
       this.syncLift(lift, sprite, screenX, screenY, enemy.pos.y);
 
       const state = enemy.fsm.currentState;

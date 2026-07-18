@@ -16,6 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "sprites:process": "node scripts/process-sprites.mjs",
+    "sprites:normalize": "node scripts/normalize-sprites.mjs",
+    "sprites:build": "npm run sprites:process && npm run sprites:normalize",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
