@@ -741,6 +741,26 @@
   etiqueta roja "ELITE" sobre la cabeza junto al aura en los pies; sin errores
   de runtime; 419 tests, typecheck/build limpios
 
+### HITO 053 — Paleta de enemigos por escenario (arte por nivel, palette-swap) ✅
+- Comienzo del bloque **A** (arte de enemigos por nivel). La campaña reutiliza
+  el mismo elenco de sheets en los 10 niveles; sin tratamiento, todos los mobs
+  se ven idénticos. Solución in-engine, determinista y testeable: tinte de
+  color por escenario (técnica clásica de palette-swap de beat'em up)
+- `systems/EnemyPalette.ts` (puro): `STAGE_ENEMY_PALETTES` (un tinte + tema por
+  cada uno de los 10 niveles, todos cerca del blanco para recolorear suave sin
+  oscurecer); `paletteForStage(id)` (con fallback neutro); `scaleColor(color,
+  factor)` (multiplica canales RGB con clamp); `spriteVariant(spriteKey)`
+  (factor de brillo determinista 0.86–1.0 por sheet para que el mob de un nivel
+  no sea un bloque de color uniforme); `enemyTint(stageId, spriteKey)`
+- `GameScene`: el sprite del enemigo lleva su tinte de escenario en vez de
+  `clearTint()` neutro; el flash de daño (hurt) sigue teniendo prioridad
+- Verificado en Chromium headless: Once con cast cálido/marrón vs Estación
+  Oxidada con cast oxidado/naranja — distinción visible por nivel, sin
+  oscurecer el arte; sin errores de runtime
+- 6 tests en `EnemyPalette.test.ts` (paleta por nivel, unicidad de tintes,
+  `scaleColor` con clamp, `spriteVariant` en rango y variando, `enemyTint`
+  varía por sprite dentro del nivel y por nivel para el mismo sprite)
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
@@ -811,11 +831,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | GuidanceArrow.test.ts           | 5      | ✅ OK  |
 | ZoneBonus.test.ts               | 5      | ✅ OK  |
 | EliteSystem.test.ts             | 5      | ✅ OK  |
+| EnemyPalette.test.ts            | 6      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **419**| ✅ OK  |
+| **Total**                       | **425**| ✅ OK  |
 
 ---
 

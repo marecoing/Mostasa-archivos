@@ -52,6 +52,7 @@ import {
   eliteEveryN, isEliteSpawn,
   ELITE_HP_MULT, ELITE_DAMAGE_MULT, ELITE_SCALE, ELITE_KILL_BONUS,
 } from '../systems/EliteSystem';
+import { enemyTint } from '../systems/EnemyPalette';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -865,8 +866,10 @@ export class GameScene extends Phaser.Scene {
       playState(sprite, enemy.spriteKey, enemy.fsm.currentState);
 
       const state = enemy.fsm.currentState;
+      // Hurt flash wins; otherwise the sprite carries its stage palette tint so
+      // each escenario's cast reads with its own colour identity (§10).
       if (state === 'hurt') sprite.setTint(0xff8888);
-      else sprite.clearTint();
+      else sprite.setTint(enemyTint(this.stageId, enemy.spriteKey));
 
       // HP bar above the character
       const h = enemy.height * 1.4;
