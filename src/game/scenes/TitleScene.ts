@@ -154,7 +154,7 @@ export class TitleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(cx, 540, 'TECLADO: WASD / FLECHAS = MOVER   J = GOLPE   K = FUERTE   L = ESPECIAL', {
+      .text(cx, 540, 'TECLADO: WASD / FLECHAS = MOVER   J = GOLPE   K = FUERTE   L = ESPECIAL   O = ESQUIVAR', {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#444444',

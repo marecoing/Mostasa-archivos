@@ -17,6 +17,7 @@ export const PLAYER_STATE = {
   GRAB: 'grab',
   THROW: 'throw',
   SPECIAL: 'special',
+  DODGE: 'dodge',
   HURT: 'hurt',
   DOWN: 'down',
   GET_UP: 'get_up',
@@ -31,13 +32,18 @@ export const GET_UP_FRAMES = 20;
 export const GRAB_HOLD_FRAMES = 20;
 export const THROW_FRAMES = 15;
 export const SPECIAL_TOTAL_FRAMES = 45;
+/** Dodge roll (§ combate): brief evasive roll with invulnerability frames. */
+export const DODGE_FRAMES = 18;
+/** i-frames run for frames [DODGE_IFRAME_START, DODGE_IFRAME_END]. */
+export const DODGE_IFRAME_START = 1;
+export const DODGE_IFRAME_END = 11;
 
 export interface PlayerContext {
   isOnGround: boolean;
   velZ: number;
 }
 
-export type FSMEvent = 'jump' | 'land' | 'shake_light' | 'shake_medium' | 'grab_attempt' | 'throw' | 'special_radial';
+export type FSMEvent = 'jump' | 'land' | 'shake_light' | 'shake_medium' | 'grab_attempt' | 'throw' | 'special_radial' | 'dodge';
 
 export interface FSMResult {
   velZSet: number | null;
@@ -90,6 +96,19 @@ export class PlayerStateMachine {
 
   isAirborne(): boolean {
     return this.state === PLAYER_STATE.JUMP || this.state === PLAYER_STATE.AIR_ATTACK;
+  }
+
+  isDodging(): boolean {
+    return this.state === PLAYER_STATE.DODGE;
+  }
+
+  /** True during the dodge roll's invulnerability window (§ combate). */
+  isInvulnerable(): boolean {
+    return (
+      this.state === PLAYER_STATE.DODGE &&
+      this.frame >= DODGE_IFRAME_START &&
+      this.frame <= DODGE_IFRAME_END
+    );
   }
 
   triggerGrab(): boolean {
@@ -178,6 +197,8 @@ export class PlayerStateMachine {
         return this.processThrow();
       case PLAYER_STATE.SPECIAL:
         return this.processSpecial();
+      case PLAYER_STATE.DODGE:
+        return this.processDodge();
       case PLAYER_STATE.HURT:
         return this.processHurt();
       case PLAYER_STATE.DOWN:
@@ -189,10 +210,25 @@ export class PlayerStateMachine {
     }
   }
 
+  /**
+   * Shared dodge check for the grounded movement states. Enters DODGE on a
+   * fresh dodge press, facing the horizontal input, and emits the event the
+   * scene uses to apply the roll burst. Returns true if a dodge started.
+   */
+  private tryStartDodge(input: InputSnapshot, result: FSMResult): boolean {
+    if (!input[INPUT_ACTIONS.DODGE].justPressed) return false;
+    this.enterState(PLAYER_STATE.DODGE);
+    if (input[INPUT_ACTIONS.MOVE_LEFT].held) result.newFacing = -1;
+    else if (input[INPUT_ACTIONS.MOVE_RIGHT].held) result.newFacing = 1;
+    result.events.push('dodge');
+    return true;
+  }
+
   private processIdle(input: InputSnapshot): FSMResult {
     const result = this.emptyResult();
     if (this.consumeLight()) { this.enterState(PLAYER_STATE.LIGHT_1); return result; }
     if (this.consumeHeavy()) { this.enterState(PLAYER_STATE.HEAVY); return result; }
+    if (this.tryStartDodge(input, result)) return result;
     if (input[INPUT_ACTIONS.JUMP].justPressed) {
       this.enterState(PLAYER_STATE.JUMP);
       result.velZSet = 720;
@@ -211,6 +247,7 @@ export class PlayerStateMachine {
     const result = this.emptyResult();
     if (this.consumeLight()) { this.enterState(PLAYER_STATE.LIGHT_1); return result; }
     if (this.consumeHeavy()) { this.enterState(PLAYER_STATE.HEAVY); return result; }
+    if (this.tryStartDodge(input, result)) return result;
     if (input[INPUT_ACTIONS.JUMP].justPressed) {
       this.enterState(PLAYER_STATE.JUMP);
       result.velZSet = 720;
@@ -231,6 +268,7 @@ export class PlayerStateMachine {
     const result = this.emptyResult();
     if (this.consumeLight()) { this.enterState(PLAYER_STATE.LIGHT_1); return result; }
     if (this.consumeHeavy()) { this.enterState(PLAYER_STATE.HEAVY); return result; }
+    if (this.tryStartDodge(input, result)) return result;
     if (input[INPUT_ACTIONS.JUMP].justPressed) {
       this.enterState(PLAYER_STATE.JUMP);
       result.velZSet = 720;
@@ -365,6 +403,16 @@ export class PlayerStateMachine {
       result.events.push('special_radial');
     }
     if (this.frame >= SPECIAL_TOTAL_FRAMES) {
+      this.lightQueued = false;
+      this.heavyQueued = false;
+      this.enterState(PLAYER_STATE.IDLE);
+    }
+    return result;
+  }
+
+  private processDodge(): FSMResult {
+    const result = this.emptyResult();
+    if (this.frame >= DODGE_FRAMES) {
       this.lightQueued = false;
       this.heavyQueued = false;
       this.enterState(PLAYER_STATE.IDLE);

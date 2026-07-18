@@ -9,6 +9,7 @@ export const INPUT_ACTIONS = {
   HEAVY_ATTACK: 'heavy_attack',
   SPECIAL: 'special',
   GRAB: 'grab',
+  DODGE: 'dodge',
   PAUSE: 'pause',
   CONFIRM: 'confirm',
   CANCEL: 'cancel',

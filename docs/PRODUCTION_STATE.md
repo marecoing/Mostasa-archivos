@@ -772,6 +772,27 @@
   render, solo cambia el factor calculado); +2 tests en `EnemyPalette.test.ts`
   (tono por arquetipo, `enemyTint` varía por tipo con mismo sprite/nivel)
 
+### HITO 055 — Esquiva / rodada con i-frames (bloque B) ✅
+- Inicio del bloque **B** (profundidad de combate). Primera mecánica: esquiva
+  evasiva con frames de invulnerabilidad
+- Input: nueva acción `dodge` (teclado **O**, gamepad **L1**; ambos libres)
+- `PlayerStateMachine`: estado `DODGE` (18 frames, i-frames en frames 1–11),
+  `isDodging()`, `isInvulnerable()`; se dispara desde IDLE/WALK/RUN (no
+  cancela ataques), mira la dirección del input y emite evento `dodge`
+- `GameScene`: `startDodgeRoll` aplica un burst de 640 en la dirección de
+  encare (+ componente de profundidad con arriba/abajo) que desliza con
+  fricción; `damagePlayer` ignora el golpe durante `isInvulnerable()` (con
+  SFX de esquiva); tinte celeste + fantasmeo del sprite durante el roll
+- `SoundBank`: SFX `dodge` (whoosh: ruido corto + barrido de seno)
+- `TitleScene`: la ayuda de controles ahora lista `O = ESQUIVAR`
+- Verificado en Chromium headless (prueba directa en la escena viva): tras
+  pulsar O el estado pasa a `dodge` e `isInvulnerable()` = true; `damagePlayer`
+  se anula durante los i-frames (HP intacto) y vuelve a aplicar al terminar la
+  ventana (100→75, estado `hurt`)
+- 6 tests nuevos en `PlayerStateMachine.test.ts` (entra desde IDLE/WALK/RUN,
+  encara el input, ventana de i-frames, vuelve a IDLE y bloquea movimiento, no
+  arranca en pleno ataque)
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
@@ -818,7 +839,7 @@ Ver `docs/adr/` para Architecture Decision Records.
 | CameraSystem.test.ts            | 18     | ✅ OK  |
 | Pushbox.test.ts                 | 17     | ✅ OK  |
 | AttackData.test.ts              | 14     | ✅ OK  |
-| PlayerStateMachine.test.ts      | 53     | ✅ OK  |
+| PlayerStateMachine.test.ts      | 59     | ✅ OK  |
 | EnemyStateMachine.test.ts       | 35     | ✅ OK  |
 | CombatSystem.test.ts            | 26     | ✅ OK  |
 | AnimationData.test.ts           | 24     | ✅ OK  |
@@ -847,7 +868,7 @@ Ver `docs/adr/` para Architecture Decision Records.
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **427**| ✅ OK  |
+| **Total**                       | **433**| ✅ OK  |
 
 ---
 

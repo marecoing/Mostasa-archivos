@@ -9,6 +9,7 @@ import {
   GRAB_HOLD_FRAMES,
   THROW_FRAMES,
   SPECIAL_TOTAL_FRAMES,
+  DODGE_FRAMES,
 } from '../../src/game/player/PlayerStateMachine';
 import { makeEmptySnapshot } from '../../src/game/systems/input/InputActions';
 import { INPUT_ACTIONS } from '../../src/game/systems/input/InputActions';
@@ -476,5 +477,67 @@ describe('SPECIAL state', () => {
     const fsm = new PlayerStateMachine();
     fsm.triggerSpecial();
     expect(fsm.locksMovement()).toBe(true);
+  });
+});
+
+function pressDodge(dir?: 'left' | 'right'): InputSnapshot {
+  const o: Record<string, Partial<{ held: boolean; justPressed: boolean }>> = {
+    [INPUT_ACTIONS.DODGE]: { held: true, justPressed: true },
+  };
+  if (dir === 'left') o[INPUT_ACTIONS.MOVE_LEFT] = { held: true };
+  if (dir === 'right') o[INPUT_ACTIONS.MOVE_RIGHT] = { held: true };
+  return snap(o);
+}
+
+describe('PlayerStateMachine dodge roll', () => {
+  it('enters DODGE from IDLE and emits a dodge event', () => {
+    const fsm = new PlayerStateMachine();
+    const r = fsm.tick(pressDodge(), GROUNDED);
+    expect(fsm.currentState).toBe(PLAYER_STATE.DODGE);
+    expect(r.events).toContain('dodge');
+    expect(fsm.isDodging()).toBe(true);
+  });
+
+  it('faces the horizontal input on dodge', () => {
+    const fsm = new PlayerStateMachine();
+    const r = fsm.tick(pressDodge('left'), GROUNDED);
+    expect(r.newFacing).toBe(-1);
+  });
+
+  it('starts from WALK and RUN too', () => {
+    const a = new PlayerStateMachine();
+    a.tick(holdLeft(), GROUNDED); // → WALK
+    a.tick(pressDodge(), GROUNDED);
+    expect(a.currentState).toBe(PLAYER_STATE.DODGE);
+
+    const b = new PlayerStateMachine();
+    b.tick(holdRun(), GROUNDED); // → RUN
+    b.tick(pressDodge(), GROUNDED);
+    expect(b.currentState).toBe(PLAYER_STATE.DODGE);
+  });
+
+  it('is invulnerable during the i-frame window but not after', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.tick(pressDodge(), GROUNDED); // enter DODGE, frame advances to 1
+    expect(fsm.isInvulnerable()).toBe(true);
+    // Advance to the recovery tail (past DODGE_IFRAME_END = 11).
+    for (let i = 0; i < 12; i++) fsm.tick(empty, GROUNDED);
+    expect(fsm.isDodging()).toBe(true);
+    expect(fsm.isInvulnerable()).toBe(false);
+  });
+
+  it('returns to IDLE after DODGE_FRAMES and locks movement meanwhile', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.tick(pressDodge(), GROUNDED);
+    expect(fsm.locksMovement()).toBe(true);
+    for (let i = 0; i < DODGE_FRAMES; i++) fsm.tick(empty, GROUNDED);
+    expect(fsm.currentState).toBe(PLAYER_STATE.IDLE);
+  });
+
+  it('cannot be started mid-attack', () => {
+    const fsm = new PlayerStateMachine();
+    fsm.tick(pressLight(), GROUNDED); // → LIGHT_1
+    fsm.tick(pressDodge(), GROUNDED);
+    expect(fsm.currentState).toBe(PLAYER_STATE.LIGHT_1);
   });
 });

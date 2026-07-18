@@ -15,6 +15,7 @@ import type { StageLane } from '../core/Pushbox';
 import { CameraSystem, createDefaultCameraConfig, SHAKE_LIGHT, SHAKE_MEDIUM } from '../systems/CameraSystem';
 import { InputManager } from '../systems/input/InputManager';
 import { INPUT_ACTIONS } from '../systems/input/InputActions';
+import type { InputSnapshot } from '../systems/input/InputActions';
 import { PlayerStateMachine, PLAYER_STATE } from '../player/PlayerStateMachine';
 import { DebugOverlay } from '../systems/DebugOverlay';
 import type { AttackDef } from '../data/AttackData';
@@ -806,13 +807,17 @@ export class GameScene extends Phaser.Scene {
       this.playerSprite.setTint(0xff8888);
     } else if (this.fsm.currentState === PLAYER_STATE.SPECIAL) {
       this.playerSprite.setTint(0xffdd88);
+    } else if (this.fsm.isDodging()) {
+      this.playerSprite.setTint(0x99ccff); // cool tint sells the evasive roll
     } else {
       this.playerSprite.clearTint();
     }
 
-    // Blink during invulnerability frames.
+    // Blink during invulnerability frames; the dodge's i-frames get a lighter
+    // ghosting so the roll reads as briefly intangible.
     const blink = this.playerIFrames > 0 && Math.floor(this.playerIFrames / 4) % 2 === 0;
-    this.playerSprite.setAlpha(blink ? 0.4 : 1);
+    if (this.fsm.isInvulnerable()) this.playerSprite.setAlpha(0.55);
+    else this.playerSprite.setAlpha(blink ? 0.4 : 1);
 
     this.updateHeldWeaponSprite(screenX, screenY);
   }
@@ -1105,6 +1110,8 @@ export class GameScene extends Phaser.Scene {
         this.handleThrow();
       } else if (ev === 'special_radial') {
         this.handleSpecialRadial();
+      } else if (ev === 'dodge') {
+        this.startDodgeRoll(snap);
       } else if (ev === 'grab_attempt') {
         // grab was already registered via input — keep grabbed enemy pinned to player
       }
@@ -1229,6 +1236,10 @@ export class GameScene extends Phaser.Scene {
       } else {
         this.playerVel.y = applyFriction(this.playerVel, FRICTION, dt).y;
       }
+    } else if (this.fsm.isDodging()) {
+      // The roll glides on its launch momentum, then settles into recovery.
+      this.playerVel.x = applyFriction(this.playerVel, FRICTION * 0.55, dt).x;
+      this.playerVel.y = applyFriction(this.playerVel, FRICTION * 0.55, dt).y;
     } else if (
       this.fsm.currentState === PLAYER_STATE.HURT ||
       this.fsm.currentState === PLAYER_STATE.DOWN
@@ -1296,6 +1307,11 @@ export class GameScene extends Phaser.Scene {
   private damagePlayer(dmg: number, fromFacing: 1 | -1): void {
     if (this.stageEnded || this.playerIFrames > 0) return;
     if (this.fsm.currentState === PLAYER_STATE.DOWN) return;
+    // A well-timed dodge roll phases through the hit (§ combate: i-frames).
+    if (this.fsm.isInvulnerable()) {
+      this.audio.play('dodge');
+      return;
+    }
 
     this.playerHp = Math.max(0, this.playerHp - dmg);
     this.updateAguanteBar();
@@ -1337,6 +1353,21 @@ export class GameScene extends Phaser.Scene {
     this.objectiveText?.setText('GAME OVER').setVisible(true);
     this.cameras.main.fadeOut(900, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(SCENE_KEYS.TITLE));
+  }
+
+  /**
+   * Launch the dodge roll: a burst in the facing direction (plus an optional
+   * depth component from vertical input). The FSM owns the invulnerability
+   * window; here we just kick the momentum and sell it with FX.
+   */
+  private startDodgeRoll(snap: InputSnapshot): void {
+    const DODGE_SPEED = 640;
+    this.playerVel.x = this.playerFacing * DODGE_SPEED;
+    if (snap[INPUT_ACTIONS.MOVE_UP].held) this.playerVel.y = -DODGE_SPEED * 0.6;
+    else if (snap[INPUT_ACTIONS.MOVE_DOWN].held) this.playerVel.y = DODGE_SPEED * 0.6;
+    else this.playerVel.y = 0;
+    this.camera.triggerShake(SHAKE_LIGHT);
+    this.audio.play('dodge');
   }
 
   private handleThrow(): void {

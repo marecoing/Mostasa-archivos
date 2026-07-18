@@ -58,6 +58,10 @@ export const SFX: Record<string, SfxDef> = {
   jump: [
     { wave: 'sine', freq: 300, freqEnd: 620, dur: 0.16, gain: 0.28 },
   ],
+  dodge: [
+    { wave: 'noise', freq: 0, dur: 0.14, gain: 0.3 },
+    { wave: 'sine', freq: 520, freqEnd: 180, dur: 0.14, gain: 0.18 },
+  ],
   special: [
     { wave: 'sawtooth', freq: midiToFreq(52), dur: 0.4, gain: 0.32 },
     { wave: 'sawtooth', freq: midiToFreq(59), dur: 0.4, gain: 0.3, delay: 0.02 },
