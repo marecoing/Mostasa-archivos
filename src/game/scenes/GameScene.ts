@@ -67,6 +67,14 @@ import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 const PLAYER_SPRITE_SCALE = 0.9;
 const SPRITE_ORIGIN_Y = 0.95;
 const ENEMY_SCREEN_HEIGHT_K = 1.9;
+// Character rim-light: a warm additive halo that separates sprites from the
+// photoreal backdrops so they never read as "invisible".
+const CHARACTER_RIM_TINT = 0xffd9a0;
+const CHARACTER_RIM_ALPHA = 0.6;
+const CHARACTER_RIM_SCALE = 1.08;
+// Breakable art ships as 362×181 frames rendered 1:1 (a crate ~2× the hero).
+// Calibrate so a destructible reads roughly waist-height beside Mostasa.
+const BREAKABLE_RENDER_SCALE = 0.5;
 /**
  * Vertical render offset (screen px) that drops the 2.5D character lane down
  * onto the painted floor of the stage backdrop. Applied via worldToScreen's
@@ -102,6 +110,7 @@ export class GameScene extends Phaser.Scene {
   private playerVel: Vec3 = { x: 0, y: 0, z: 0 };
   private playerFacing: 1 | -1 = 1;
   private playerSprite!: Phaser.GameObjects.Sprite;
+  private playerOutline!: Phaser.GameObjects.Sprite;
   private playerShadow!: Phaser.GameObjects.Graphics;
   private groundGraphics!: Phaser.GameObjects.Graphics;
   private debugText!: Phaser.GameObjects.Text;
@@ -118,6 +127,7 @@ export class GameScene extends Phaser.Scene {
   private enemyShadows: Phaser.GameObjects.Graphics[] = [];
   private enemySprites: Phaser.GameObjects.Sprite[] = [];
   private enemyLabels: Phaser.GameObjects.Text[] = [];
+  private enemyOutlines: Phaser.GameObjects.Sprite[] = [];
 
   private grabbedEnemyIndex = -1;
   private hitstopFrames = 0;
@@ -312,7 +322,10 @@ export class GameScene extends Phaser.Scene {
       const def = BREAKABLES[item.id];
       if (!def || !this.textures.exists(breakableKey(item.id))) continue;
       const ent = new BreakableEntity(def, item.x, item.y);
-      const sprite = this.add.sprite(0, 0, breakableKey(item.id), 0).setOrigin(0.5, 0.92);
+      const sprite = this.add
+        .sprite(0, 0, breakableKey(item.id), 0)
+        .setOrigin(0.5, 0.92)
+        .setScale(BREAKABLE_RENDER_SCALE);
       this.breakables.push(ent);
       this.breakableSprites.push(sprite);
     }
@@ -671,6 +684,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
     const shadow = this.add.graphics().setDepth(0);
+    const outline = this.createOutlineSprite(spriteKey);
     const sprite = this.add.sprite(0, 0, spriteKey);
     sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     playState(sprite, spriteKey, 'idle');
@@ -691,6 +705,7 @@ export class GameScene extends Phaser.Scene {
     this.enemySprites.push(sprite);
     this.enemyGraphics.push(hud);
     this.enemyLabels.push(label);
+    this.enemyOutlines.push(outline);
   }
 
   private createGround(): void {
@@ -762,8 +777,40 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * A rim-light silhouette drawn just behind a character so its shape pops off
+   * the busy photoreal backgrounds. Same texture/frame as the character, tinted
+   * a warm light and drawn additively at a slightly larger scale, so only the
+   * halo around the edges shows once the opaque character is layered on top.
+   */
+  private createOutlineSprite(textureKey: string): Phaser.GameObjects.Sprite {
+    const o = this.add.sprite(0, 0, textureKey);
+    o.setOrigin(0.5, SPRITE_ORIGIN_Y);
+    o.setTint(CHARACTER_RIM_TINT);
+    o.setBlendMode(Phaser.BlendModes.ADD);
+    o.setAlpha(CHARACTER_RIM_ALPHA);
+    return o;
+  }
+
+  /** Sync an outline sprite to its character's current frame/pose/depth. */
+  private syncOutline(
+    outline: Phaser.GameObjects.Sprite,
+    sprite: Phaser.GameObjects.Sprite,
+    screenX: number,
+    screenY: number,
+    depth: number,
+  ): void {
+    outline.setFrame(sprite.frame.name);
+    outline.setPosition(screenX, screenY);
+    outline.setFlipX(sprite.flipX);
+    outline.setScale(sprite.scaleX * CHARACTER_RIM_SCALE, sprite.scaleY * CHARACTER_RIM_SCALE);
+    outline.setDepth(depth - 0.5);
+    outline.setVisible(sprite.visible);
+  }
+
   private createPlayerSprite(): void {
     this.playerShadow = this.add.graphics();
+    this.playerOutline = this.createOutlineSprite('mostasa');
     this.playerSprite = this.add.sprite(0, 0, 'mostasa');
     this.playerSprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     this.playerSprite.setScale(PLAYER_SPRITE_SCALE);
@@ -790,9 +837,13 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.playerShadow.clear();
-    const shadowAlpha = Math.max(0.1, 0.5 - this.playerPos.z * 0.001);
+    // Layered contact shadow: a soft outer pool plus a tight dark core grounds
+    // the character firmly on the floor.
+    const shadowAlpha = Math.max(0.12, 0.62 - this.playerPos.z * 0.0012);
+    this.playerShadow.fillStyle(0x000000, shadowAlpha * 0.5);
+    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 60, 20);
     this.playerShadow.fillStyle(0x000000, shadowAlpha);
-    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 48, 15);
+    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 40, 12);
     this.playerShadow.setDepth(this.playerPos.y - 1);
 
     // Drive the animation from the FSM state
@@ -801,6 +852,7 @@ export class GameScene extends Phaser.Scene {
     this.playerSprite.setPosition(screenX, screenY);
     this.playerSprite.setFlipX(this.playerFacing === -1);
     this.playerSprite.setDepth(this.playerPos.y);
+    this.syncOutline(this.playerOutline, this.playerSprite, screenX, screenY, this.playerPos.y);
 
     // Damage flash tint
     if (this.fsm.currentState === PLAYER_STATE.HURT) {
@@ -831,7 +883,8 @@ export class GameScene extends Phaser.Scene {
       const shadow = this.enemyShadows[i];
       const sprite = this.enemySprites[i];
       const label = this.enemyLabels[i];
-      if (!enemy || !hud || !shadow || !sprite || !label) continue;
+      const outline = this.enemyOutlines[i];
+      if (!enemy || !hud || !shadow || !sprite || !label || !outline) continue;
 
       if (enemy.dead) {
         // One-time elite kill bonus (§10).
@@ -843,6 +896,7 @@ export class GameScene extends Phaser.Scene {
         shadow.setVisible(false);
         sprite.setVisible(false);
         label.setVisible(false);
+        outline.setVisible(false);
         continue;
       }
 
@@ -850,8 +904,11 @@ export class GameScene extends Phaser.Scene {
       const { screenX: sx, screenY: sy } = worldToScreen(enemy.pos.x, enemy.pos.y, GROUND_Z, camX, -FLOOR_OFFSET);
 
       shadow.clear();
-      shadow.fillStyle(0x000000, 0.35);
-      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 12, 13);
+      // Layered contact shadow grounds the enemy on the floor.
+      shadow.fillStyle(0x000000, 0.22);
+      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 26, 20);
+      shadow.fillStyle(0x000000, 0.42);
+      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 8, 12);
       // Elites get a red aura ring at the feet.
       if (enemy.elite) {
         shadow.fillStyle(0xff2222, 0.18);
@@ -869,6 +926,7 @@ export class GameScene extends Phaser.Scene {
       sprite.setFlipX(enemy.facing === -1);
       sprite.setDepth(enemy.pos.y);
       playState(sprite, enemy.spriteKey, enemy.fsm.currentState);
+      this.syncOutline(outline, sprite, screenX, screenY, enemy.pos.y);
 
       const state = enemy.fsm.currentState;
       // Hurt flash wins; otherwise the sprite carries its stage palette tint so

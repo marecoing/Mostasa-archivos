@@ -793,6 +793,29 @@
   encara el input, ventana de i-frames, vuelve a IDLE y bloquea movimiento, no
   arranca en pleno ataque)
 
+### HITO 056 — Overhaul de legibilidad y calibración de escala ✅
+- Respuesta directa al feedback: "personajes semi-invisibles" y "objetos
+  demasiado grandes comparados con los personajes". Diagnóstico anclado en
+  evidencia (capturas headless) y en números del código, no de memoria
+- **Legibilidad de personajes:** rim-light aditivo cálido detrás de Mostasa y
+  de cada enemigo (sprite duplicado sincronizado por frame, tinte `0xffd9a0`,
+  blend ADD, escala ×1.08) que separa las siluetas del fondo fotorrealista;
+  sombras de contacto en dos capas (pool suave + núcleo oscuro) que anclan a
+  los personajes al piso. Helpers `createOutlineSprite`/`syncOutline`
+- **Calibración de escala:** los rompibles se renderizaban a escala nativa
+  (frame 362×181 → ~2× el héroe). Nuevo `BREAKABLE_RENDER_SCALE = 0.5` los
+  deja a la altura de la cintura. Props reducidos un 28 % global
+  (`PROP_SCALE_MULT = 0.72` en `PropSystem`) para que dejen de tapar la escena
+- Verificado en Chromium headless con el jugador + grunt + tank ubicados junto
+  a un cajón: antes el cajón medía casi el doble que Mostasa y los personajes
+  eran manchas oscuras; después el cajón queda a la cintura, los props en
+  escala de fondo y los personajes se leen nítidos con borde cálido y sombra
+- Honestidad: parte de los objetos grandes están *pintados dentro* de los
+  paneles de fondo (imagen plana) y no se pueden reescalar por objeto sin
+  regenerar ese arte; esta pasada corrige todo lo que se renderiza por separado
+- Sin cambios de lógica pura → sin tests nuevos; 433 tests siguen en verde,
+  typecheck/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)

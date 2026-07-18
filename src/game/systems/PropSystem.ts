@@ -9,6 +9,11 @@ const BACK_DEPTH = -900; // behind the fighters, in front of the painted panels
 const FRONT_DEPTH = 700; // in front of the fighters (they pass behind these)
 /** Horizontal margin (px) beyond the screen before a prop is culled. */
 const CULL_MARGIN = 200;
+/**
+ * Global size correction: the prop art was authored oversized relative to the
+ * fighters, so every prop is scaled down uniformly to sit in proportion.
+ */
+const PROP_SCALE_MULT = 0.72;
 
 interface PropSprite {
   def: PropDef;
@@ -30,7 +35,7 @@ export class PropSystem {
       const sprite = scene.add
         .image(0, def.groundScreenY, key)
         .setOrigin(0.5, 1)
-        .setScale(def.scale)
+        .setScale(def.scale * PROP_SCALE_MULT)
         .setScrollFactor(0)
         .setDepth(def.layer === 'front' ? FRONT_DEPTH : BACK_DEPTH);
       if (def.flip) sprite.setFlipX(true);
