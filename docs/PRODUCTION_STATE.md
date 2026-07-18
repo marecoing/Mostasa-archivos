@@ -577,9 +577,26 @@
 - 7 tests en `AchievementManifest.test.ts` (integridad, unlock por
   clear/combo/rango/campaña, idempotencia, pureza)
 
+### HITO 043 — Modos de dificultad (Normal / Difícil / Furia) ✅
+- `data/DifficultyManifest.ts` (puro): 3 modos que escalan HP y daño de
+  enemigos + multiplicador de score — Normal (×1/×1/×1), Difícil
+  (×1.4/×1.3/×1.3), Furia (×1.8/×1.6/×1.6); `difficultyById`, `cycleDifficulty`
+  (wrap), y load/save defensivo en localStorage (patrón de AudioSettings)
+- `GameScene`: `applyUpgrades` resuelve los multiplicadores del modo;
+  `spawnEnemy` escala HP máx/actual y `attackDamage` al aparecer; nuevo helper
+  `addScore(base)` centraliza TODAS las sumas de puntaje y aplica el
+  multiplicador de dificultad (combo, zona, rompible, pickups, pendrive)
+- `StageSelectScene`: **tecla D cicla la dificultad** (persistida), indicador
+  "DIFICULTAD: X" coloreado arriba a la izquierda + hint en el pie
+- Verificado en Chromium headless: seleccionar Furia se guardó; al entrar,
+  un grunt (base 60 hp / 8 daño) escaló a 108 hp / 13 daño, y `diffScore`=1.6;
+  captura de la selección con "DIFICULTAD: FURIA" revisada; sin errores
+- 6 tests en `DifficultyManifest.test.ts` (multiplicadores crecientes, lookup
+  con fallback, ciclo con wrap, persistencia + saneo de id inválido)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 043-060)
+- ... (hitos 044-060)
 
 ---
 
@@ -639,11 +656,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | ComboSystem.test.ts             | 9      | ✅ OK  |
 | CampaignStats.test.ts           | 4      | ✅ OK  |
 | AchievementManifest.test.ts     | 7      | ✅ OK  |
+| DifficultyManifest.test.ts      | 6      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **372**| ✅ OK  |
+| **Total**                       | **378**| ✅ OK  |
 
 ---
 

@@ -49,6 +49,7 @@ import { variantForStage } from '../systems/audio/SoundBank';
 import { loadAudioSettings, saveAudioSettings } from '../data/AudioSettings';
 import { loadProgress } from '../data/CampaignProgress';
 import { effectsFor } from '../data/ShopManifest';
+import { loadDifficulty } from '../data/DifficultyManifest';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
 
 const PLAYER_SPRITE_SCALE = 0.9;
@@ -131,6 +132,10 @@ export class GameScene extends Phaser.Scene {
   private score = 0;
   /** Kiosco upgrade: multiplies all player attack damage (§16). */
   private damageMultiplier = 1;
+  /** Difficulty scalers (§11), resolved in applyUpgrades(). */
+  private diffEnemyHp = 1;
+  private diffEnemyDamage = 1;
+  private diffScore = 1;
 
   private waveSystem!: WaveSystem;
   private waveGateMinX = 0;
@@ -212,6 +217,10 @@ export class GameScene extends Phaser.Scene {
    * resets run state cleanly when the scene instance is reused (restart).
    */
   private applyUpgrades(): void {
+    const diff = loadDifficulty();
+    this.diffEnemyHp = diff.enemyHp;
+    this.diffEnemyDamage = diff.enemyDamage;
+    this.diffScore = diff.score;
     const fx = effectsFor(loadProgress());
     this.playerMaxHp = 100 + fx.maxHpBonus;
     this.playerHp = this.playerMaxHp;
@@ -394,7 +403,7 @@ export class GameScene extends Phaser.Scene {
       this.camera.unlock();
     }
     if (actions.zoneCleared) {
-      this.score += 200;
+      this.addScore(200);
       this.audio.play('zone_clear');
     }
 
@@ -440,7 +449,7 @@ export class GameScene extends Phaser.Scene {
 
   private finishStage(): void {
     this.stageEnded = true;
-    this.score += 500; // pendrive federal
+    this.addScore(500); // pendrive federal
     this.audio.play('zone_clear');
     this.audio.stopMusic();
     this.objectiveText?.setVisible(false);
@@ -464,6 +473,14 @@ export class GameScene extends Phaser.Scene {
     const stats = ENEMY_TYPES[type];
     if (!stats) return;
     const enemy = new EnemyEntity(x, y, stats, spriteKey);
+    // Scale toughness/aggression to the selected difficulty (§11).
+    if (this.diffEnemyHp !== 1) {
+      enemy.maxHp = Math.round(enemy.maxHp * this.diffEnemyHp);
+      enemy.hp = enemy.maxHp;
+    }
+    if (this.diffEnemyDamage !== 1) {
+      enemy.attackDamage = Math.round(enemy.attackDamage * this.diffEnemyDamage);
+    }
     const shadow = this.add.graphics().setDepth(0);
     const sprite = this.add.sprite(0, 0, spriteKey);
     sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
@@ -751,6 +768,11 @@ export class GameScene extends Phaser.Scene {
     this.hudInfoText.setText(`★ ${String(this.score).padStart(6, '0')}   ${hearts}`);
   }
 
+  /** Add score scaled by the difficulty multiplier (§11). */
+  private addScore(base: number): void {
+    this.score += Math.round(base * this.diffScore);
+  }
+
   private updateBroncaBar(): void {
     const w = Math.round(200 * (this.broncaMeter / BRONCA_MAX));
     this.broncaBar.clear();
@@ -897,7 +919,7 @@ export class GameScene extends Phaser.Scene {
         // Chain of bronca: each landed hit builds the combo and pays score
         // scaled by its multiplier (feeds the Kiosco economy, §12/§16).
         this.combo.addHit();
-        this.score += this.combo.scoreFor(HIT_BASE_SCORE);
+        this.addScore(this.combo.scoreFor(HIT_BASE_SCORE));
         this.updateComboHud();
         maxHitstop = Math.max(maxHitstop, atk.hitstopFrames);
         this.camera.triggerShake(SHAKE_LIGHT);
@@ -1102,7 +1124,7 @@ export class GameScene extends Phaser.Scene {
   private onBreakableDestroyed(b: BreakableEntity): void {
     this.playVfxAtWorld(b.def.destroyVfx, b.x, b.y, 70, 1.2);
     this.camera.triggerShake(SHAKE_MEDIUM);
-    this.score += 50;
+    this.addScore(50);
     const dropId = rollDrop(b.def, Math.random());
     if (dropId) this.spawnPickup(dropId, b.x, b.y);
   }
@@ -1131,11 +1153,11 @@ export class GameScene extends Phaser.Scene {
         this.updateBroncaBar();
         break;
       case 'money':
-        this.score += def.amount;
+        this.addScore(def.amount);
         break;
       case 'collectible':
       case 'key_item':
-        this.score += 500;
+        this.addScore(500);
         break;
     }
   }

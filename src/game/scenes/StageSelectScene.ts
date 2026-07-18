@@ -5,6 +5,8 @@ import type { StageDef } from '../data/StageManifest';
 import { loadProgress, isStageUnlocked, isStagePlayable } from '../data/CampaignProgress';
 import type { CampaignProgress } from '../data/CampaignProgress';
 import { RANK_COLORS } from '../data/RankSystem';
+import { loadDifficulty, saveDifficulty, cycleDifficulty } from '../data/DifficultyManifest';
+import type { DifficultyDef } from '../data/DifficultyManifest';
 
 const COLS = 5;
 const CARD_W = 210;
@@ -30,6 +32,8 @@ export class StageSelectScene extends Phaser.Scene {
   private selected = 0;
   private hintText!: Phaser.GameObjects.Text;
   private nudgeTween?: Phaser.Tweens.Tween;
+  private difficulty: DifficultyDef = loadDifficulty();
+  private difficultyText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: SCENE_KEYS.STAGE_SELECT });
@@ -66,7 +70,7 @@ export class StageSelectScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'FLECHAS = MOVER    ENTER = JUGAR    K = KIOSCO    ESC = VOLVER', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT - 18, 'FLECHAS = MOVER   ENTER = JUGAR   K = KIOSCO   D = DIFICULTAD   ESC = VOLVER', {
         fontFamily: 'monospace', fontSize: '10px', color: '#555555',
       })
       .setOrigin(0.5);
@@ -77,6 +81,13 @@ export class StageSelectScene extends Phaser.Scene {
         fontFamily: 'monospace', fontSize: '13px', color: '#44ff88',
       })
       .setOrigin(1, 0);
+
+    // Difficulty selector (Biblia §11).
+    this.difficulty = loadDifficulty();
+    this.difficultyText = this.add
+      .text(24, 22, '', { fontFamily: 'monospace', fontSize: '13px' })
+      .setOrigin(0, 0);
+    this.refreshDifficulty();
 
     // Start on the first playable stage if possible.
     const firstPlayable = this.cards.findIndex((c) => isStagePlayable(c.stage, this.progress.cleared));
@@ -181,7 +192,21 @@ export class StageSelectScene extends Phaser.Scene {
     kb.on('keydown-ENTER', () => this.launch());
     kb.on('keydown-SPACE', () => this.launch());
     kb.on('keydown-K', () => this.openShop());
+    kb.on('keydown-D', () => this.toggleDifficulty());
     kb.on('keydown-ESC', () => this.goBack());
+  }
+
+  private toggleDifficulty(): void {
+    this.difficulty = cycleDifficulty(this.difficulty.id);
+    saveDifficulty(this.difficulty.id);
+    this.refreshDifficulty();
+  }
+
+  private refreshDifficulty(): void {
+    const colors: Record<string, string> = { normal: '#88cc88', dificil: '#e8c046', furia: '#ff5544' };
+    this.difficultyText
+      .setText(`DIFICULTAD: ${this.difficulty.label}`)
+      .setColor(colors[this.difficulty.id] ?? '#cccccc');
   }
 
   private openShop(): void {
