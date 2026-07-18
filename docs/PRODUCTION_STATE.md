@@ -555,9 +555,31 @@
 - 4 tests en `CampaignStats.test.ts` (vacío, agregación de clears/scores/top
   rank/conteo S, Rosca cuenta como S-tier, campaña completa)
 
+### HITO 042 — Logros de la Rosca (con recompensa de guita) ✅
+- `CampaignProgress`: nuevo `achievements: string[]` (ids desbloqueados),
+  saneado al cargar; propagado por `withStageCleared`
+- `data/AchievementManifest.ts` (puro): 7 logros con condición sobre las
+  estadísticas agregadas y recompensa en guita — Primera Sangre (1 zona,
+  $200), Media Ciudad (5 zonas, $1000), Cadena de Bronca (combo 20, $500),
+  Imparable (combo 30, $1000), Sin Una Marca (rango S/Rosca, $800),
+  Millonario del Barrio (puntaje total 20k, $1500), La Rosca Cayó (campaña
+  completa, $3000); `pendingAchievements` + `grantAchievements` (puro,
+  idempotente — nunca paga dos veces). Recompensas 100% in-game (§35)
+- `ResultsScene`: tras registrar el resultado evalúa y paga los logros nuevos
+  (guardando), y muestra un panel "¡LOGROS DESBLOQUEADOS!" con nombre +
+  recompensa
+- `StatsScene` (Libreta): sección "LOGROS DE LA ROSCA" en 2 columnas —
+  desbloqueados en verde (✓ HECHO), pendientes en gris con su recompensa
+- Verificado en Chromium headless: un clear con combo 25 + rango Rosca
+  desbloqueó primera_sangre/cadena_de_bronca/sin_una_marca, sumó $1500 al
+  wallet (además del score), panel en resultados y sección en la Libreta
+  revisados; re-evaluar no vuelve a pagar; sin errores de runtime
+- 7 tests en `AchievementManifest.test.ts` (integridad, unlock por
+  clear/combo/rango/campaña, idempotencia, pureza)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 042-060)
+- ... (hitos 043-060)
 
 ---
 
@@ -616,11 +638,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | ShopManifest.test.ts            | 11     | ✅ OK  |
 | ComboSystem.test.ts             | 9      | ✅ OK  |
 | CampaignStats.test.ts           | 4      | ✅ OK  |
+| AchievementManifest.test.ts     | 7      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **365**| ✅ OK  |
+| **Total**                       | **372**| ✅ OK  |
 
 ---
 

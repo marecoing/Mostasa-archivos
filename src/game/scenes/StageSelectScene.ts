@@ -25,7 +25,7 @@ interface Card {
  * Progress comes from CampaignProgress (localStorage-backed).
  */
 export class StageSelectScene extends Phaser.Scene {
-  private progress: CampaignProgress = { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {}, bestCombo: 0 };
+  private progress: CampaignProgress = { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {}, bestCombo: 0, achievements: [] };
   private cards: Card[] = [];
   private selected = 0;
   private hintText!: Phaser.GameObjects.Text;

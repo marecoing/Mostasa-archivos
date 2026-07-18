@@ -25,12 +25,14 @@ export interface CampaignProgress {
   upgrades: Record<string, number>;
   /** highest combo chain ever reached across the campaign (§12) */
   bestCombo: number;
+  /** ids of achievements already unlocked (and paid out) */
+  achievements: string[];
 }
 
 const STORAGE_KEY = 'mostasas-rage:progress:v1';
 
 export function emptyProgress(): CampaignProgress {
-  return { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {}, bestCombo: 0 };
+  return { cleared: [], bestScore: {}, bestRank: {}, wallet: 0, upgrades: {}, bestCombo: 0, achievements: [] };
 }
 
 /**
@@ -67,7 +69,10 @@ export function withStageCleared(
   if (isBetterRank(rank, bestRank[stageId])) bestRank[stageId] = rank;
   // Every completed run pays its score into the wallet (replays earn too).
   const wallet = p.wallet + Math.max(0, Math.round(score));
-  return { cleared, bestScore, bestRank, wallet, upgrades: { ...p.upgrades }, bestCombo: p.bestCombo };
+  return {
+    cleared, bestScore, bestRank, wallet,
+    upgrades: { ...p.upgrades }, bestCombo: p.bestCombo, achievements: [...p.achievements],
+  };
 }
 
 function getStorage(): Storage | null {
@@ -93,6 +98,7 @@ export function loadProgress(): CampaignProgress {
       wallet: typeof parsed.wallet === 'number' && Number.isFinite(parsed.wallet) ? Math.max(0, parsed.wallet) : 0,
       upgrades: parsed.upgrades ?? {},
       bestCombo: typeof parsed.bestCombo === 'number' && Number.isFinite(parsed.bestCombo) ? Math.max(0, parsed.bestCombo) : 0,
+      achievements: Array.isArray(parsed.achievements) ? parsed.achievements : [],
     };
   } catch {
     return emptyProgress();

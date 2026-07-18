@@ -4,6 +4,7 @@ import { loadProgress } from '../data/CampaignProgress';
 import { computeStats } from '../data/CampaignStats';
 import { STAGES } from '../data/StageManifest';
 import { RANK_COLORS } from '../data/RankSystem';
+import { ACHIEVEMENTS } from '../data/AchievementManifest';
 
 /**
  * La Libreta de Mostasa — campaign records screen (Biblia §32). Read-only
@@ -88,8 +89,33 @@ export class StatsScene extends Phaser.Scene {
         .setOrigin(0.5, 0);
     });
 
+    // Achievements strip (Logros de la Rosca).
+    this.add
+      .text(cx, 520, 'LOGROS DE LA ROSCA', { fontFamily: 'monospace', fontSize: '12px', color: '#888888' })
+      .setOrigin(0.5);
+    const achCols = 2;
+    ACHIEVEMENTS.forEach((a, i) => {
+      const col = i % achCols;
+      const row = Math.floor(i / achCols);
+      const x = col === 0 ? 250 : 690;
+      const y = 548 + row * 26;
+      const done = p.achievements.includes(a.id);
+      this.add
+        .text(x, y, `${done ? '✓' : '○'} ${a.name}`, {
+          fontFamily: 'monospace', fontSize: '12px',
+          color: done ? '#44ff88' : '#666666',
+        })
+        .setOrigin(0, 0.5);
+      this.add
+        .text(x + 300, y, done ? 'HECHO' : `$${a.reward}`, {
+          fontFamily: 'monospace', fontSize: '11px',
+          color: done ? '#44ff88' : '#8a7a3a',
+        })
+        .setOrigin(0, 0.5);
+    });
+
     const prompt = this.add
-      .text(cx, GAME_HEIGHT - 30, 'ESC / ENTER para volver', {
+      .text(cx, GAME_HEIGHT - 22, 'ESC / ENTER para volver', {
         fontFamily: 'monospace', fontSize: '12px', color: '#888888',
       })
       .setOrigin(0.5);

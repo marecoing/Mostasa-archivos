@@ -4,7 +4,8 @@ import { computeRank, RANK_COLORS } from '../data/RankSystem';
 import type { StageResult } from '../data/RankSystem';
 import { itemKey } from '../systems/AssetLoader';
 import { stageById } from '../data/StageManifest';
-import { recordStageResult, isStageUnlocked } from '../data/CampaignProgress';
+import { recordStageResult, isStageUnlocked, saveProgress } from '../data/CampaignProgress';
+import { grantAchievements, ACHIEVEMENT_BY_ID } from '../data/AchievementManifest';
 
 export interface ResultsData extends StageResult {
   /** reward item id awarded for clearing (e.g. pendrive_federal) */
@@ -25,7 +26,10 @@ export class ResultsScene extends Phaser.Scene {
     const rank = computeRank(data);
 
     // Persist campaign progress: mark this stage cleared and unlock the next.
-    const progress = recordStageResult(data.stageId, data.score, rank, data.maxCombo ?? 0);
+    const recorded = recordStageResult(data.stageId, data.score, rank, data.maxCombo ?? 0);
+    // Then evaluate & pay out any newly-unlocked achievements (§32/§16).
+    const { progress, unlocked } = grantAchievements(recorded);
+    if (unlocked.ids.length > 0) saveProgress(progress);
     const nextStage = stage?.nextStageId ? stageById(stage.nextStageId) : undefined;
     const nextUnlocked = nextStage ? isStageUnlocked(nextStage, progress.cleared) : false;
     const isRecordCombo = (data.maxCombo ?? 0) >= progress.bestCombo && (data.maxCombo ?? 0) > 0;
@@ -80,6 +84,24 @@ export class ResultsScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setShadow(0, 0, RANK_COLORS[rank], 20, false, true);
+
+    // Newly-unlocked achievements (top-right), if any.
+    if (unlocked.ids.length > 0) {
+      this.add
+        .text(GAME_WIDTH - 40, 150, '¡LOGROS DESBLOQUEADOS!', {
+          fontFamily: 'monospace', fontSize: '13px', color: '#ffdd44',
+        })
+        .setOrigin(1, 0);
+      unlocked.ids.slice(0, 4).forEach((id, i) => {
+        const a = ACHIEVEMENT_BY_ID[id];
+        if (!a) return;
+        this.add
+          .text(GAME_WIDTH - 40, 178 + i * 26, `${a.name}  +$${a.reward}`, {
+            fontFamily: 'monospace', fontSize: '12px', color: '#44ff88',
+          })
+          .setOrigin(1, 0);
+      });
+    }
 
     // Final stage: the campaign is over — route to the ending.
     const isFinal = stage !== undefined && stage.nextStageId === null;
