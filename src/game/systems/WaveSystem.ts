@@ -48,6 +48,11 @@ export class WaveSystem {
     return this.phase === 'fighting' ? (this.zones[this.zoneIndex] ?? null) : null;
   }
 
+  /** Index of the zone currently being approached/fought (zones before it are cleared). */
+  get currentZoneIndex(): number {
+    return this.zoneIndex;
+  }
+
   private spawnsForWave(zone: CombatZoneDef, waveIdx: number): SpawnRequest[] {
     const wave = zone.waves[waveIdx];
     if (!wave) return [];

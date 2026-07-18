@@ -646,9 +646,27 @@
 - 4 tests en `DamageNumbers.test.ts` (4 bandas de color distintas, tamaño
   no-decreciente, banda máxima, límites de banda)
 
+### HITO 047 — Barra de progreso del escenario (mini-mapa de zonas) ✅
+- `systems/StageProgress.ts` (puro): `progressFraction(playerX, laneMaxX)`
+  (0..1 clampado), `zoneMarkers(zones, laneMaxX, currentZoneIndex)` (posición
+  normalizada + kind + cleared por índice) y `zoneMarkerColor(kind, cleared)`
+  (boss rojo, mini-boss naranja, emboscada magenta, oleada gris, despejada
+  verde)
+- `WaveSystem`: nuevo getter `currentZoneIndex` (las zonas por debajo están
+  despejadas)
+- `GameScene`: barra fina al pie con pista, marcadores por zona (los de jefe
+  más altos) y punto amarillo del jugador; redibujada cada frame en `update`
+- Verificado en Chromium headless: al teleportar al jugador a mitad del nivel
+  (zoneIndex 2) el punto se movió al centro, apareció un marcador verde
+  (despejado) y los marcadores naranja (mini-boss) y rojo (boss) a la derecha;
+  captura revisada; sin errores de runtime
+- 7 tests en `StageProgress.test.ts` (fracción con clamp y lane degenerada,
+  normalización + cleared por índice, todas despejadas pasado el final,
+  colores distintos por kind y cleared, integridad con un escenario real)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 047-060)
+- ... (hitos 048-060)
 
 ---
 
@@ -712,11 +730,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | BossBar.test.ts                 | 8      | ✅ OK  |
 | ComboFeedback.test.ts           | 6      | ✅ OK  |
 | DamageNumbers.test.ts           | 4      | ✅ OK  |
+| StageProgress.test.ts           | 7      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **395**| ✅ OK  |
+| **Total**                       | **402**| ✅ OK  |
 
 ---
 

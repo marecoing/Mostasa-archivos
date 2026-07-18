@@ -45,6 +45,7 @@ import { ComboSystem } from '../systems/ComboSystem';
 import { bossBarView, bossBarColor } from '../systems/BossBar';
 import { impactScale, crossedComboBand, usesHeavyShake } from '../systems/ComboFeedback';
 import { damageStyle } from '../systems/DamageNumbers';
+import { progressFraction, zoneMarkers, zoneMarkerColor } from '../systems/StageProgress';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -148,6 +149,7 @@ export class GameScene extends Phaser.Scene {
   private bossBarBg?: Phaser.GameObjects.Graphics;
   private bossBarFill?: Phaser.GameObjects.Graphics;
   private bossBarLabel?: Phaser.GameObjects.Text;
+  private progressGfx?: Phaser.GameObjects.Graphics;
   private stageStartMs = 0;
   private bossPhase2Done = false;
   private stageEnded = false;
@@ -419,6 +421,51 @@ export class GameScene extends Phaser.Scene {
     this.bossBarBg.lineStyle(1, 0xcc4422, 0.8);
     this.bossBarBg.strokeRect(this.bossBarX - 2, this.bossBarY - 2, this.bossBarW + 4, 16);
     this.bossBarFill = this.add.graphics().setScrollFactor(0).setDepth(322).setVisible(false);
+    this.progressGfx = this.add.graphics().setScrollFactor(0).setDepth(315);
+  }
+
+  // Stage-progress mini-map geometry.
+  private readonly progressMargin = 120;
+  private get progressW(): number {
+    return GAME_WIDTH - this.progressMargin * 2;
+  }
+  private readonly progressBarY = GAME_HEIGHT - 20;
+
+  /** Redraw the bottom progress bar: track, zone markers and player dot. */
+  private updateProgressBar(): void {
+    const g = this.progressGfx;
+    if (!g) return;
+    g.clear();
+    const x0 = this.progressMargin;
+    const w = this.progressW;
+    const y = this.progressBarY;
+
+    // Track.
+    g.fillStyle(0x000000, 0.5);
+    g.fillRect(x0 - 4, y - 5, w + 8, 12);
+    g.fillStyle(0x554433, 0.9);
+    g.fillRect(x0, y, w, 2);
+
+    // Zone markers.
+    const markers = zoneMarkers(
+      encountersForStage(this.stageId).zones,
+      STAGE_LANE.maxX,
+      this.waveSystem?.currentZoneIndex ?? 0,
+    );
+    for (const m of markers) {
+      g.fillStyle(zoneMarkerColor(m.kind, m.cleared), 1);
+      const mx = Math.round(x0 + m.fraction * w);
+      const isBig = m.kind === 'boss' || m.kind === 'mini_boss';
+      g.fillRect(mx - 1, y - (isBig ? 6 : 4), 3, isBig ? 14 : 10);
+    }
+
+    // Player dot.
+    const pf = progressFraction(this.playerPos.x, STAGE_LANE.maxX);
+    const px = Math.round(x0 + pf * w);
+    g.fillStyle(0xe8c046, 1);
+    g.fillCircle(px, y + 1, 4);
+    g.lineStyle(1, 0x000000, 0.8);
+    g.strokeCircle(px, y + 1, 4);
   }
 
   /** Update the dedicated boss health bar from the active zone + boss enemy. */
@@ -1493,6 +1540,7 @@ export class GameScene extends Phaser.Scene {
     this.updatePickups(FIXED_TIMESTEP);
     this.updateWeapons(FIXED_TIMESTEP);
     this.updateHudInfo();
+    this.updateProgressBar();
     this.groundGraphics.setX(-this.camera.worldX);
 
     this.debugOverlay.render(
