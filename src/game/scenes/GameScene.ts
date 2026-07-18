@@ -46,6 +46,7 @@ import { bossBarView, bossBarColor } from '../systems/BossBar';
 import { impactScale, crossedComboBand, usesHeavyShake } from '../systems/ComboFeedback';
 import { damageStyle } from '../systems/DamageNumbers';
 import { progressFraction, zoneMarkers, zoneMarkerColor } from '../systems/StageProgress';
+import { showGuidance } from '../systems/GuidanceArrow';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -150,6 +151,7 @@ export class GameScene extends Phaser.Scene {
   private bossBarFill?: Phaser.GameObjects.Graphics;
   private bossBarLabel?: Phaser.GameObjects.Text;
   private progressGfx?: Phaser.GameObjects.Graphics;
+  private guidanceText?: Phaser.GameObjects.Text;
   private stageStartMs = 0;
   private bossPhase2Done = false;
   private stageEnded = false;
@@ -422,6 +424,35 @@ export class GameScene extends Phaser.Scene {
     this.bossBarBg.strokeRect(this.bossBarX - 2, this.bossBarY - 2, this.bossBarW + 4, 16);
     this.bossBarFill = this.add.graphics().setScrollFactor(0).setDepth(322).setVisible(false);
     this.progressGfx = this.add.graphics().setScrollFactor(0).setDepth(315);
+
+    this.guidanceText = this.add
+      .text(GAME_WIDTH - 78, GAME_HEIGHT / 2, '→\nSEGUÍ', {
+        fontFamily: 'monospace', fontSize: '28px', color: '#e8c046',
+        stroke: '#000000', strokeThickness: 4, align: 'center',
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(318)
+      .setVisible(false);
+    this.tweens.add({
+      targets: this.guidanceText, x: GAME_WIDTH - 62,
+      duration: 620, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
+  }
+
+  /** Show/hide the "advance" arrow based on the clear-path guidance rule. */
+  private updateGuidance(): void {
+    if (!this.guidanceText) return;
+    const alive = this.enemies.reduce((n, e) => n + (e && !e.dead ? 1 : 0), 0);
+    const show = showGuidance({
+      phase: this.waveSystem?.currentPhase ?? 'traveling',
+      aliveEnemies: alive,
+      playerX: this.playerPos.x,
+      laneMaxX: STAGE_LANE.maxX,
+      stageEnded: this.stageEnded,
+      paused: this.paused,
+    });
+    this.guidanceText.setVisible(show);
   }
 
   // Stage-progress mini-map geometry.
@@ -1541,6 +1572,7 @@ export class GameScene extends Phaser.Scene {
     this.updateWeapons(FIXED_TIMESTEP);
     this.updateHudInfo();
     this.updateProgressBar();
+    this.updateGuidance();
     this.groundGraphics.setX(-this.camera.worldX);
 
     this.debugOverlay.render(

@@ -664,9 +664,22 @@
   normalización + cleared por índice, todas despejadas pasado el final,
   colores distintos por kind y cleared, integridad con un escenario real)
 
+### HITO 048 — Flecha de guía "→ SEGUÍ" ✅
+- `systems/GuidanceArrow.ts` (puro): `showGuidance(input)` decide mostrar la
+  flecha solo mientras se viaja (`traveling`) sin enemigos vivos, no en pausa,
+  no terminado el escenario, y con camino por delante (a > `GUIDANCE_END_MARGIN`
+  del final)
+- `GameScene`: flecha pulsante "→ SEGUÍ" en el borde derecho (tween de vaivén);
+  `updateGuidance()` la muestra/oculta cada frame según la regla
+- Verificado en Chromium headless: al viajar sin enemigos la flecha es visible
+  (true) y al aparecer un enemigo se oculta (false); captura revisada (ajustada
+  la posición para que no se recorte); sin errores de runtime
+- 5 tests en `GuidanceArrow.test.ts` (muestra al viajar con camino, oculta al
+  pelear / con enemigos / en pausa / terminado / cerca del final)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 048-060)
+- ... (hitos 049-060)
 
 ---
 
@@ -731,11 +744,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | ComboFeedback.test.ts           | 6      | ✅ OK  |
 | DamageNumbers.test.ts           | 4      | ✅ OK  |
 | StageProgress.test.ts           | 7      | ✅ OK  |
+| GuidanceArrow.test.ts           | 5      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **402**| ✅ OK  |
+| **Total**                       | **407**| ✅ OK  |
 
 ---
 
