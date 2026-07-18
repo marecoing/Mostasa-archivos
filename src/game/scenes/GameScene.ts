@@ -43,6 +43,7 @@ import type { EquippedWeapon } from '../entities/WeaponEntity';
 import { WaveSystem } from '../systems/WaveSystem';
 import { ComboSystem } from '../systems/ComboSystem';
 import { bossBarView, bossBarColor } from '../systems/BossBar';
+import { impactScale, crossedComboBand, usesHeavyShake } from '../systems/ComboFeedback';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -826,6 +827,14 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: this.comboText, scale: 1, duration: 120, ease: 'Quad.easeOut' });
   }
 
+  /** Screen flash + a bigger combo pop when the chain enters a new band. */
+  private comboBandFlash(): void {
+    this.cameras.main.flash(180, 255, 210, 90, false);
+    this.audio.play('zone_clear');
+    this.comboText.setScale(1.5);
+    this.tweens.add({ targets: this.comboText, scale: 1, duration: 220, ease: 'Back.easeOut' });
+  }
+
   private updateAguanteBar(): void {
     const ratio = Math.max(0, this.playerHp / this.playerMaxHp);
     const w = Math.round(200 * ratio);
@@ -994,8 +1003,15 @@ export class GameScene extends Phaser.Scene {
         this.addScore(this.combo.scoreFor(HIT_BASE_SCORE));
         this.updateComboHud();
         maxHitstop = Math.max(maxHitstop, atk.hitstopFrames);
-        this.camera.triggerShake(SHAKE_LIGHT);
-        this.playVfxAtWorld(heavy ? 'impacto_pesado' : 'impacto_puno', enemy.pos.x, enemy.pos.y, enemy.pos.z + 40);
+        // Feedback scales with the combo: bigger sparks, stronger shake, and
+        // a screen flash when the chain enters a higher multiplier band (§12).
+        const mult = this.combo.multiplier;
+        this.camera.triggerShake(usesHeavyShake(mult) ? SHAKE_MEDIUM : SHAKE_LIGHT);
+        this.playVfxAtWorld(
+          heavy ? 'impacto_pesado' : 'impacto_puno',
+          enemy.pos.x, enemy.pos.y, enemy.pos.z + 40, impactScale(mult),
+        );
+        if (crossedComboBand(this.combo.count)) this.comboBandFlash();
         this.audio.play(heavy ? 'heavy_hit' : 'punch');
         this.audio.play('enemy_hurt');
       }

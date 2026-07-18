@@ -615,9 +615,25 @@
 - 8 tests en `BossBar.test.ts` (visibilidad por kind/fase/jefe, label por
   kind, clamp de fracción, flag enraged, colores por HP y enraged)
 
+### HITO 045 — Feedback de impacto escalado por combo ✅
+- `systems/ComboFeedback.ts` (puro): `impactScale(mult)` (x1→1.0 … x4→1.6)
+  para el tamaño del VFX de golpe; `crossedComboBand(count)` (true al cruzar
+  5/10/20/30, coincide con un aumento real de multiplicador); `usesHeavyShake`
+  (shake medio desde x2)
+- `GameScene`: cada golpe conectado usa `impactScale(mult)` como `scaleMul`
+  del VFX de impacto y el shake según el multiplicador; al cruzar una banda,
+  `comboBandFlash()` dispara un flash de cámara + sonido + un pop más grande
+  del contador
+- Verificado en Chromium headless (instrumentando `cameras.main.flash`):
+  golpeando una multitud el combo subió a 24 (×3) y el flash disparó **3
+  veces** (bandas 5/10/20); HUD "16 HITS x2 / ¡QUÉ MÁQUINA!" revisado; sin
+  errores de runtime
+- 6 tests en `ComboFeedback.test.ts` (escala monótona, cruce de bandas exacto
+  y consistente con `comboMultiplier`, shake pesado desde x2)
+
 ## HITOS PENDIENTES
 
-- ... (hitos 045-060)
+- ... (hitos 046-060)
 
 ---
 
@@ -679,11 +695,12 @@ Ver `docs/adr/` para Architecture Decision Records.
 | AchievementManifest.test.ts     | 7      | ✅ OK  |
 | DifficultyManifest.test.ts      | 6      | ✅ OK  |
 | BossBar.test.ts                 | 8      | ✅ OK  |
+| ComboFeedback.test.ts           | 6      | ✅ OK  |
 | BossAI.test.ts                  | 11     | ✅ OK  |
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 10     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **385**| ✅ OK  |
+| **Total**                       | **391**| ✅ OK  |
 
 ---
 
