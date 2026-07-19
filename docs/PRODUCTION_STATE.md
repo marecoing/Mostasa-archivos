@@ -888,6 +888,13 @@
 - Verificado en Chromium headless midiendo displayHeight en vivo
   (player 273 / grunt 241 / tank 284) + captura de composición
 
+### HITO 060 — Enemigos a la altura del protagonista ✅
+- Iteración sobre el feedback de proporción: "que sean igual que el
+  protagonista". `ENEMY_SCREEN_HEIGHT_K` 3.55 → 4.0: el grunt queda idéntico
+  al héroe (272px vs 273px) y los arquetipos corpulentos lo superan en
+  proporción (tank 320px, miniboss ~360, boss ~400 — presencia de jefe)
+- Verificado midiendo displayHeight en vivo (273 / 272 / 320) + captura
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
