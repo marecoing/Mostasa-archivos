@@ -38,8 +38,36 @@ describe('WaveSystem', () => {
     expect(a.lockCamera).toEqual({ minX: 300, maxX: 900 });
     expect(a.spawns).toHaveLength(1);
     expect(a.spawns[0]!.spriteKey).toBe('enemy_001');
-    expect(a.spawns[0]!.x).toBe(900); // lockMaxX + offset 0
+    // First spawn flanks from beyond the arena's right edge, dealt to the
+    // first depth slot — the pack disperses through the 2.5D field.
+    expect(a.spawns[0]!.x).toBeGreaterThan(900);
+    expect(a.spawns[0]!.y).toBe(470);
     expect(w.gateX).toBe(900); // confined to arena
+  });
+
+  it('alternates entry sides and depth slots across a wave', () => {
+    const zone = {
+      id: 'z', kind: 'oleada' as const, triggerX: 500, lockMinX: 300, lockMaxX: 900,
+      waves: [{
+        enemies: [
+          { type: 'grunt', spriteKey: 'e1', offsetX: -40, y: 480 },
+          { type: 'grunt', spriteKey: 'e2', offsetX: 20, y: 500 },
+          { type: 'grunt', spriteKey: 'e3', offsetX: 80, y: 520 },
+          { type: 'grunt', spriteKey: 'e4', offsetX: 120, y: 540 },
+        ],
+      }],
+    };
+    const w = new WaveSystem({ stageId: 't', miniBossLabel: '', bossLabel: '', zones: [zone] }, 5000);
+    const a = w.update(520, 0);
+    const xs = a.spawns.map((s) => s.x);
+    const ys = a.spawns.map((s) => s.y);
+    // even indices from the right (past lockMaxX), odd from the left
+    expect(xs[0]).toBeGreaterThan(900);
+    expect(xs[1]).toBeLessThan(300);
+    expect(xs[2]).toBeGreaterThan(900);
+    expect(xs[3]).toBeLessThan(300);
+    // depth disperses across distinct slots
+    expect(new Set(ys).size).toBe(4);
   });
 
   it('does not advance while enemies are alive', () => {

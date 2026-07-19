@@ -53,10 +53,28 @@ export class WaveSystem {
     return this.zoneIndex;
   }
 
+  /**
+   * Depth slots the pack is dealt across (§11): alternating near/far bands so
+   * a wave surrounds the player through the whole 2.5D field instead of
+   * queuing on one line. Deterministic — replays identically.
+   */
+  private static readonly DEPTH_SLOTS = [470, 700, 560, 780, 620, 740];
+
   private spawnsForWave(zone: CombatZoneDef, waveIdx: number): SpawnRequest[] {
     const wave = zone.waves[waveIdx];
     if (!wave) return [];
-    return wave.enemies.map((e) => ({ ...e, x: zone.lockMaxX + e.offsetX }));
+    return wave.enemies.map((e, i) => {
+      // Alternate entry side: even indices flank from the right edge of the
+      // arena, odd from the left — the pack pincers the player. The manifest
+      // offset magnitude staggers how deep off-edge each one starts.
+      const stagger = Math.abs(e.offsetX) * 0.5;
+      const fromLeft = i % 2 === 1;
+      const x = fromLeft
+        ? zone.lockMinX - 60 - stagger
+        : zone.lockMaxX + 60 + stagger;
+      const y = WaveSystem.DEPTH_SLOTS[i % WaveSystem.DEPTH_SLOTS.length] ?? e.y;
+      return { ...e, x, y };
+    });
   }
 
   /**

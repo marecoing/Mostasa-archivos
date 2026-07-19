@@ -982,6 +982,25 @@
 - Los tests de Pushbox usan carriles locales propios → sin cambios; 440
   tests en verde, typecheck/build limpios
 
+### HITO 065 — Oleadas en pinza: dispersión en profundidad + doble flanco ✅
+- Pedido: "que los enemigos se dispersen en profundidad, vengan de todos
+  lados, entren por ambos lados de la pantalla y ataquen siempre al
+  protagonista"
+- `WaveSystem.spawnsForWave` reescrito: los índices pares flanquean desde el
+  borde derecho del arena y los impares desde el izquierdo (fuera de los
+  límites de lock, así entran caminando por los bordes de pantalla); la
+  magnitud del offset del manifiesto escalona qué tan afuera arranca cada
+  uno. La profundidad se reparte en `DEPTH_SLOTS` [470, 700, 560, 780, 620,
+  740] — bandas cerca/lejos alternadas sobre el carril ampliado.
+  Determinista: cada partida repite igual
+- La IA ya persigue la posición del jugador cada tick (sin cambios): con el
+  doble flanco + dispersión, la manada ahora lo rodea de verdad
+- Verificado in-game con coordenadas: jugador en x=1000, enemigos entrando
+  en x=1296 (derecha, prof. 489) y x=466 (izquierda, prof. 690), y captura
+  del cierre de pinza con ambos convergiendo en planos distintos
+- +1 test (lados alternados y slots de profundidad distintos por oleada);
+  441 tests en verde; typecheck/lint/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
