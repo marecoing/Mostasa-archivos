@@ -967,6 +967,21 @@
   (clamp 40–96) — un boss ya no lleva la barrita de un grunt
 - 440 tests en verde; typecheck/lint/build limpios
 
+### HITO 064 — Campo de profundidad 2.5D real (carril triplicado) ✅
+- Feedback: "los personajes se mueven en una sola línea; deben moverse por
+  todo el escenario". Diagnóstico: `STAGE_LANE` era 380–590 en mundo → solo
+  **126px de pantalla** de movimiento vertical, una franja 1D
+- Carril ampliado a **420–840** (proyección: pies desde pantalla ~420, base
+  de la pared, hasta ~672, cerca de cámara) — el triple de profundidad
+  jugable, cubriendo toda la calle pintada
+- Verificado en vivo con medición: subiendo con W el jugador clava el clamp
+  teórico exacto (y=438 = 420 + halfD 18, pies en pantalla 431, contra la
+  persiana); bajando con S llega a y=750+ cerca de cámara; capturas muestran
+  a Mostasa, grunt y speedster en tres planos de profundidad correctamente
+  ordenados por Y-sort
+- Los tests de Pushbox usan carriles locales propios → sin cambios; 440
+  tests en verde, typecheck/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)

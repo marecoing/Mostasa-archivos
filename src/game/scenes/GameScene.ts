@@ -102,11 +102,15 @@ const SPECIAL_DAMAGE = 30;
 /** Base score per landed hit, before the combo multiplier (§12). */
 const HIT_BASE_SCORE = 10;
 
+// Walkable depth band (world Y). Projected at DEPTH_SCALE 0.6 with the fixed
+// floor camera, this spans the painted street from the wall base (~screen 420)
+// down to near the camera (~screen 672) — a full 2.5D depth field, not a thin
+// combat strip.
 const STAGE_LANE: StageLane = {
   minX: 80,
   maxX: 2400,
-  minY: 380,
-  maxY: 590,
+  minY: 420,
+  maxY: 840,
 };
 
 export class GameScene extends Phaser.Scene {
