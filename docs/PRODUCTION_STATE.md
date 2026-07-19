@@ -947,6 +947,26 @@
   personajes (depth y+400); el menú de pausa está limpio
 - 440 tests en verde; typecheck/lint/build limpios
 
+### HITO 063 — Segunda pasada de anomalías: contaminación magenta y HUD ✅
+- Segundo barrido, esta vez forzando **cada estado de animación** con primeros
+  planos: jugador (esquiva, especial, herido, caído, levantada) y enemigos
+  (los 8 tipos + ataque/herido/derribo/levantada del grunt + mini-boss + boss
+  + elite). Los estados verificados se ven correctos
+- **Contaminación magenta EN el arte** (peor caso: enemy_006, con camisa y
+  piel rosadas por luz del fondo del generador; manchas violetas en la
+  mochila del mini-boss; flecos en el boss). Dos intentos de borrado de
+  píxeles (global y de borde) fueron descartados con evidencia porque comían
+  ropa rosa legítima o dejaban agujeros. Solución final: **corrección de
+  color de-magenta** — para todo píxel opaco, el exceso mauve
+  `min(r−g, b−g)` se reduce un 70 %: el rosa contaminado vira a tostado, los
+  rojos (b≈g) y azules (r≈g) legítimos quedan intactos; recolorea, nunca
+  borra. Geometría idéntica (grillas sin cambios)
+- Resultado verificado in-game: changuero coherente (delantal tostado),
+  mini-boss sin manchas violetas, boss limpio de flecos
+- **Barra de HP enemiga proporcional**: ancho `displayWidth × 0.42`
+  (clamp 40–96) — un boss ya no lleva la barrita de un grunt
+- 440 tests en verde; typecheck/lint/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)

@@ -211,6 +211,22 @@ function keyMagenta(width, height, rgba) {
       out[i * 4 + 3] = 255;
     }
   }
+
+  // De-magenta colour correction: the AI sheets leak magenta light into the
+  // figures themselves (worst on enemy_006 — pink shirt/skin). A mauve cast
+  // means red AND blue both exceed green; pulling both back toward green
+  // neutralizes the contamination (pink shirt → warm tan) while leaving
+  // legitimate reds (b≈g) and blues (r≈g) untouched. Recolours, never erases
+  // — no holes.
+  for (let i = 0; i < width * height; i++) {
+    if (out[i * 4 + 3] === 0) continue;
+    const r = out[i * 4], g = out[i * 4 + 1], b = out[i * 4 + 2];
+    const excess = Math.min(Math.max(0, r - g), Math.max(0, b - g));
+    if (excess > 8) {
+      out[i * 4] = r - Math.round(excess * 0.7);
+      out[i * 4 + 2] = b - Math.round(excess * 0.7);
+    }
+  }
   return { out, cleared };
 }
 

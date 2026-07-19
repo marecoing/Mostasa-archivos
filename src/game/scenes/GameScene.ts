@@ -920,17 +920,19 @@ export class GameScene extends Phaser.Scene {
       if (state === 'hurt') sprite.setTint(0xff8888);
       else sprite.setTint(enemyTint(this.stageId, enemy.spriteKey, enemy.type));
 
-      // HP bar above the character (relative to the rendered sprite height so
-      // it tracks the fighter's head at any scale)
+      // HP bar above the character: anchored to the rendered sprite height so
+      // it tracks the head, and sized with the fighter so a boss doesn't wear
+      // a grunt-sized sliver.
       const h = sprite.displayHeight * 0.82;
+      const barW = Math.max(40, Math.min(96, Math.round(sprite.displayWidth * 0.42)));
       const hpRatio = enemy.hp / enemy.maxHp;
       hud.clear();
       hud.fillStyle(0x000000, 0.6);
-      hud.fillRect(screenX - 22, screenY - h - 12, 44, 6);
+      hud.fillRect(screenX - barW / 2 - 2, screenY - h - 12, barW + 4, 6);
       hud.fillStyle(0x222222, 1);
-      hud.fillRect(screenX - 20, screenY - h - 11, 40, 4);
+      hud.fillRect(screenX - barW / 2, screenY - h - 11, barW, 4);
       hud.fillStyle(hpRatio > 0.5 ? 0x22cc44 : hpRatio > 0.25 ? 0xccaa22 : 0xcc2222, 1);
-      hud.fillRect(screenX - 20, screenY - h - 11, Math.round(40 * hpRatio), 4);
+      hud.fillRect(screenX - barW / 2, screenY - h - 11, Math.round(barW * hpRatio), 4);
       hud.setDepth(enemy.pos.y + 1);
 
       // Elite tag floats just above the HP bar, gently bobbing for visibility.
