@@ -60,9 +60,37 @@ export class WaveSystem {
    */
   private static readonly DEPTH_SLOTS = [470, 700, 560, 780, 620, 740];
 
-  private spawnsForWave(zone: CombatZoneDef, waveIdx: number): SpawnRequest[] {
+  /**
+   * Ambush ring (§11 'emboscada'): deterministic offsets around the player —
+   * front, behind, near, far — so the trap closes from every direction at
+   * once instead of walking in from the edges.
+   */
+  private static readonly AMBUSH_RING = [
+    { dx: 170, dy: 0 }, { dx: -170, dy: 50 }, { dx: 110, dy: -140 },
+    { dx: -130, dy: -110 }, { dx: 190, dy: 130 }, { dx: -200, dy: 100 },
+    { dx: 70, dy: 180 }, { dx: -80, dy: -180 },
+  ];
+
+  private spawnsForWave(
+    zone: CombatZoneDef,
+    waveIdx: number,
+    playerX: number,
+    playerY: number,
+  ): SpawnRequest[] {
     const wave = zone.waves[waveIdx];
     if (!wave) return [];
+
+    if (zone.kind === 'emboscada') {
+      // Surround the player's actual position, clamped inside the arena.
+      return wave.enemies.map((e, i) => {
+        const ring = WaveSystem.AMBUSH_RING[i % WaveSystem.AMBUSH_RING.length] ?? { dx: 160, dy: 0 };
+        const spreadK = 1 + Math.floor(i / WaveSystem.AMBUSH_RING.length) * 0.35;
+        const x = Math.max(zone.lockMinX + 40, Math.min(zone.lockMaxX - 40, playerX + ring.dx * spreadK));
+        const y = Math.max(445, Math.min(815, playerY + ring.dy * spreadK));
+        return { ...e, x, y };
+      });
+    }
+
     return wave.enemies.map((e, i) => {
       // Alternate entry side: even indices flank from the right edge of the
       // arena, odd from the left — the pack pincers the player. The manifest
@@ -81,7 +109,7 @@ export class WaveSystem {
    * Advance the encounter state. `aliveEnemies` is the count of live enemies
    * currently in the scene.
    */
-  update(playerX: number, aliveEnemies: number): WaveActions {
+  update(playerX: number, aliveEnemies: number, playerY = 620): WaveActions {
     const actions: WaveActions = { spawns: [] };
 
     if (this.phase === 'done') return actions;
@@ -100,7 +128,7 @@ export class WaveSystem {
         this.waveIndex = 0;
         this.gate = zone.lockMaxX;
         actions.lockCamera = { minX: zone.lockMinX, maxX: zone.lockMaxX };
-        actions.spawns = this.spawnsForWave(zone, 0);
+        actions.spawns = this.spawnsForWave(zone, 0, playerX, playerY);
       }
       return actions;
     }
@@ -113,7 +141,7 @@ export class WaveSystem {
     // current wave cleared — next wave or next zone
     if (this.waveIndex < zone.waves.length - 1) {
       this.waveIndex++;
-      actions.spawns = this.spawnsForWave(zone, this.waveIndex);
+      actions.spawns = this.spawnsForWave(zone, this.waveIndex, playerX, playerY);
       return actions;
     }
 

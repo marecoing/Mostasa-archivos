@@ -11,7 +11,7 @@ import {
   applyFriction,
   isOnGround,
 } from '../core/Physics25D';
-import { clampEntityToLane, buildPlayerPushbox } from '../core/Pushbox';
+import { clampEntityToLane, buildPlayerPushbox, buildEnemyPushbox, resolvePushboxes } from '../core/Pushbox';
 import { resolveSolids } from '../core/Solids';
 import type { SolidVolume } from '../core/Solids';
 import type { StageLane } from '../core/Pushbox';
@@ -587,7 +587,7 @@ export class GameScene extends Phaser.Scene {
   /** Advance the encounter state and apply its actions. */
   private updateWaves(): void {
     const alive = this.enemies.reduce((n, e) => n + (e && !e.dead ? 1 : 0), 0);
-    const actions = this.waveSystem.update(this.playerPos.x, alive);
+    const actions = this.waveSystem.update(this.playerPos.x, alive, this.playerPos.y);
 
     for (const s of actions.spawns) {
       this.spawnEnemy(s.x, s.y, s.type, s.spriteKey);
@@ -1363,6 +1363,30 @@ export class GameScene extends Phaser.Scene {
         this.damagePlayer(dmg, enemy.facing);
         if (enemy.bossAttack === 'charge') this.camera.triggerShake(SHAKE_MEDIUM);
       }
+    }
+
+    // Pairwise separation (§10): the pack spreads instead of stacking into
+    // one blob while converging. Lying / grabbed bodies are exempt.
+    const separable = (e: EnemyEntity): boolean => {
+      const st = e.fsm.currentState;
+      return st !== 'down' && st !== 'get_up' && st !== 'grabbed';
+    };
+    for (let i = 0; i < this.enemies.length; i++) {
+      const a = this.enemies[i];
+      if (!a || a.dead || !separable(a)) continue;
+      for (let j = i + 1; j < this.enemies.length; j++) {
+        const b = this.enemies[j];
+        if (!b || b.dead || !separable(b)) continue;
+        const res = resolvePushboxes(
+          buildEnemyPushbox(a.pos.x, a.pos.y, a.halfW, a.halfD),
+          buildEnemyPushbox(b.pos.x, b.pos.y, b.halfW, b.halfD),
+        );
+        a.pos.x = res.ax; a.pos.y = res.ay;
+        b.pos.x = res.bx; b.pos.y = res.by;
+      }
+      const lane = clampEntityToLane(a.pos.x, a.pos.y, a.halfW, a.halfD, STAGE_LANE);
+      a.pos.x = lane.x;
+      a.pos.y = lane.y;
     }
   }
 

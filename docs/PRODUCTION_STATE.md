@@ -1001,6 +1001,27 @@
 - +1 test (lados alternados y slots de profundidad distintos por oleada);
   441 tests en verde; typecheck/lint/build limpios
 
+### HITO 066 — Emboscadas en anillo + separación de manada ✅
+- Continuación del pedido de despliegue: (a) emboscadas rodeando al jugador,
+  (b) separación para que no se encimen, (c) verificación completa
+- **(a) Emboscadas**: las zonas `kind: 'emboscada'` ya no entran por los
+  bordes — spawnean en un **anillo determinista alrededor de la posición
+  real del jugador** (`AMBUSH_RING`: adelante, atrás, cerca, lejos; olas
+  grandes expanden el anillo), clampeado dentro del arena y del carril.
+  `WaveSystem.update` ahora recibe también `playerY`
+- **(b) Separación**: pasada de pares con `resolvePushboxes` (existía puro y
+  testeado pero nunca se aplicó entre enemigos) tras el tick de física:
+  la manada se reparte al converger; cuerpos tirados/agarrados exentos;
+  re-clamp al carril tras el empuje
+- **(c) Verificado in-game** en Estación Oxidada (zona real `est-z2`,
+  emboscada): jugador en (1966, 538) rodeado al disparar — enemigos en
+  (2039, 511) adelante, **(1795, 549) por detrás** y (1990, 496) en otra
+  profundidad; tras 2 s de convergencia la distancia mínima entre enemigos
+  es 45 px (no se enciman). Bonus del recorrido: el driver quedó trabado
+  contra un cajón sólido y hubo que rodearlo — la colisión 2.5D funcionando
+- +1 test de anillo de emboscada (ambos lados en X, cerca y lejos en Y,
+  dentro del arena); 442 tests en verde; typecheck/lint/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)

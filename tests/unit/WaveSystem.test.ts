@@ -70,6 +70,35 @@ describe('WaveSystem', () => {
     expect(new Set(ys).size).toBe(4);
   });
 
+  it('emboscada zones spawn surrounding the player, inside the arena', () => {
+    const zone = {
+      id: 'amb', kind: 'emboscada' as const, triggerX: 500, lockMinX: 300, lockMaxX: 900,
+      waves: [{
+        enemies: [
+          { type: 'grunt', spriteKey: 'e1', offsetX: 0, y: 480 },
+          { type: 'grunt', spriteKey: 'e2', offsetX: 0, y: 500 },
+          { type: 'grunt', spriteKey: 'e3', offsetX: 0, y: 520 },
+          { type: 'grunt', spriteKey: 'e4', offsetX: 0, y: 540 },
+        ],
+      }],
+    };
+    const w = new WaveSystem({ stageId: 't', miniBossLabel: '', bossLabel: '', zones: [zone] }, 5000);
+    const a = w.update(600, 0, 620);
+    expect(a.spawns).toHaveLength(4);
+    // some in front of the player, some behind (both X sides)
+    expect(a.spawns.some((s) => s.x > 600)).toBe(true);
+    expect(a.spawns.some((s) => s.x < 600)).toBe(true);
+    // spread across depth, near AND far of the player's Y
+    expect(a.spawns.some((s) => s.y < 620)).toBe(true);
+    expect(a.spawns.some((s) => s.y > 620)).toBe(true);
+    for (const s of a.spawns) {
+      expect(s.x).toBeGreaterThanOrEqual(340);
+      expect(s.x).toBeLessThanOrEqual(860);
+      expect(s.y).toBeGreaterThanOrEqual(445);
+      expect(s.y).toBeLessThanOrEqual(815);
+    }
+  });
+
   it('does not advance while enemies are alive', () => {
     const w = new WaveSystem(TWO_ZONE, 5000);
     w.update(520, 0); // start
