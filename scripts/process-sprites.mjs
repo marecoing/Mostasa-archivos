@@ -172,6 +172,13 @@ function inpaintGridLines(width, height, rgba) {
 
 // ─── Magenta key-out + despill ──────────────────────────────────────────
 /**
+ * Baked exposure lift: the sheets render darker than the photoreal stages,
+ * so the fighters' pixels are brightened here once, at build time, instead
+ * of with a runtime additive overlay (which amplified despill edges into
+ * magenta fringes).
+ */
+const EXPOSURE = 1.22;
+/**
  * A pixel is "magenta" when R and B are high while G is low.
  * We fully clear strong magenta, and for near-magenta edge pixels we
  * reduce the magenta tint (despill) and partially fade alpha so the
@@ -184,25 +191,24 @@ function keyMagenta(width, height, rgba) {
     const r = rgba[i * 4], g = rgba[i * 4 + 1], b = rgba[i * 4 + 2];
     const magentaness = (r + b) / 2 - g; // high when magenta
 
-    if (r > 180 && b > 180 && g < 110 && magentaness > 90) {
-      // strong background magenta → transparent
+    if (magentaness > 75 && r > 110 && b > 110) {
+      // background magenta, including darker shades → transparent. The old
+      // r/b>180 floor let dark-magenta patches survive as opaque pink slabs.
       out[i * 4] = 0; out[i * 4 + 1] = 0; out[i * 4 + 2] = 0; out[i * 4 + 3] = 0;
       cleared++;
     } else if (magentaness > 40 && g < 150) {
       // edge despill: G is the true channel; pull R,B toward G. Edges stay
-      // hard (fully opaque or fully clear) — semi-transparent fringes read
-      // as blur once the sprites are scaled up in-game.
-      if (magentaness > 95) {
-        out[i * 4] = 0; out[i * 4 + 1] = 0; out[i * 4 + 2] = 0; out[i * 4 + 3] = 0;
-        cleared++;
-      } else {
-        const ng = g;
-        const nr = Math.min(r, g + 30);
-        const nb = Math.min(b, g + 30);
-        out[i * 4] = nr; out[i * 4 + 1] = ng; out[i * 4 + 2] = nb; out[i * 4 + 3] = 255;
-      }
+      // hard (fully opaque, never faded) — semi-transparent fringes read as
+      // blur once the sprites are scaled up in-game.
+      const ng = Math.min(255, Math.round(g * EXPOSURE));
+      const nr = Math.min(255, Math.round(Math.min(r, g + 30) * EXPOSURE));
+      const nb = Math.min(255, Math.round(Math.min(b, g + 30) * EXPOSURE));
+      out[i * 4] = nr; out[i * 4 + 1] = ng; out[i * 4 + 2] = nb; out[i * 4 + 3] = 255;
     } else {
-      out[i * 4] = r; out[i * 4 + 1] = g; out[i * 4 + 2] = b; out[i * 4 + 3] = 255;
+      out[i * 4] = Math.min(255, Math.round(r * EXPOSURE));
+      out[i * 4 + 1] = Math.min(255, Math.round(g * EXPOSURE));
+      out[i * 4 + 2] = Math.min(255, Math.round(b * EXPOSURE));
+      out[i * 4 + 3] = 255;
     }
   }
   return { out, cleared };

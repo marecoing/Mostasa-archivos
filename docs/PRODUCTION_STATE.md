@@ -921,6 +921,32 @@
   por arriba y aterriza en x=780. Captura de composición adjunta
 - 440 tests en verde (34 archivos); typecheck/lint/build limpios
 
+### HITO 062 — Auditoría gráfica: barrido completo y corrección de anomalías ✅
+- Pedido: "corrige todas las anomalías gráficas". Metodología: barrido de
+  capturas por pantalla/estado (título, selector, combate mixto, golpe
+  activo, combo, salto, arma en mano, daño recibido, pausa), triaje de cada
+  defecto con prueba de aislamiento, y corrección verificada
+- **Parches magenta opacos** (regresión del endurecimiento de bordes): los
+  magentas oscuros del fondo caían en la rama de despill y quedaban como
+  slabs rosas. Umbral del keyer corregido (`magentaness > 75 && r,b > 110`
+  limpia también los tonos oscuros); el bbox de enemy_004 se achicó 2px al
+  desaparecer el slab (confirmación objetiva)
+- **Flecos violetas en siluetas** (aislado con probes con/sin overlay): el
+  lift aditivo de runtime amplificaba los bordes de despill en magenta.
+  Eliminado el lift por completo; la exposición ahora se **hornea en el
+  asset** (×1.22 en `process-sprites`, geometría idéntica verificada) — un
+  solo sprite por personaje, cero artefactos de composición
+- **Prop frontal tapando la pelea**: el farol ocluía a los luchadores. Los
+  props frontales ahora se desvanecen a alpha 0.38 (lerp suave) cuando se
+  superponen con la posición del jugador — manejo clásico de oclusores
+- **Arma en mano a la altura de la rodilla**: offset recalibrado a la mano
+  del cuerpo actual (−118px sobre los pies, con pose de swing más amplia)
+- **No-anomalías verificadas** (evitando falsos positivos): el "parche rosa"
+  del speedster es su mochila roja (arte legítimo, confirmado con primer
+  plano en solitario); los números de daño ya renderizan por encima de los
+  personajes (depth y+400); el menú de pausa está limpio
+- 440 tests en verde; typecheck/lint/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)

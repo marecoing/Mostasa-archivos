@@ -32,7 +32,7 @@ export const CHARACTER_GRIDS: Record<string, CharacterGrid> = {
   enemy_001: { frameWidth: 162, frameHeight: 182, cols: 10, rows: 8 },
   enemy_002: { frameWidth: 170, frameHeight: 200, cols: 9, rows: 8 },
   enemy_003: { frameWidth: 150, frameHeight: 198, cols: 9, rows: 8 },
-  enemy_004: { frameWidth: 126, frameHeight: 176, cols: 9, rows: 9 },
+  enemy_004: { frameWidth: 126, frameHeight: 174, cols: 9, rows: 9 },
   enemy_005: { frameWidth: 108, frameHeight: 168, cols: 10, rows: 9 },
   enemy_006: { frameWidth: 130, frameHeight: 168, cols: 10, rows: 9 },
   enemy_007: { frameWidth: 166, frameHeight: 188, cols: 9, rows: 8 },

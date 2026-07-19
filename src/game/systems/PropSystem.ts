@@ -71,8 +71,12 @@ export class PropSystem {
     return this.items.length > 0;
   }
 
-  /** Scroll every prop for the current camera position, culling off-screen. */
-  update(cameraWorldX: number): void {
+  /**
+   * Scroll every prop for the current camera position, culling off-screen.
+   * Front-layer props that overlap the player's screen position fade to a
+   * ghost so they never hide the fight (classic brawler occluder handling).
+   */
+  update(cameraWorldX: number, playerScreenX?: number): void {
     for (const { def, sprite, parallax } of this.items) {
       const x = propScreenX(def.worldX, cameraWorldX, parallax);
       const halfW = sprite.displayWidth / 2 + CULL_MARGIN;
@@ -82,6 +86,12 @@ export class PropSystem {
       }
       sprite.setVisible(true);
       sprite.setX(x);
+
+      if (def.layer === 'front' && playerScreenX !== undefined) {
+        const overlap = Math.abs(x - playerScreenX) < sprite.displayWidth / 2 + 46;
+        const target = overlap ? 0.38 : (def.alpha ?? 1);
+        sprite.setAlpha(sprite.alpha + (target - sprite.alpha) * 0.18);
+      }
     }
   }
 

@@ -76,9 +76,6 @@ const SPRITE_ORIGIN_Y = 0.98;
 // puts a grunt (68) exactly at the hero's height (272px); bulkier archetypes
 // (tank 80, miniboss 90, boss 100) overtop him in proportion.
 const ENEMY_SCREEN_HEIGHT_K = 4.0;
-// The character sheets are rendered darker than the photoreal backdrops; an
-// additive self-overlay lifts their exposure so they read as lit subjects.
-const CHARACTER_LIFT_ALPHA = 0.26;
 // Breakable art ships as 362×181 frames rendered 1:1 (a crate ~2× the hero).
 // Calibrate so a destructible reads roughly waist-height beside Mostasa.
 const BREAKABLE_RENDER_SCALE = 0.5;
@@ -117,7 +114,6 @@ export class GameScene extends Phaser.Scene {
   private playerVel: Vec3 = { x: 0, y: 0, z: 0 };
   private playerFacing: 1 | -1 = 1;
   private playerSprite!: Phaser.GameObjects.Sprite;
-  private playerLift!: Phaser.GameObjects.Sprite;
   private playerShadow!: Phaser.GameObjects.Graphics;
   private groundGraphics!: Phaser.GameObjects.Graphics;
   private debugText!: Phaser.GameObjects.Text;
@@ -134,7 +130,6 @@ export class GameScene extends Phaser.Scene {
   private enemyShadows: Phaser.GameObjects.Graphics[] = [];
   private enemySprites: Phaser.GameObjects.Sprite[] = [];
   private enemyLabels: Phaser.GameObjects.Text[] = [];
-  private enemyLifts: Phaser.GameObjects.Sprite[] = [];
   /** world-anchored solid prop footprints for this stage */
   private propSolids: SolidVolume[] = [];
 
@@ -435,8 +430,8 @@ export class GameScene extends Phaser.Scene {
   private updateHeldWeaponSprite(screenX: number, screenY: number): void {
     if (!this.heldWeaponSprite || !this.equippedWeapon) return;
     const swinging = this.fsm.isAttacking();
-    const handX = screenX + this.playerFacing * (swinging ? 34 : 20);
-    const handY = screenY - 62;
+    const handX = screenX + this.playerFacing * (swinging ? 48 : 28);
+    const handY = screenY - 118; // hand height on the current ~273px fighter
     this.heldWeaponSprite
       .setPosition(handX, handY)
       .setFlipX(this.playerFacing === -1)
@@ -716,7 +711,6 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.add.sprite(0, 0, spriteKey);
     sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     playState(sprite, spriteKey, 'idle');
-    const lift = this.createLiftSprite(spriteKey);
     const hud = this.add.graphics().setDepth(1);
     const label = this.add
       .text(0, 0, 'ELITE', {
@@ -734,7 +728,6 @@ export class GameScene extends Phaser.Scene {
     this.enemySprites.push(sprite);
     this.enemyGraphics.push(hud);
     this.enemyLabels.push(label);
-    this.enemyLifts.push(lift);
   }
 
   private createGround(): void {
@@ -806,42 +799,11 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /**
-   * An additive self-overlay drawn on top of a character to lift its exposure:
-   * the sheets render darker than the photoreal stages, and this brings the
-   * fighters up to "lit subject" levels without touching the source art.
-   */
-  private createLiftSprite(textureKey: string): Phaser.GameObjects.Sprite {
-    const l = this.add.sprite(0, 0, textureKey);
-    l.setOrigin(0.5, SPRITE_ORIGIN_Y);
-    l.setBlendMode(Phaser.BlendModes.ADD);
-    l.setAlpha(CHARACTER_LIFT_ALPHA);
-    return l;
-  }
-
-  /** Sync the exposure-lift overlay to its character sprite exactly. */
-  private syncLift(
-    lift: Phaser.GameObjects.Sprite,
-    sprite: Phaser.GameObjects.Sprite,
-    screenX: number,
-    screenY: number,
-    depth: number,
-  ): void {
-    lift.setFrame(sprite.frame.name);
-    lift.setPosition(screenX, screenY);
-    lift.setFlipX(sprite.flipX);
-    lift.setScale(sprite.scaleX, sprite.scaleY);
-    lift.setDepth(depth + 0.5);
-    lift.setVisible(sprite.visible);
-    lift.setAlpha(sprite.visible ? CHARACTER_LIFT_ALPHA * sprite.alpha : 0);
-  }
-
   private createPlayerSprite(): void {
     this.playerShadow = this.add.graphics();
     this.playerSprite = this.add.sprite(0, 0, 'mostasa');
     this.playerSprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
     this.playerSprite.setScale(PLAYER_SPRITE_SCALE);
-    this.playerLift = this.createLiftSprite('mostasa');
     playState(this.playerSprite, 'mostasa', 'idle');
     this.updatePlayerSpritePosition();
   }
@@ -880,7 +842,6 @@ export class GameScene extends Phaser.Scene {
     this.playerSprite.setPosition(screenX, screenY);
     this.playerSprite.setFlipX(this.playerFacing === -1);
     this.playerSprite.setDepth(this.playerPos.y);
-    this.syncLift(this.playerLift, this.playerSprite, screenX, screenY, this.playerPos.y);
 
     // Damage flash tint
     if (this.fsm.currentState === PLAYER_STATE.HURT) {
@@ -911,8 +872,7 @@ export class GameScene extends Phaser.Scene {
       const shadow = this.enemyShadows[i];
       const sprite = this.enemySprites[i];
       const label = this.enemyLabels[i];
-      const lift = this.enemyLifts[i];
-      if (!enemy || !hud || !shadow || !sprite || !label || !lift) continue;
+      if (!enemy || !hud || !shadow || !sprite || !label) continue;
 
       if (enemy.dead) {
         // One-time elite kill bonus (§10).
@@ -924,7 +884,6 @@ export class GameScene extends Phaser.Scene {
         shadow.setVisible(false);
         sprite.setVisible(false);
         label.setVisible(false);
-        lift.setVisible(false);
         continue;
       }
 
@@ -954,7 +913,6 @@ export class GameScene extends Phaser.Scene {
       sprite.setFlipX(enemy.facing === -1);
       sprite.setDepth(enemy.pos.y);
       playState(sprite, enemy.spriteKey, enemy.fsm.currentState);
-      this.syncLift(lift, sprite, screenX, screenY, enemy.pos.y);
 
       const state = enemy.fsm.currentState;
       // Hurt flash wins; otherwise the sprite carries its stage palette tint so
@@ -1766,7 +1724,7 @@ export class GameScene extends Phaser.Scene {
     this.camera.update(delta);
 
     this.stageBg?.update(this.camera.worldX);
-    this.props?.update(this.camera.worldX);
+    this.props?.update(this.camera.worldX, this.playerSprite?.x);
     this.updatePlayerSpritePosition();
     this.updateEnemySprites();
     this.updateBreakableSprites();
