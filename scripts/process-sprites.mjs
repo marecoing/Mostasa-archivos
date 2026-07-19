@@ -189,14 +189,18 @@ function keyMagenta(width, height, rgba) {
       out[i * 4] = 0; out[i * 4 + 1] = 0; out[i * 4 + 2] = 0; out[i * 4 + 3] = 0;
       cleared++;
     } else if (magentaness > 40 && g < 150) {
-      // edge despill: G is the true channel; pull R,B toward G
-      const ng = g;
-      const nr = Math.min(r, g + 30);
-      const nb = Math.min(b, g + 30);
-      // alpha faded proportionally to remaining magentaness
-      const t = Math.min(1, (magentaness - 40) / 80);
-      const alpha = Math.round(255 * (1 - t * 0.6));
-      out[i * 4] = nr; out[i * 4 + 1] = ng; out[i * 4 + 2] = nb; out[i * 4 + 3] = alpha;
+      // edge despill: G is the true channel; pull R,B toward G. Edges stay
+      // hard (fully opaque or fully clear) — semi-transparent fringes read
+      // as blur once the sprites are scaled up in-game.
+      if (magentaness > 95) {
+        out[i * 4] = 0; out[i * 4 + 1] = 0; out[i * 4 + 2] = 0; out[i * 4 + 3] = 0;
+        cleared++;
+      } else {
+        const ng = g;
+        const nr = Math.min(r, g + 30);
+        const nb = Math.min(b, g + 30);
+        out[i * 4] = nr; out[i * 4 + 1] = ng; out[i * 4 + 2] = nb; out[i * 4 + 3] = 255;
+      }
     } else {
       out[i * 4] = r; out[i * 4 + 1] = g; out[i * 4 + 2] = b; out[i * 4 + 3] = 255;
     }

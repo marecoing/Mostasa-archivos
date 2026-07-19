@@ -28,17 +28,17 @@ export interface CharacterGrid {
 
 /** Per-sheet frame geometry. Keyed by texture key. */
 export const CHARACTER_GRIDS: Record<string, CharacterGrid> = {
-  mostasa: { frameWidth: 122, frameHeight: 210, cols: 10, rows: 9 },
-  enemy_001: { frameWidth: 164, frameHeight: 184, cols: 10, rows: 8 },
-  enemy_002: { frameWidth: 172, frameHeight: 200, cols: 9, rows: 8 },
-  enemy_003: { frameWidth: 152, frameHeight: 198, cols: 9, rows: 8 },
-  enemy_004: { frameWidth: 132, frameHeight: 176, cols: 9, rows: 9 },
+  mostasa: { frameWidth: 118, frameHeight: 208, cols: 10, rows: 9 },
+  enemy_001: { frameWidth: 162, frameHeight: 182, cols: 10, rows: 8 },
+  enemy_002: { frameWidth: 170, frameHeight: 200, cols: 9, rows: 8 },
+  enemy_003: { frameWidth: 150, frameHeight: 198, cols: 9, rows: 8 },
+  enemy_004: { frameWidth: 126, frameHeight: 176, cols: 9, rows: 9 },
   enemy_005: { frameWidth: 108, frameHeight: 168, cols: 10, rows: 9 },
-  enemy_006: { frameWidth: 130, frameHeight: 176, cols: 10, rows: 9 },
+  enemy_006: { frameWidth: 130, frameHeight: 168, cols: 10, rows: 9 },
   enemy_007: { frameWidth: 166, frameHeight: 188, cols: 9, rows: 8 },
-  enemy_008: { frameWidth: 170, frameHeight: 180, cols: 10, rows: 8 },
-  enemy_009: { frameWidth: 226, frameHeight: 166, cols: 8, rows: 10 },
-  enemy_010: { frameWidth: 134, frameHeight: 204, cols: 10, rows: 9 },
+  enemy_008: { frameWidth: 168, frameHeight: 178, cols: 10, rows: 8 },
+  enemy_009: { frameWidth: 226, frameHeight: 164, cols: 8, rows: 10 },
+  enemy_010: { frameWidth: 130, frameHeight: 204, cols: 10, rows: 9 },
 };
 
 export function gridFor(spriteKey: string): CharacterGrid {

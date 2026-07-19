@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH } from '../config/GameConfig';
 import { propKey } from './AssetLoader';
-import { propsForStage, propScreenX } from '../data/PropManifest';
-import type { PropDef } from '../data/PropManifest';
+import { propsForStage, propScreenX, solidFootprintFor } from '../data/PropManifest';
+import type { PropDef, SolidFootprint } from '../data/PropManifest';
 
 /** Render depth for each parallax layer. */
 const BACK_DEPTH = -900; // behind the fighters, in front of the painted panels
@@ -18,6 +18,14 @@ const PROP_SCALE_MULT = 0.72;
 interface PropSprite {
   def: PropDef;
   sprite: Phaser.GameObjects.Image;
+  /** solid props are world-anchored (parallax 1) and block movement */
+  parallax: number;
+}
+
+export interface PlacedSolidProp {
+  worldX: number;
+  groundScreenY: number;
+  footprint: SolidFootprint;
 }
 
 /**
@@ -40,8 +48,22 @@ export class PropSystem {
         .setDepth(def.layer === 'front' ? FRONT_DEPTH : BACK_DEPTH);
       if (def.flip) sprite.setFlipX(true);
       if (def.alpha !== undefined) sprite.setAlpha(def.alpha);
-      this.items.push({ def, sprite });
+      // Solid front props are pinned to the street (parallax 1) so their
+      // collision footprint and their pixels stay in the same place.
+      const solid = def.layer === 'front' && solidFootprintFor(def.id);
+      this.items.push({ def, sprite, parallax: solid ? 1 : def.parallax });
     }
+  }
+
+  /** World-anchored footprints of the solid props placed on this stage. */
+  solidProps(): PlacedSolidProp[] {
+    const out: PlacedSolidProp[] = [];
+    for (const { def, parallax } of this.items) {
+      if (def.layer !== 'front' || parallax !== 1) continue;
+      const footprint = solidFootprintFor(def.id);
+      if (footprint) out.push({ worldX: def.worldX, groundScreenY: def.groundScreenY, footprint });
+    }
+    return out;
   }
 
   /** True if any prop actually loaded. */
@@ -51,8 +73,8 @@ export class PropSystem {
 
   /** Scroll every prop for the current camera position, culling off-screen. */
   update(cameraWorldX: number): void {
-    for (const { def, sprite } of this.items) {
-      const x = propScreenX(def.worldX, cameraWorldX, def.parallax);
+    for (const { def, sprite, parallax } of this.items) {
+      const x = propScreenX(def.worldX, cameraWorldX, parallax);
       const halfW = sprite.displayWidth / 2 + CULL_MARGIN;
       if (x < -halfW || x > GAME_WIDTH + halfW) {
         sprite.setVisible(false);

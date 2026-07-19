@@ -895,6 +895,32 @@
   proporción (tank 320px, miniboss ~360, boss ~400 — presencia de jefe)
 - Verificado midiendo displayHeight en vivo (273 / 272 / 320) + captura
 
+### HITO 061 — Colisión 2.5D sólida + bordes nítidos ✅
+- Feedback: "el personaje no puede simplemente atravesar los objetos; esto es
+  2.5D, no un 2D plano" + "partes borrosas". Ambos corregidos y verificados
+- **`core/Solids.ts`** (puro, nuevo): volúmenes sólidos con huella en el plano
+  del suelo (x, y, halfW, halfD) + altura; `resolveSolids` empuja al que pisa
+  el volumen por el eje de menor penetración (deslizamiento clásico contra el
+  cajón) en dos pasadas; si la entidad está en el aire por encima de la altura
+  del objeto, pasa (saltás el cajón). `overlapsAnySolid` para checks. 8 tests
+- **Rompibles sólidos:** las cajas de colisión que ya existían en
+  `BreakableManifest` (halfW/halfD) ahora bloquean de verdad mientras el
+  objeto no esté destruido (al romperlo, se abre el paso)
+- **Props sólidos:** `SOLID_PROP_FOOTPRINTS` en PropManifest (farol, banco,
+  bicicleta, carritos, atril); esos props se anclan al mundo (parallax
+  forzado a 1) para que su huella y sus píxeles coincidan; PropSystem expone
+  `solidProps()` y GameScene los convierte a coordenadas de mundo (inversa de
+  worldToScreen en z=0). Jugador y enemigos resuelven contra el mismo set
+- **Bordes nítidos:** el key-out de magenta ya no deja franja semitransparente
+  (borroso al escalar); despill con alpha duro (opaco o transparente) →
+  siluetas limpias. Hojas regeneradas; grillas actualizadas (mismas
+  filas/columnas, celdas ~2px más ajustadas)
+- Verificado en Chromium headless con medición exacta: cajón en x=720
+  (mitad 34), pushbox 20 → posición bloqueada teórica 666; tras caminar 1.1s
+  contra el cajón el jugador queda en **x=666 exacto**; con salto lo cruza
+  por arriba y aterriza en x=780. Captura de composición adjunta
+- 440 tests en verde (34 archivos); typecheck/lint/build limpios
+
 ## HITOS PENDIENTES
 
 - ... (hitos 052-060)
@@ -970,7 +996,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 | PropManifest.test.ts            | 8      | ✅ OK  |
 | CampaignProgress.test.ts        | 11     | ✅ OK  |
 | StageData.test.ts               | 34     | ✅ OK  |
-| **Total**                       | **432**| ✅ OK  |
+| Solids.test.ts                  | 8      | ✅ OK  |
+| **Total**                       | **440**| ✅ OK  |
 
 ---
 

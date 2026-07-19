@@ -6,11 +6,14 @@ import {
   GROUND_Z,
   FIXED_TIMESTEP,
   MAX_DELTA,
+  DEPTH_SCALE,
   worldToScreen,
   applyFriction,
   isOnGround,
 } from '../core/Physics25D';
 import { clampEntityToLane, buildPlayerPushbox } from '../core/Pushbox';
+import { resolveSolids } from '../core/Solids';
+import type { SolidVolume } from '../core/Solids';
 import type { StageLane } from '../core/Pushbox';
 import { CameraSystem, createDefaultCameraConfig, SHAKE_LIGHT, SHAKE_MEDIUM } from '../systems/CameraSystem';
 import { InputManager } from '../systems/input/InputManager';
@@ -132,6 +135,8 @@ export class GameScene extends Phaser.Scene {
   private enemySprites: Phaser.GameObjects.Sprite[] = [];
   private enemyLabels: Phaser.GameObjects.Text[] = [];
   private enemyLifts: Phaser.GameObjects.Sprite[] = [];
+  /** world-anchored solid prop footprints for this stage */
+  private propSolids: SolidVolume[] = [];
 
   private grabbedEnemyIndex = -1;
   private hitstopFrames = 0;
@@ -318,6 +323,26 @@ export class GameScene extends Phaser.Scene {
     }
     const props = new PropSystem(this, this.stageId);
     if (props.isReady) this.props = props;
+
+    // Solid prop footprints, converted from their screen anchor to world
+    // coordinates (inverse of worldToScreen at z=0 with the fixed floor cam).
+    this.propSolids = props.solidProps().map((p) => ({
+      x: p.worldX,
+      y: (p.groundScreenY - FLOOR_OFFSET) / DEPTH_SCALE,
+      halfW: p.footprint.halfW,
+      halfD: p.footprint.halfD,
+      height: p.footprint.height,
+    }));
+  }
+
+  /** Live obstacle set: world props plus every still-standing breakable. */
+  private collectSolids(): SolidVolume[] {
+    const out = [...this.propSolids];
+    for (const b of this.breakables) {
+      if (b.destroyed) continue;
+      out.push({ x: b.x, y: b.y, halfW: b.def.halfW, halfD: b.def.halfD, height: 55 });
+    }
+    return out;
   }
 
   private spawnBreakables(): void {
@@ -1336,6 +1361,13 @@ export class GameScene extends Phaser.Scene {
     this.playerPos.x = clamped.x;
     this.playerPos.y = clamped.y;
 
+    // Solid obstacles (crates, lamp posts, benches) block movement on the
+    // ground plane — jumping over the low ones is allowed (§ colisión 2.5D).
+    const solids = this.collectSolids();
+    const solved = resolveSolids(this.playerPos.x, this.playerPos.y, pb.halfW, pb.halfD, this.playerPos.z, solids);
+    this.playerPos.x = solved.x;
+    this.playerPos.y = solved.y;
+
     // Encounter movement gate: can't leave an active arena until it clears.
     this.playerPos.x = Math.max(this.waveGateMinX, Math.min(this.playerPos.x, this.waveSystem.gateX));
 
@@ -1349,6 +1381,10 @@ export class GameScene extends Phaser.Scene {
       const allow = attackingNow < MAX_ATTACKERS;
       enemy.tickPhysics(this.playerPos.x, this.playerPos.y, STAGE_LANE, allow);
       if (!wasAttacking && enemy.fsm.isAttacking()) attackingNow++;
+      // Enemies respect the same solid obstacles as the player.
+      const fixed = resolveSolids(enemy.pos.x, enemy.pos.y, enemy.halfW, enemy.halfD, enemy.pos.z, solids);
+      enemy.pos.x = fixed.x;
+      enemy.pos.y = fixed.y;
 
       // Telegraph a freshly-committed boss attack with a distinct tell.
       if (enemy.attackJustStarted) {

@@ -33,6 +33,31 @@ export function propScreenX(worldX: number, cameraWorldX: number, parallax: numb
 }
 
 /**
+ * Ground footprint for props that physically block movement (§ colisión 2.5D).
+ * A front-layer prop with an entry here is world-anchored (parallax forced to
+ * 1) and fighters collide with its footprint instead of walking through it.
+ * halfW/halfD are world units; height gates jumping over.
+ */
+export interface SolidFootprint {
+  halfW: number;
+  halfD: number;
+  height: number;
+}
+
+export const SOLID_PROP_FOOTPRINTS: Record<string, SolidFootprint> = {
+  farol_estacion: { halfW: 20, halfD: 12, height: 240 },
+  banco_anden: { halfW: 48, halfD: 14, height: 45 },
+  bicicleta_reparto: { halfW: 42, halfD: 10, height: 70 },
+  carrito_carga: { halfW: 36, halfD: 14, height: 80 },
+  carrito_expedientes: { halfW: 38, halfD: 14, height: 90 },
+  atril_ficticio: { halfW: 26, halfD: 12, height: 110 },
+};
+
+export function solidFootprintFor(propId: string): SolidFootprint | undefined {
+  return SOLID_PROP_FOOTPRINTS[propId];
+}
+
+/**
  * Once — "La noche de los trapitos". A grimy market street at night: metal
  * shutters and torn posters on the walls behind, street lamps and junk in the
  * immediate foreground.
