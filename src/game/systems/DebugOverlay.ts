@@ -4,6 +4,7 @@ import { buildPlayerPushbox } from '../core/Pushbox';
 import type { AttackDef } from '../data/AttackData';
 import type { CameraSystem } from './CameraSystem';
 import type { PlayerStateId } from '../player/PlayerStateMachine';
+import { FLOOR_OFFSET_PX, HUD_DEPTH } from '../data/VisualMetrics';
 
 export class DebugOverlay {
   private graphics: Phaser.GameObjects.Graphics;
@@ -11,7 +12,7 @@ export class DebugOverlay {
   private visible = false;
 
   constructor(scene: Phaser.Scene) {
-    this.graphics = scene.add.graphics().setDepth(900);
+    this.graphics = scene.add.graphics().setDepth(HUD_DEPTH + 400);
     this.stateText = scene.add
       .text(4, 4, '', {
         fontFamily: 'monospace',
@@ -21,7 +22,7 @@ export class DebugOverlay {
         padding: { x: 4, y: 2 },
       })
       .setScrollFactor(0)
-      .setDepth(901)
+      .setDepth(HUD_DEPTH + 401)
       .setVisible(false);
     this.graphics.setVisible(false);
   }
@@ -52,8 +53,9 @@ export class DebugOverlay {
     const camX = camera.worldX;
 
     const pb = buildPlayerPushbox(playerX, playerY);
-    const groundScreen = worldToScreen(playerX, playerY, 0, camX, 0);
-    const bodyScreen = worldToScreen(playerX, playerY, playerZ, camX, 0);
+    const cameraY = -FLOOR_OFFSET_PX;
+    const groundScreen = worldToScreen(playerX, playerY, 0, camX, cameraY);
+    const bodyScreen = worldToScreen(playerX, playerY, playerZ, camX, cameraY);
 
     // Pushbox (green) — footprint at ground level
     this.graphics.lineStyle(1, 0x00ff44, 0.85);
@@ -72,7 +74,7 @@ export class DebugOverlay {
     if (activeAttack) {
       const hbWorldX = playerX + activeAttack.hitboxOffsetX * facing;
       const hbWorldY = playerY + activeAttack.hitboxOffsetY;
-      const hbScreen = worldToScreen(hbWorldX, hbWorldY, playerZ, camX, 0);
+      const hbScreen = worldToScreen(hbWorldX, hbWorldY, playerZ, camX, cameraY);
       this.graphics.lineStyle(2, 0xff2244, 0.95);
       this.graphics.strokeRect(
         hbScreen.screenX - activeAttack.hitboxHalfW,

@@ -1,19 +1,22 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH } from '../config/GameConfig';
+import { DEPTH_SCALE } from '../core/Physics25D';
 import { propKey } from './AssetLoader';
 import { propsForStage, propScreenX, solidFootprintFor } from '../data/PropManifest';
 import type { PropDef, SolidFootprint } from '../data/PropManifest';
+import {
+  FLOOR_OFFSET_PX,
+  PROP_VISUALS,
+  isOccludingFighter,
+  propScaleFor,
+} from '../data/VisualMetrics';
+import type { ScreenRect } from '../data/VisualMetrics';
 
 /** Render depth for each parallax layer. */
 const BACK_DEPTH = -900; // behind the fighters, in front of the painted panels
-const FRONT_DEPTH = 700; // in front of the fighters (they pass behind these)
 /** Horizontal margin (px) beyond the screen before a prop is culled. */
 const CULL_MARGIN = 200;
-/**
- * Global size correction: the prop art was authored oversized relative to the
- * fighters, so every prop is scaled down uniformly to sit in proportion.
- */
-const PROP_SCALE_MULT = 0.72;
+const OCCLUDED_ALPHA = 0.38;
 
 interface PropSprite {
   def: PropDef;
@@ -40,12 +43,14 @@ export class PropSystem {
     for (const def of propsForStage(stageId)) {
       const key = propKey(def.id);
       if (!scene.textures.exists(key)) continue;
+      const visual = PROP_VISUALS[def.id];
+      const frontDepth = (def.groundScreenY - FLOOR_OFFSET_PX) / DEPTH_SCALE;
       const sprite = scene.add
         .image(0, def.groundScreenY, key)
-        .setOrigin(0.5, 1)
-        .setScale(def.scale * PROP_SCALE_MULT)
+        .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
+        .setScale(propScaleFor(def.id, def.scale))
         .setScrollFactor(0)
-        .setDepth(def.layer === 'front' ? FRONT_DEPTH : BACK_DEPTH);
+        .setDepth(def.layer === 'front' ? frontDepth : BACK_DEPTH);
       if (def.flip) sprite.setFlipX(true);
       if (def.alpha !== undefined) sprite.setAlpha(def.alpha);
       // Solid front props are pinned to the street (parallax 1) so their
@@ -73,10 +78,11 @@ export class PropSystem {
 
   /**
    * Scroll every prop for the current camera position, culling off-screen.
-   * Front-layer props that overlap the player's screen position fade to a
-   * ghost so they never hide the fight (classic brawler occluder handling).
+   * Front-layer props y-sort from their ground contact. They fade only when
+   * their rendered rectangle is genuinely in front of and intersects a live
+   * fighter; horizontal proximity alone is not enough.
    */
-  update(cameraWorldX: number, playerScreenX?: number): void {
+  update(cameraWorldX: number, fighters: readonly ScreenRect[] = []): void {
     for (const { def, sprite, parallax } of this.items) {
       const x = propScreenX(def.worldX, cameraWorldX, parallax);
       const halfW = sprite.displayWidth / 2 + CULL_MARGIN;
@@ -87,9 +93,16 @@ export class PropSystem {
       sprite.setVisible(true);
       sprite.setX(x);
 
-      if (def.layer === 'front' && playerScreenX !== undefined) {
-        const overlap = Math.abs(x - playerScreenX) < sprite.displayWidth / 2 + 46;
-        const target = overlap ? 0.38 : (def.alpha ?? 1);
+      if (def.layer === 'front') {
+        const bounds = sprite.getBounds();
+        const propBounds: ScreenRect = {
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          depth: sprite.depth,
+        };
+        const target = isOccludingFighter(propBounds, fighters) ? OCCLUDED_ALPHA : (def.alpha ?? 1);
         sprite.setAlpha(sprite.alpha + (target - sprite.alpha) * 0.18);
       }
     }

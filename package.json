@@ -18,7 +18,12 @@
     "sprites:process": "node scripts/process-sprites.mjs",
     "sprites:normalize": "node scripts/normalize-sprites.mjs",
     "sprites:build": "npm run sprites:process && npm run sprites:normalize",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build"
+    "sprites:v2:build": "node scripts/build-character-atlases.mjs",
+    "sprites:v2:validate": "node scripts/validate-character-atlases.mjs",
+    "objects:clean": "node scripts/clean-object-assets.mjs",
+    "objects:validate": "node scripts/clean-object-assets.mjs --check",
+    "assets:check": "npm run sprites:v2:validate && npm run objects:validate",
+    "check": "npm run typecheck && npm run lint && npm run assets:check && npm run test && npm run build"
   },
   "dependencies": {
     "phaser": "4.2.1"

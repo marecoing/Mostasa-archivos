@@ -1,0 +1,900 @@
+{
+  "mostasa": {
+    "file": "assets/characters/mostasa.png",
+    "frameWidth": 134,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 9,
+    "frameCount": 90,
+    "totalCells": 90,
+    "actualFrameCount": 90,
+    "emptyCells": [],
+    "referenceBodyHeight": 203,
+    "footAnchorY": 212,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 992,
+      "sourceHeight": 1586,
+      "rootCount": 90,
+      "fragmentCount": 1,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "rowBounds": [
+        [
+          0,
+          176
+        ],
+        [
+          176,
+          358
+        ],
+        [
+          358,
+          534
+        ],
+        [
+          534,
+          710
+        ],
+        [
+          710,
+          889
+        ],
+        [
+          889,
+          1070
+        ],
+        [
+          1070,
+          1247
+        ],
+        [
+          1247,
+          1398
+        ],
+        [
+          1398,
+          1586
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 363825,
+      "uniformScale": 1.221557
+    }
+  },
+  "enemy_001": {
+    "file": "assets/characters/enemy_001.png",
+    "frameWidth": 198,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 8,
+    "frameCount": 80,
+    "totalCells": 80,
+    "actualFrameCount": 80,
+    "emptyCells": [],
+    "referenceBodyHeight": 189,
+    "footAnchorY": 213,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1315,
+      "sourceHeight": 1196,
+      "rootCount": 80,
+      "fragmentCount": 3,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "rowBounds": [
+        [
+          0,
+          149
+        ],
+        [
+          149,
+          298
+        ],
+        [
+          298,
+          446
+        ],
+        [
+          446,
+          595
+        ],
+        [
+          595,
+          725
+        ],
+        [
+          725,
+          874
+        ],
+        [
+          874,
+          1023
+        ],
+        [
+          1023,
+          1196
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 269182,
+      "uniformScale": 1.43662
+    }
+  },
+  "enemy_002": {
+    "file": "assets/characters/enemy_002.png",
+    "frameWidth": 214,
+    "frameHeight": 224,
+    "cols": 9,
+    "rows": 8,
+    "frameCount": 72,
+    "totalCells": 72,
+    "actualFrameCount": 72,
+    "emptyCells": [],
+    "referenceBodyHeight": 204,
+    "footAnchorY": 214,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1299,
+      "sourceHeight": 1211,
+      "rootCount": 72,
+      "fragmentCount": 1,
+      "rowRootCounts": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9
+      ],
+      "rowBounds": [
+        [
+          0,
+          174
+        ],
+        [
+          174,
+          325
+        ],
+        [
+          325,
+          476
+        ],
+        [
+          476,
+          631
+        ],
+        [
+          631,
+          786
+        ],
+        [
+          786,
+          954
+        ],
+        [
+          954,
+          1105
+        ],
+        [
+          1105,
+          1211
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        42,
+        0
+      ],
+      "sourceVisiblePixels": 316939,
+      "uniformScale": 1.251534
+    }
+  },
+  "enemy_003": {
+    "file": "assets/characters/enemy_003.png",
+    "frameWidth": 208,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 8,
+    "frameCount": 78,
+    "totalCells": 80,
+    "actualFrameCount": 78,
+    "emptyCells": [
+      69,
+      79
+    ],
+    "referenceBodyHeight": 204,
+    "footAnchorY": 214,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1347,
+      "sourceHeight": 1167,
+      "rootCount": 78,
+      "fragmentCount": 0,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        9,
+        9
+      ],
+      "rowBounds": [
+        [
+          0,
+          155
+        ],
+        [
+          155,
+          308
+        ],
+        [
+          308,
+          449
+        ],
+        [
+          449,
+          593
+        ],
+        [
+          593,
+          739
+        ],
+        [
+          739,
+          886
+        ],
+        [
+          886,
+          1033
+        ],
+        [
+          1033,
+          1167
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 303162,
+      "uniformScale": 1.369128
+    }
+  },
+  "enemy_004": {
+    "file": "assets/characters/enemy_004.png",
+    "frameWidth": 166,
+    "frameHeight": 224,
+    "cols": 9,
+    "rows": 9,
+    "frameCount": 81,
+    "totalCells": 81,
+    "actualFrameCount": 81,
+    "emptyCells": [],
+    "referenceBodyHeight": 186,
+    "footAnchorY": 213,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1060,
+      "sourceHeight": 1484,
+      "rootCount": 81,
+      "fragmentCount": 0,
+      "rowRootCounts": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9
+      ],
+      "rowBounds": [
+        [
+          0,
+          165
+        ],
+        [
+          165,
+          330
+        ],
+        [
+          330,
+          495
+        ],
+        [
+          495,
+          660
+        ],
+        [
+          660,
+          825
+        ],
+        [
+          825,
+          990
+        ],
+        [
+          990,
+          1155
+        ],
+        [
+          1155,
+          1292
+        ],
+        [
+          1292,
+          1484
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 329839,
+      "uniformScale": 1.307692
+    }
+  },
+  "enemy_005": {
+    "file": "assets/characters/enemy_005.png",
+    "frameWidth": 148,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 9,
+    "frameCount": 90,
+    "totalCells": 90,
+    "actualFrameCount": 90,
+    "emptyCells": [],
+    "referenceBodyHeight": 203,
+    "footAnchorY": 213,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1060,
+      "sourceHeight": 1484,
+      "rootCount": 90,
+      "fragmentCount": 0,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "rowBounds": [
+        [
+          0,
+          165
+        ],
+        [
+          165,
+          330
+        ],
+        [
+          330,
+          495
+        ],
+        [
+          495,
+          660
+        ],
+        [
+          660,
+          825
+        ],
+        [
+          825,
+          990
+        ],
+        [
+          990,
+          1155
+        ],
+        [
+          1155,
+          1320
+        ],
+        [
+          1320,
+          1484
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 352361,
+      "uniformScale": 1.291139
+    }
+  },
+  "enemy_006": {
+    "file": "assets/characters/enemy_006.png",
+    "frameWidth": 174,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 9,
+    "frameCount": 90,
+    "totalCells": 90,
+    "actualFrameCount": 90,
+    "emptyCells": [],
+    "referenceBodyHeight": 194,
+    "footAnchorY": 214,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1161,
+      "sourceHeight": 1354,
+      "rootCount": 90,
+      "fragmentCount": 3,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "rowBounds": [
+        [
+          0,
+          150
+        ],
+        [
+          150,
+          300
+        ],
+        [
+          300,
+          447
+        ],
+        [
+          447,
+          597
+        ],
+        [
+          597,
+          747
+        ],
+        [
+          747,
+          900
+        ],
+        [
+          900,
+          1050
+        ],
+        [
+          1050,
+          1200
+        ],
+        [
+          1200,
+          1354
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 314885,
+      "uniformScale": 1.39726
+    }
+  },
+  "enemy_007": {
+    "file": "assets/characters/enemy_007.png",
+    "frameWidth": 200,
+    "frameHeight": 224,
+    "cols": 9,
+    "rows": 8,
+    "frameCount": 72,
+    "totalCells": 72,
+    "actualFrameCount": 72,
+    "emptyCells": [],
+    "referenceBodyHeight": 204,
+    "footAnchorY": 213,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "rootCount": 72,
+      "fragmentCount": 2,
+      "rowRootCounts": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9
+      ],
+      "rowBounds": [
+        [
+          0,
+          157
+        ],
+        [
+          157,
+          314
+        ],
+        [
+          314,
+          471
+        ],
+        [
+          471,
+          628
+        ],
+        [
+          628,
+          785
+        ],
+        [
+          785,
+          942
+        ],
+        [
+          942,
+          1099
+        ],
+        [
+          1099,
+          1254
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 274277,
+      "uniformScale": 1.36
+    }
+  },
+  "enemy_008": {
+    "file": "assets/characters/enemy_008.png",
+    "frameWidth": 214,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 8,
+    "frameCount": 80,
+    "totalCells": 80,
+    "actualFrameCount": 80,
+    "emptyCells": [],
+    "referenceBodyHeight": 202,
+    "footAnchorY": 214,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1351,
+      "sourceHeight": 1164,
+      "rootCount": 80,
+      "fragmentCount": 0,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "rowBounds": [
+        [
+          0,
+          145
+        ],
+        [
+          145,
+          286
+        ],
+        [
+          286,
+          431
+        ],
+        [
+          431,
+          570
+        ],
+        [
+          570,
+          715
+        ],
+        [
+          715,
+          860
+        ],
+        [
+          860,
+          1005
+        ],
+        [
+          1005,
+          1164
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 247915,
+      "uniformScale": 1.5
+    }
+  },
+  "enemy_009": {
+    "file": "assets/characters/enemy_009.png",
+    "frameWidth": 302,
+    "frameHeight": 224,
+    "cols": 8,
+    "rows": 11,
+    "frameCount": 88,
+    "totalCells": 88,
+    "actualFrameCount": 88,
+    "emptyCells": [],
+    "referenceBodyHeight": 192,
+    "footAnchorY": 214,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1176,
+      "sourceHeight": 1337,
+      "rootCount": 88,
+      "fragmentCount": 3,
+      "rowRootCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "rowBounds": [
+        [
+          0,
+          119
+        ],
+        [
+          119,
+          241
+        ],
+        [
+          241,
+          346
+        ],
+        [
+          346,
+          468
+        ],
+        [
+          468,
+          566
+        ],
+        [
+          566,
+          688
+        ],
+        [
+          688,
+          797
+        ],
+        [
+          797,
+          913
+        ],
+        [
+          913,
+          1035
+        ],
+        [
+          1035,
+          1157
+        ],
+        [
+          1157,
+          1337
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 295383,
+      "uniformScale": 1.888889
+    }
+  },
+  "enemy_010": {
+    "file": "assets/characters/enemy_010.png",
+    "frameWidth": 148,
+    "frameHeight": 224,
+    "cols": 10,
+    "rows": 9,
+    "frameCount": 90,
+    "totalCells": 90,
+    "actualFrameCount": 90,
+    "emptyCells": [],
+    "referenceBodyHeight": 204,
+    "footAnchorY": 214,
+    "gutter": 8,
+    "pipelineVersion": 3,
+    "segmentation": {
+      "strategy": "alpha-components-voronoi-v3",
+      "sourceWidth": 1055,
+      "sourceHeight": 1491,
+      "rootCount": 90,
+      "fragmentCount": 0,
+      "rowRootCounts": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "rowBounds": [
+        [
+          0,
+          166
+        ],
+        [
+          166,
+          332
+        ],
+        [
+          332,
+          498
+        ],
+        [
+          498,
+          664
+        ],
+        [
+          664,
+          830
+        ],
+        [
+          830,
+          996
+        ],
+        [
+          996,
+          1162
+        ],
+        [
+          1162,
+          1328
+        ],
+        [
+          1328,
+          1491
+        ]
+      ],
+      "rowBoundaryAlphaPixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sourceVisiblePixels": 397184,
+      "uniformScale": 1.283019
+    }
+  }
+}

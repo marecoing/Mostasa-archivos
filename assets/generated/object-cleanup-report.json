@@ -1,0 +1,5148 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-22T17:25:36.071Z",
+  "mode": "apply",
+  "policy": {
+    "alphaThreshold": 8,
+    "minimumPadding": 8,
+    "singleImages": "recover the dominant object and nearby legitimate components from each full canonical sheet; discard disconnected edge fragments found in the old slices",
+    "destructibles": "recover each object from the full canonical sheet; preserve nearby detached parts; repack to four 362x181 frames",
+    "scaling": "uniform downscale only when selected content does not fit the original canvas with required padding",
+    "alignment": "horizontal centre and 8px bottom padding"
+  },
+  "backupRoot": "assets/generated/object-cleanup-backup",
+  "objectSources": [
+    {
+      "path": "sheets_alpha/armas_improvisadas.png",
+      "dimensions": [
+        1770,
+        886
+      ],
+      "sha256": "7720909de6523bca490aaf18997bc4c4f3e3f36f161f7ce49c9c08bf914dc1bb",
+      "mainComponents": 10,
+      "attachedComponents": 4,
+      "discardedComponents": []
+    },
+    {
+      "path": "sheets_alpha/pickups_vida.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "d66acb3dc177972b4d77d4aa368176ce27304933fb13ee1a304af772a6f96ed3",
+      "mainComponents": 6,
+      "attachedComponents": 12,
+      "discardedComponents": []
+    },
+    {
+      "path": "sheets_alpha/pickups_energia_bronca.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "4b015336eb2d10bfc04889183fb2c37804e2c02c3c92e3e4733e0b9e84962c74",
+      "mainComponents": 5,
+      "attachedComponents": 5,
+      "discardedComponents": []
+    },
+    {
+      "path": "sheets_alpha/recompensas.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "01ae6acf5d469152b19dd74debf5c4f66c39a798c346201a4dd2fa8a366ecc8e",
+      "mainComponents": 5,
+      "attachedComponents": 0,
+      "discardedComponents": []
+    },
+    {
+      "path": "sheets_alpha/props_calle_once.png",
+      "dimensions": [
+        1716,
+        916
+      ],
+      "sha256": "4d5992049fe3ca82e37f4b3f0ef20886e6231ccea1e87943a04dc6a82c0ec871",
+      "mainComponents": 8,
+      "attachedComponents": 4,
+      "discardedComponents": []
+    },
+    {
+      "path": "sheets_alpha/props_estacion.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "02f4f163022341a4a130023048f382c7ae434216f48b6d8b1601aa70d63ee7ef",
+      "mainComponents": 5,
+      "attachedComponents": 0,
+      "discardedComponents": []
+    },
+    {
+      "path": "sheets_alpha/props_oficina_poder.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "sha256": "7f0776c00d5158aca6035ea9de42f69a0b0c519c2165a4d0b0781b8dcb8ada02",
+      "mainComponents": 5,
+      "attachedComponents": 1,
+      "discardedComponents": []
+    }
+  ],
+  "destructibleSource": {
+    "path": "sheets_alpha/destruibles.png",
+    "dimensions": [
+      1448,
+      1086
+    ],
+    "sha256": "dbeca6fb3f65741077f481dacc37b6cf00e5beb8ad2dbe9058f22c2442bc291c",
+    "mainComponents": 24,
+    "discardedComponents": []
+  },
+  "summary": {
+    "assetFiles": 50,
+    "singleImages": 44,
+    "destructibleStrips": 6,
+    "destructibleFrames": 24,
+    "changedFiles": 0,
+    "cleanFiles": 50,
+    "assetsDifferentFromOriginal": 50,
+    "removedDisconnectedEdgeComponents": 20,
+    "singleImagesWithRecoveredOverflow": 13,
+    "destructibleFramesWithRecoveredOverflow": 20,
+    "checkPassed": true
+  },
+  "files": [
+    {
+      "path": "public/assets/pickups/alfajor_generico.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_energia_bronca.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/alfajor_generico.png",
+      "dimensions": [
+        468,
+        401
+      ],
+      "canonicalMainComponent": {
+        "area": 109287,
+        "bbox": [
+          1008,
+          109,
+          1481,
+          489
+        ],
+        "centroid": [
+          1243.6,
+          304.8
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1008,
+        109,
+        1481,
+        489
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          474,
+          381
+        ],
+        "packedSize": [
+          452,
+          363
+        ],
+        "scaleX": 0.9536,
+        "scaleY": 0.9528,
+        "position": [
+          8,
+          30
+        ],
+        "visibleBbox": [
+          8,
+          30,
+          459,
+          392
+        ],
+        "padding": {
+          "left": 8,
+          "top": 30,
+          "right": 8,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "eb55bf3e9a373ab20a7715020f54b72f8aa650abdab89e7f31bc9bc027a80d83",
+      "sha256Before": "5131032273fab5431e8400ba6f56f0cfeb434289ef85ca8af2f8b3772b6c0803",
+      "sha256Expected": "5131032273fab5431e8400ba6f56f0cfeb434289ef85ca8af2f8b3772b6c0803",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/blister_misterioso.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_energia_bronca.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/blister_misterioso.png",
+      "dimensions": [
+        324,
+        356
+      ],
+      "canonicalMainComponent": {
+        "area": 71277,
+        "bbox": [
+          86,
+          594,
+          389,
+          929
+        ],
+        "centroid": [
+          240.9,
+          761.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        86,
+        594,
+        389,
+        929
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          304,
+          336
+        ],
+        "packedSize": [
+          304,
+          336
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          313,
+          347
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "76be0c016381f2fa976220a9bf0b9af14ebb07a680b1a39f4f7ff0d980d92246",
+      "sha256Before": "4f77609004406d502b8dca1bd542fec8d31b8e61f304edf0085aa7d236e38861",
+      "sha256Expected": "4f77609004406d502b8dca1bd542fec8d31b8e61f304edf0085aa7d236e38861",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/botiquin_once.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_vida.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/botiquin_once.png",
+      "dimensions": [
+        415,
+        361
+      ],
+      "canonicalMainComponent": {
+        "area": 94977,
+        "bbox": [
+          1053,
+          603,
+          1447,
+          943
+        ],
+        "centroid": [
+          1254,
+          773.5
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1053,
+        603,
+        1447,
+        943
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          395,
+          341
+        ],
+        "packedSize": [
+          395,
+          341
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          404,
+          352
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "1a7805a5387ab753d1867072fe756707cefbd21b9969e79b9f7672e21719897b",
+      "sha256Before": "ae95cdc22b2e30668cf0a68671b00083c597cb48572c8c00efa943df0b571a2f",
+      "sha256Expected": "ae95cdc22b2e30668cf0a68671b00083c597cb48572c8c00efa943df0b571a2f",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/bronca_embotellada.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_energia_bronca.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/bronca_embotellada.png",
+      "dimensions": [
+        238,
+        425
+      ],
+      "canonicalMainComponent": {
+        "area": 72122,
+        "bbox": [
+          637,
+          552,
+          854,
+          956
+        ],
+        "centroid": [
+          745.3,
+          772.9
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        637,
+        552,
+        854,
+        956
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          218,
+          405
+        ],
+        "packedSize": [
+          218,
+          405
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          227,
+          416
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "c7c941813b32021ff6a6eb3cabd14ef378893cd9d6a98a7c6a7a8f11a3a3f4e5",
+      "sha256Before": "8dbe01aab895f76fa8ce7b29b9c85a6828e25af95a47d195ad4f329a97aa7805",
+      "sha256Expected": "8dbe01aab895f76fa8ce7b29b9c85a6828e25af95a47d195ad4f329a97aa7805",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/cafe_quemado.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_energia_bronca.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/cafe_quemado.png",
+      "dimensions": [
+        252,
+        479
+      ],
+      "canonicalMainComponent": {
+        "area": 63101,
+        "bbox": [
+          133,
+          24,
+          364,
+          482
+        ],
+        "centroid": [
+          248.4,
+          289.2
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 9,
+          "bbox": [
+            274,
+            46,
+            277,
+            49
+          ],
+          "centroid": [
+            275.8,
+            47.4
+          ]
+        },
+        {
+          "area": 39,
+          "bbox": [
+            188,
+            57,
+            195,
+            70
+          ],
+          "centroid": [
+            191.3,
+            62.6
+          ]
+        },
+        {
+          "area": 278,
+          "bbox": [
+            266,
+            65,
+            283,
+            91
+          ],
+          "centroid": [
+            275,
+            77.8
+          ]
+        },
+        {
+          "area": 11,
+          "bbox": [
+            227,
+            121,
+            230,
+            124
+          ],
+          "centroid": [
+            228.6,
+            122.5
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            216,
+            150,
+            216,
+            150
+          ],
+          "centroid": [
+            216,
+            150
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        133,
+        24,
+        364,
+        482
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          232,
+          459
+        ],
+        "packedSize": [
+          232,
+          459
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          241,
+          470
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "feebb9799e29b4f18a91ff934b7b0f502558a0d50569fdcc35902ae402e954cf",
+      "sha256Before": "5f387f9ebbe8b49f11dcc642b76329e481c4ca1d807a4eebffea3537f2902f95",
+      "sha256Expected": "5f387f9ebbe8b49f11dcc642b76329e481c4ca1d807a4eebffea3537f2902f95",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/choripan_callejero.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_vida.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/choripan_callejero.png",
+      "dimensions": [
+        473,
+        329
+      ],
+      "canonicalMainComponent": {
+        "area": 92880,
+        "bbox": [
+          49,
+          613,
+          466,
+          921
+        ],
+        "centroid": [
+          251.8,
+          764.2
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 174,
+          "bbox": [
+            462,
+            248,
+            472,
+            271
+          ],
+          "centroid": [
+            468.1,
+            261.1
+          ]
+        }
+      ],
+      "removedOpaquePixels": 174,
+      "sourceBbox": [
+        49,
+        613,
+        466,
+        921
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          418,
+          309
+        ],
+        "packedSize": [
+          418,
+          309
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          27,
+          12
+        ],
+        "visibleBbox": [
+          27,
+          12,
+          444,
+          320
+        ],
+        "padding": {
+          "left": 27,
+          "top": 12,
+          "right": 28,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "1db338dbd9d7a90a3f044a28765098f043a79b823202820fd809952012bc389f",
+      "sha256Before": "a3553039ca77ab3ba3578241a26227e709ce78bce025110311033e489d937bdb",
+      "sha256Expected": "a3553039ca77ab3ba3578241a26227e709ce78bce025110311033e489d937bdb",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/empanada_rotiseria.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_vida.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/empanada_rotiseria.png",
+      "dimensions": [
+        446,
+        324
+      ],
+      "canonicalMainComponent": {
+        "area": 82558,
+        "bbox": [
+          1043,
+          186,
+          1468,
+          489
+        ],
+        "centroid": [
+          1246.6,
+          328.8
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1043,
+        186,
+        1468,
+        489
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          426,
+          304
+        ],
+        "packedSize": [
+          426,
+          304
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          435,
+          315
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "5906b3c8efca66294e00f5202d6bdac50876ec1beb1a4d464d9e54e95004c12b",
+      "sha256Before": "17e6b2dec8d4c03eb4f782dcfe76abdee1db4170deb128ba3dac357ef3b1afb4",
+      "sha256Expected": "17e6b2dec8d4c03eb4f782dcfe76abdee1db4170deb128ba3dac357ef3b1afb4",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/gaseosa_ficticia.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_energia_bronca.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/gaseosa_ficticia.png",
+      "dimensions": [
+        375,
+        489
+      ],
+      "canonicalMainComponent": {
+        "area": 65700,
+        "bbox": [
+          659,
+          26,
+          832,
+          494
+        ],
+        "centroid": [
+          745.7,
+          280.2
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 2,
+          "bbox": [
+            374,
+            340,
+            374,
+            341
+          ],
+          "centroid": [
+            374,
+            340.5
+          ]
+        },
+        {
+          "area": 385,
+          "bbox": [
+            359,
+            352,
+            374,
+            395
+          ],
+          "centroid": [
+            369.3,
+            376.5
+          ]
+        }
+      ],
+      "removedOpaquePixels": 387,
+      "sourceBbox": [
+        659,
+        26,
+        832,
+        494
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          174,
+          469
+        ],
+        "packedSize": [
+          174,
+          469
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          100,
+          12
+        ],
+        "visibleBbox": [
+          100,
+          12,
+          273,
+          480
+        ],
+        "padding": {
+          "left": 100,
+          "top": 12,
+          "right": 101,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "4f59ae22614c31d1760707636c87908b772278f0dcead7e5e1ce1e6a6e5c2409",
+      "sha256Before": "b98704a499a5580068e3d55a59bad5047f2834a2da2414aa704812dfd4c4f952",
+      "sha256Expected": "b98704a499a5580068e3d55a59bad5047f2834a2da2414aa704812dfd4c4f952",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/mate_curativo.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_vida.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/mate_curativo.png",
+      "dimensions": [
+        309,
+        455
+      ],
+      "canonicalMainComponent": {
+        "area": 68867,
+        "bbox": [
+          130,
+          59,
+          418,
+          493
+        ],
+        "centroid": [
+          269.5,
+          327.9
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            249,
+            113,
+            249,
+            113
+          ],
+          "centroid": [
+            249,
+            113
+          ]
+        },
+        {
+          "area": 5,
+          "bbox": [
+            250,
+            115,
+            251,
+            118
+          ],
+          "centroid": [
+            250.6,
+            116.6
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            247,
+            119,
+            247,
+            119
+          ],
+          "centroid": [
+            247,
+            119
+          ]
+        },
+        {
+          "area": 3,
+          "bbox": [
+            233,
+            123,
+            234,
+            125
+          ],
+          "centroid": [
+            233.7,
+            124
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            246,
+            125,
+            246,
+            125
+          ],
+          "centroid": [
+            246,
+            125
+          ]
+        },
+        {
+          "area": 2,
+          "bbox": [
+            244,
+            128,
+            245,
+            129
+          ],
+          "centroid": [
+            244.5,
+            128.5
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            243,
+            131,
+            243,
+            131
+          ],
+          "centroid": [
+            243,
+            131
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            242,
+            133,
+            242,
+            133
+          ],
+          "centroid": [
+            242,
+            133
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            241,
+            135,
+            241,
+            135
+          ],
+          "centroid": [
+            241,
+            135
+          ]
+        },
+        {
+          "area": 40,
+          "bbox": [
+            250,
+            156,
+            259,
+            165
+          ],
+          "centroid": [
+            255.2,
+            161
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            208,
+            159,
+            208,
+            159
+          ],
+          "centroid": [
+            208,
+            159
+          ]
+        },
+        {
+          "area": 2,
+          "bbox": [
+            252,
+            168,
+            253,
+            169
+          ],
+          "centroid": [
+            252.5,
+            168.5
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        130,
+        59,
+        418,
+        493
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          289,
+          435
+        ],
+        "packedSize": [
+          289,
+          435
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          298,
+          446
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "c780525c914cde0cfb0f265e301bf6f0839c695aea4ad3c86469f5bff3d3f720",
+      "sha256Before": "01b5dfd23a4b64f8f98400691134afafe7322208f9a231502b55d4f4c724cc72",
+      "sha256Expected": "01b5dfd23a4b64f8f98400691134afafe7322208f9a231502b55d4f4c724cc72",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/pizza_slice_ficticia.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_vida.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/pizza_slice_ficticia.png",
+      "dimensions": [
+        489,
+        359
+      ],
+      "canonicalMainComponent": {
+        "area": 108806,
+        "bbox": [
+          501,
+          615,
+          990,
+          953
+        ],
+        "centroid": [
+          769.4,
+          790.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        501,
+        615,
+        990,
+        953
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          490,
+          339
+        ],
+        "packedSize": [
+          473,
+          327
+        ],
+        "scaleX": 0.9653,
+        "scaleY": 0.9646,
+        "position": [
+          8,
+          24
+        ],
+        "visibleBbox": [
+          8,
+          24,
+          480,
+          350
+        ],
+        "padding": {
+          "left": 8,
+          "top": 24,
+          "right": 8,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "d03645b98c3afe99a48f92ba79c220b4af63ef84d093041285ff8be626025991",
+      "sha256Before": "a13461d4f987ebd6980b7e52e7a17f9ca8adea5f39571f857a99824d7e1519cb",
+      "sha256Expected": "a13461d4f987ebd6980b7e52e7a17f9ca8adea5f39571f857a99824d7e1519cb",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/pickups/termo_salvador.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/pickups_vida.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/pickups/termo_salvador.png",
+      "dimensions": [
+        234,
+        477
+      ],
+      "canonicalMainComponent": {
+        "area": 72725,
+        "bbox": [
+          665,
+          45,
+          878,
+          501
+        ],
+        "centroid": [
+          756.4,
+          285
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        665,
+        45,
+        878,
+        501
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          214,
+          457
+        ],
+        "packedSize": [
+          214,
+          457
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          223,
+          468
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "b01c39ffddaee6c1af1452cc74932588c7e810e36d4311d8dca358d500199392",
+      "sha256Before": "d12d602906ca350dc79e99a8885941474069da3fb0a4c2342825a48157c0a400",
+      "sha256Expected": "d12d602906ca350dc79e99a8885941474069da3fb0a4c2342825a48157c0a400",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/atril_ficticio.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_oficina_poder.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/atril_ficticio.png",
+      "dimensions": [
+        323,
+        466
+      ],
+      "canonicalMainComponent": {
+        "area": 86288,
+        "bbox": [
+          118,
+          531,
+          420,
+          976
+        ],
+        "centroid": [
+          263.9,
+          775.1
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        118,
+        531,
+        420,
+        976
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          303,
+          446
+        ],
+        "packedSize": [
+          303,
+          446
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          312,
+          457
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "20f3007971ea2fac04cadce2f7be150c31aad19fe75f97284cfbbcabed6a4f35",
+      "sha256Before": "120fbdcb39bda4e400327910b1ee28585768de385b2d34660a02e5b7e3087e56",
+      "sha256Expected": "120fbdcb39bda4e400327910b1ee28585768de385b2d34660a02e5b7e3087e56",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/banco_anden.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_estacion.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/banco_anden.png",
+      "dimensions": [
+        512,
+        333
+      ],
+      "canonicalMainComponent": {
+        "area": 96426,
+        "bbox": [
+          509,
+          129,
+          1054,
+          441
+        ],
+        "centroid": [
+          759.6,
+          256.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        509,
+        129,
+        1054,
+        441
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          546,
+          313
+        ],
+        "packedSize": [
+          496,
+          284
+        ],
+        "scaleX": 0.9084,
+        "scaleY": 0.9073,
+        "position": [
+          8,
+          41
+        ],
+        "visibleBbox": [
+          8,
+          41,
+          503,
+          324
+        ],
+        "padding": {
+          "left": 8,
+          "top": 41,
+          "right": 8,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "8bec422f45dd9c36ee4d0b3446e31def9e98b3479bbe5e7e1cdd9a14bcb4a0fe",
+      "sha256Before": "5d8edb3a74523414497e5b5a06b228f95d35d4819bc5440919b0f78814cd341d",
+      "sha256Expected": "5d8edb3a74523414497e5b5a06b228f95d35d4819bc5440919b0f78814cd341d",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/bicicleta_reparto.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/bicicleta_reparto.png",
+      "dimensions": [
+        400,
+        270
+      ],
+      "canonicalMainComponent": {
+        "area": 45849,
+        "bbox": [
+          39,
+          561,
+          463,
+          810
+        ],
+        "centroid": [
+          215.9,
+          683.3
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            124,
+            692,
+            124,
+            692
+          ],
+          "centroid": [
+            124,
+            692
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            118,
+            736,
+            118,
+            736
+          ],
+          "centroid": [
+            118,
+            736
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        38,
+        561,
+        465,
+        810
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          428,
+          250
+        ],
+        "packedSize": [
+          384,
+          224
+        ],
+        "scaleX": 0.8972,
+        "scaleY": 0.896,
+        "position": [
+          8,
+          38
+        ],
+        "visibleBbox": [
+          8,
+          38,
+          390,
+          261
+        ],
+        "padding": {
+          "left": 8,
+          "top": 38,
+          "right": 9,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "081975e998a08bf98f4af29a79268c221e2d9c6b57a926bf65e52c6f033e79fb",
+      "sha256Before": "3557d1f122ec9853a022649d1f2eed9ff6ec144d7b2a336c90975a9acb90c61f",
+      "sha256Expected": "3557d1f122ec9853a022649d1f2eed9ff6ec144d7b2a336c90975a9acb90c61f",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/bolsa_basura.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/bolsa_basura.png",
+      "dimensions": [
+        385,
+        302
+      ],
+      "canonicalMainComponent": {
+        "area": 65885,
+        "bbox": [
+          912,
+          151,
+          1279,
+          432
+        ],
+        "centroid": [
+          1094,
+          320
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        910,
+        151,
+        1281,
+        432
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          372,
+          282
+        ],
+        "packedSize": [
+          369,
+          280
+        ],
+        "scaleX": 0.9919,
+        "scaleY": 0.9929,
+        "position": [
+          8,
+          14
+        ],
+        "visibleBbox": [
+          10,
+          14,
+          374,
+          293
+        ],
+        "padding": {
+          "left": 10,
+          "top": 14,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "2fb76e42bbbe7bd0c06b64c70e0b08da70e65c7a58eb6c02c6ffba8c2900f3d0",
+      "sha256Before": "e7897713f4158a17eef489f7b84ce432201f900fb6ec40637054012191c3797f",
+      "sha256Expected": "e7897713f4158a17eef489f7b84ce432201f900fb6ec40637054012191c3797f",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/cableado_colgante.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/cableado_colgante.png",
+      "dimensions": [
+        429,
+        280
+      ],
+      "canonicalMainComponent": {
+        "area": 21547,
+        "bbox": [
+          508,
+          542,
+          881,
+          801
+        ],
+        "centroid": [
+          678.2,
+          639.8
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            541,
+            649,
+            541,
+            649
+          ],
+          "centroid": [
+            541,
+            649
+          ]
+        }
+      ],
+      "removedComponents": [
+        {
+          "area": 2260,
+          "bbox": [
+            0,
+            134,
+            34,
+            264
+          ],
+          "centroid": [
+            16.7,
+            199.3
+          ]
+        }
+      ],
+      "removedOpaquePixels": 2260,
+      "sourceBbox": [
+        506,
+        542,
+        883,
+        801
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          378,
+          260
+        ],
+        "packedSize": [
+          378,
+          260
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          25,
+          12
+        ],
+        "visibleBbox": [
+          27,
+          12,
+          400,
+          271
+        ],
+        "padding": {
+          "left": 27,
+          "top": 12,
+          "right": 28,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "0f78029fcf1a5194bf52394167c2a2545bd0ad62be1bc6cda3aabd1b9befc9a1",
+      "sha256Before": "6bffedc1bbea5b4f534a1110901f516addda5578f5e6fce68fc1d4cd83b9486a",
+      "sha256Expected": "6bffedc1bbea5b4f534a1110901f516addda5578f5e6fce68fc1d4cd83b9486a",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/carpeta_oficina.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_oficina_poder.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/carpeta_oficina.png",
+      "dimensions": [
+        444,
+        382
+      ],
+      "canonicalMainComponent": {
+        "area": 108021,
+        "bbox": [
+          561,
+          587,
+          984,
+          948
+        ],
+        "centroid": [
+          764.5,
+          760.8
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        561,
+        587,
+        984,
+        948
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          424,
+          362
+        ],
+        "packedSize": [
+          424,
+          362
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          433,
+          373
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "58659a5df724b7f50a96e840f29e2b4578f1267213f7307ca6bd84dea800ce45",
+      "sha256Before": "e74a9143cb84a0cccbea5a17ac847100daf3a66945bac0f4a60a663d4f85f036",
+      "sha256Expected": "e74a9143cb84a0cccbea5a17ac847100daf3a66945bac0f4a60a663d4f85f036",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/carrito_carga.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/carrito_carga.png",
+      "dimensions": [
+        346,
+        358
+      ],
+      "canonicalMainComponent": {
+        "area": 35136,
+        "bbox": [
+          1347,
+          110,
+          1672,
+          456
+        ],
+        "centroid": [
+          1495.4,
+          324.7
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1345,
+        110,
+        1673,
+        456
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          329,
+          347
+        ],
+        "packedSize": [
+          324,
+          342
+        ],
+        "scaleX": 0.9848,
+        "scaleY": 0.9856,
+        "position": [
+          11,
+          8
+        ],
+        "visibleBbox": [
+          13,
+          8,
+          333,
+          349
+        ],
+        "padding": {
+          "left": 13,
+          "top": 8,
+          "right": 12,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "bf76c601eb9fe8d9d375ba8ed98a5ad048925f1a96b9bd8d3326d7b16c628c21",
+      "sha256Before": "27f15e4db7c4ff20c856564d59e30847d2d78a18298658d41e6e8e446c0e4f73",
+      "sha256Expected": "27f15e4db7c4ff20c856564d59e30847d2d78a18298658d41e6e8e446c0e4f73",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/carrito_expedientes.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_oficina_poder.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/carrito_expedientes.png",
+      "dimensions": [
+        383,
+        473
+      ],
+      "canonicalMainComponent": {
+        "area": 117804,
+        "bbox": [
+          1085,
+          48,
+          1447,
+          500
+        ],
+        "centroid": [
+          1271.5,
+          255.9
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            1119,
+            252,
+            1119,
+            252
+          ],
+          "centroid": [
+            1119,
+            252
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1085,
+        48,
+        1447,
+        500
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          363,
+          453
+        ],
+        "packedSize": [
+          363,
+          453
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          372,
+          464
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "e36312d75126d7b55cf3735b6d175a2d2d1ba5ec9a9151aefb4a4fcbabf5734d",
+      "sha256Before": "090f6af12050abb6d4051b2ff1d586c8bb5f59537cfeca225ce92db583708edc",
+      "sha256Expected": "090f6af12050abb6d4051b2ff1d586c8bb5f59537cfeca225ce92db583708edc",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/cartel_anden_ilegible.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_estacion.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/cartel_anden_ilegible.png",
+      "dimensions": [
+        403,
+        436
+      ],
+      "canonicalMainComponent": {
+        "area": 90252,
+        "bbox": [
+          90,
+          535,
+          472,
+          950
+        ],
+        "centroid": [
+          272.9,
+          704.9
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        90,
+        535,
+        472,
+        950
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          383,
+          416
+        ],
+        "packedSize": [
+          383,
+          416
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          392,
+          427
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "9a58d125b378f79402ddbf358e47a1f96bc6c6b6e11bdbd91355978f01db13ff",
+      "sha256Before": "c9ddee71e9c7a526e0e456447e151008b85ade828f4ee9e0ee698dd63ba984fd",
+      "sha256Expected": "c9ddee71e9c7a526e0e456447e151008b85ade828f4ee9e0ee698dd63ba984fd",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/cartel_generico_local.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/cartel_generico_local.png",
+      "dimensions": [
+        429,
+        397
+      ],
+      "canonicalMainComponent": {
+        "area": 76283,
+        "bbox": [
+          496,
+          140,
+          848,
+          415
+        ],
+        "centroid": [
+          690.4,
+          286.9
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 1890,
+          "bbox": [
+            0,
+            10,
+            14,
+            386
+          ],
+          "centroid": [
+            3.5,
+            147.8
+          ]
+        }
+      ],
+      "removedOpaquePixels": 1890,
+      "sourceBbox": [
+        494,
+        140,
+        850,
+        415
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          357,
+          276
+        ],
+        "packedSize": [
+          357,
+          276
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          36,
+          113
+        ],
+        "visibleBbox": [
+          38,
+          113,
+          390,
+          388
+        ],
+        "padding": {
+          "left": 38,
+          "top": 113,
+          "right": 38,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "dd838487687daf962fffc910993248c6bc9a4413917bc8b1f8ce015dd6b51a18",
+      "sha256Before": "237e342222a60f2e7965d4c54d9e6a06e66f4bc6b57a844eac8d079d6fac7206",
+      "sha256Expected": "237e342222a60f2e7965d4c54d9e6a06e66f4bc6b57a844eac8d079d6fac7206",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/farol_estacion.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_estacion.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/farol_estacion.png",
+      "dimensions": [
+        222,
+        408
+      ],
+      "canonicalMainComponent": {
+        "area": 48876,
+        "bbox": [
+          653,
+          552,
+          854,
+          939
+        ],
+        "centroid": [
+          739.8,
+          726.1
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        653,
+        552,
+        854,
+        939
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          202,
+          388
+        ],
+        "packedSize": [
+          202,
+          388
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          211,
+          399
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "4e12c6ce02c4ebf576e870215c3f65545855f519721d53e1830da59df33d7c11",
+      "sha256Before": "e7d9b66ec9f78b410e3f446e4a7352aab3728274fcccf32ed867e6853478801f",
+      "sha256Expected": "e7d9b66ec9f78b410e3f446e4a7352aab3728274fcccf32ed867e6853478801f",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/maletin_papeles.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_oficina_poder.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/maletin_papeles.png",
+      "dimensions": [
+        414,
+        459
+      ],
+      "canonicalMainComponent": {
+        "area": 125323,
+        "bbox": [
+          66,
+          44,
+          459,
+          482
+        ],
+        "centroid": [
+          246.2,
+          270.3
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        66,
+        44,
+        459,
+        482
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          394,
+          439
+        ],
+        "packedSize": [
+          394,
+          439
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          403,
+          450
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "9f91865892f3ecf947fed5b24a8dde677db1ef5a2625ca78d8c240312f7ee4b1",
+      "sha256Before": "27f07a12fb6923ad2cb409c15cddd5500753b035d613a3d5d79c28aeb42a1400",
+      "sha256Expected": "27f07a12fb6923ad2cb409c15cddd5500753b035d613a3d5d79c28aeb42a1400",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/molinete_generico.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_estacion.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/molinete_generico.png",
+      "dimensions": [
+        468,
+        424
+      ],
+      "canonicalMainComponent": {
+        "area": 83217,
+        "bbox": [
+          54,
+          69,
+          382,
+          472
+        ],
+        "centroid": [
+          255.6,
+          250.9
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 43,
+          "bbox": [
+            465,
+            341,
+            467,
+            355
+          ],
+          "centroid": [
+            466,
+            348
+          ]
+        }
+      ],
+      "removedOpaquePixels": 43,
+      "sourceBbox": [
+        54,
+        69,
+        382,
+        472
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          329,
+          404
+        ],
+        "packedSize": [
+          329,
+          404
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          69,
+          12
+        ],
+        "visibleBbox": [
+          69,
+          12,
+          397,
+          415
+        ],
+        "padding": {
+          "left": 69,
+          "top": 12,
+          "right": 70,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "cf2867228facc502989b0fd3031df1e18488f4035ca30f1f1bbf83fbeefd7c10",
+      "sha256Before": "24a1bb4688bcce78d534b62f35a44d81a0d2e919d520ffbadfc0fd699639704f",
+      "sha256Expected": "24a1bb4688bcce78d534b62f35a44d81a0d2e919d520ffbadfc0fd699639704f",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/persiana_metalica.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/persiana_metalica.png",
+      "dimensions": [
+        396,
+        397
+      ],
+      "canonicalMainComponent": {
+        "area": 143948,
+        "bbox": [
+          43,
+          68,
+          443,
+          444
+        ],
+        "centroid": [
+          242.3,
+          255
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        42,
+        68,
+        445,
+        444
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          404,
+          377
+        ],
+        "packedSize": [
+          380,
+          355
+        ],
+        "scaleX": 0.9406,
+        "scaleY": 0.9416,
+        "position": [
+          8,
+          34
+        ],
+        "visibleBbox": [
+          9,
+          34,
+          385,
+          388
+        ],
+        "padding": {
+          "left": 9,
+          "top": 34,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "29f337465630617977efb217f44dcb26fa7c3e1bcf8d7ec05a2e662468ee4074",
+      "sha256Before": "cb78b8885811e9f513a6093682288546c7b3fab2a0dcc9490510ed4b418703ec",
+      "sha256Expected": "cb78b8885811e9f513a6093682288546c7b3fab2a0dcc9490510ed4b418703ec",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/posteres_rotos.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/posteres_rotos.png",
+      "dimensions": [
+        341,
+        347
+      ],
+      "canonicalMainComponent": {
+        "area": 90623,
+        "bbox": [
+          1347,
+          513,
+          1667,
+          839
+        ],
+        "centroid": [
+          1505.6,
+          669.6
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1345,
+        513,
+        1668,
+        839
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          324,
+          327
+        ],
+        "packedSize": [
+          324,
+          327
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          8,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          330,
+          338
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "c1c4b70a4dccfe253fefaeb2d59db0fa841b99f3d163ee713203a597df0ee916",
+      "sha256Before": "e457961f0a17ad73049c07d58e6e8f552acaf17ede4b9786d8f875da5c2163c4",
+      "sha256Expected": "e457961f0a17ad73049c07d58e6e8f552acaf17ede4b9786d8f875da5c2163c4",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/reja_seguridad.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_calle_once.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/reja_seguridad.png",
+      "dimensions": [
+        423,
+        374
+      ],
+      "canonicalMainComponent": {
+        "area": 58392,
+        "bbox": [
+          955,
+          492,
+          1270,
+          845
+        ],
+        "centroid": [
+          1113.6,
+          671.3
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            1035,
+            718,
+            1035,
+            718
+          ],
+          "centroid": [
+            1035,
+            718
+          ]
+        }
+      ],
+      "removedComponents": [
+        {
+          "area": 333,
+          "bbox": [
+            0,
+            85,
+            23,
+            101
+          ],
+          "centroid": [
+            11.4,
+            93.5
+          ]
+        },
+        {
+          "area": 97,
+          "bbox": [
+            0,
+            142,
+            23,
+            146
+          ],
+          "centroid": [
+            11.1,
+            143.9
+          ]
+        },
+        {
+          "area": 94,
+          "bbox": [
+            0,
+            150,
+            23,
+            153
+          ],
+          "centroid": [
+            11.3,
+            151.5
+          ]
+        },
+        {
+          "area": 94,
+          "bbox": [
+            0,
+            157,
+            23,
+            160
+          ],
+          "centroid": [
+            11.3,
+            158.5
+          ]
+        },
+        {
+          "area": 596,
+          "bbox": [
+            0,
+            171,
+            23,
+            233
+          ],
+          "centroid": [
+            9.7,
+            190.7
+          ]
+        }
+      ],
+      "removedOpaquePixels": 1214,
+      "sourceBbox": [
+        953,
+        492,
+        1272,
+        845
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          320,
+          354
+        ],
+        "packedSize": [
+          320,
+          354
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          51,
+          12
+        ],
+        "visibleBbox": [
+          53,
+          12,
+          368,
+          365
+        ],
+        "padding": {
+          "left": 53,
+          "top": 12,
+          "right": 54,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "c479e1ea8f527c063438ee1f8dd6c88c5ee1c7ef5030c6ce43385e79adc78cd4",
+      "sha256Before": "85e97d59dd96f927e86e5d53d3ed27aedacc2c806692be6f143f9c69f6bb105e",
+      "sha256Expected": "85e97d59dd96f927e86e5d53d3ed27aedacc2c806692be6f143f9c69f6bb105e",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/sello_administrativo.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_oficina_poder.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/sello_administrativo.png",
+      "dimensions": [
+        398,
+        435
+      ],
+      "canonicalMainComponent": {
+        "area": 81149,
+        "bbox": [
+          581,
+          73,
+          958,
+          487
+        ],
+        "centroid": [
+          773.1,
+          309.1
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        581,
+        73,
+        958,
+        487
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          378,
+          415
+        ],
+        "packedSize": [
+          378,
+          415
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          387,
+          426
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "5f3f14710fc991a0fd0d1b0284ec97f1a82b1342f3a1b5e564898f10e5262fc1",
+      "sha256Before": "9453bc7073c3c683e5e56b33e4a5ba99ce8a56580d1094eef7193d878caf29b7",
+      "sha256Expected": "9453bc7073c3c683e5e56b33e4a5ba99ce8a56580d1094eef7193d878caf29b7",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/props/valija_vieja.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/props_estacion.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/props/valija_vieja.png",
+      "dimensions": [
+        463,
+        346
+      ],
+      "canonicalMainComponent": {
+        "area": 88083,
+        "bbox": [
+          1120,
+          119,
+          1476,
+          444
+        ],
+        "centroid": [
+          1303.4,
+          276.5
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 3006,
+          "bbox": [
+            0,
+            116,
+            30,
+            288
+          ],
+          "centroid": [
+            11.3,
+            207.5
+          ]
+        }
+      ],
+      "removedOpaquePixels": 3006,
+      "sourceBbox": [
+        1120,
+        119,
+        1476,
+        444
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          357,
+          326
+        ],
+        "packedSize": [
+          357,
+          326
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          53,
+          12
+        ],
+        "visibleBbox": [
+          53,
+          12,
+          409,
+          337
+        ],
+        "padding": {
+          "left": 53,
+          "top": 12,
+          "right": 53,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "54444ed8c7708957f3d245f5d0cf229f3d468fab5dded7a3aad0a4ae8e2bf3d2",
+      "sha256Before": "1c370f063286c7b3a70591bc50b3413b75558ef86ef00fe707346cd163607745",
+      "sha256Expected": "1c370f063286c7b3a70591bc50b3413b75558ef86ef00fe707346cd163607745",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/rewards/fajo_billetes_ficticios.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/recompensas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/rewards/fajo_billetes_ficticios.png",
+      "dimensions": [
+        498,
+        370
+      ],
+      "canonicalMainComponent": {
+        "area": 104284,
+        "bbox": [
+          536,
+          93,
+          1040,
+          442
+        ],
+        "centroid": [
+          782.1,
+          263.1
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        536,
+        93,
+        1040,
+        442
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          505,
+          350
+        ],
+        "packedSize": [
+          482,
+          334
+        ],
+        "scaleX": 0.9545,
+        "scaleY": 0.9543,
+        "position": [
+          8,
+          28
+        ],
+        "visibleBbox": [
+          8,
+          28,
+          489,
+          361
+        ],
+        "padding": {
+          "left": 8,
+          "top": 28,
+          "right": 8,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "4ba91188cc2f35e97cab7f47cd87c0cefea88246aecc5752b9ca817fa57a77a1",
+      "sha256Before": "0a680956e217632958331c0e0b27a7294ebbf2cf863dfca910f8e53a2f45aee3",
+      "sha256Expected": "0a680956e217632958331c0e0b27a7294ebbf2cf863dfca910f8e53a2f45aee3",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/rewards/monedas_sueltas.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/recompensas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/rewards/monedas_sueltas.png",
+      "dimensions": [
+        435,
+        330
+      ],
+      "canonicalMainComponent": {
+        "area": 86885,
+        "bbox": [
+          54,
+          106,
+          468,
+          415
+        ],
+        "centroid": [
+          252.7,
+          263.3
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        54,
+        106,
+        468,
+        415
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          415,
+          310
+        ],
+        "packedSize": [
+          415,
+          310
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          424,
+          321
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "7045e0a2b44ace3a74fbf572babb34c7067fe81bf55fbc156ddc56b997741428",
+      "sha256Before": "b85429c9f653e3037581ab079cfab962e65c0a02e4ca754f5d64d4c1a75a18a2",
+      "sha256Expected": "b85429c9f653e3037581ab079cfab962e65c0a02e4ca754f5d64d4c1a75a18a2",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/rewards/pendrive_bitcoin.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/recompensas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/rewards/pendrive_bitcoin.png",
+      "dimensions": [
+        478,
+        349
+      ],
+      "canonicalMainComponent": {
+        "area": 83477,
+        "bbox": [
+          548,
+          561,
+          1005,
+          889
+        ],
+        "centroid": [
+          787.7,
+          725.5
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        548,
+        561,
+        1005,
+        889
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          458,
+          329
+        ],
+        "packedSize": [
+          458,
+          329
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          467,
+          340
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "84bec48301e463e5659c7d8a55e61af99e9abdc2c7e070b6ea9f12f231c88610",
+      "sha256Before": "0854a3010e7570a66eea5698696771f115c037c8bce6d9a7d80c89e6e202b038",
+      "sha256Expected": "0854a3010e7570a66eea5698696771f115c037c8bce6d9a7d80c89e6e202b038",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/rewards/pendrive_comun.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/recompensas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/rewards/pendrive_comun.png",
+      "dimensions": [
+        454,
+        323
+      ],
+      "canonicalMainComponent": {
+        "area": 52478,
+        "bbox": [
+          1100,
+          118,
+          1467,
+          420
+        ],
+        "centroid": [
+          1288.9,
+          263.3
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 844,
+          "bbox": [
+            0,
+            113,
+            16,
+            199
+          ],
+          "centroid": [
+            5.2,
+            155.6
+          ]
+        }
+      ],
+      "removedOpaquePixels": 844,
+      "sourceBbox": [
+        1100,
+        118,
+        1467,
+        420
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          368,
+          303
+        ],
+        "packedSize": [
+          368,
+          303
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          43,
+          12
+        ],
+        "visibleBbox": [
+          43,
+          12,
+          410,
+          314
+        ],
+        "padding": {
+          "left": 43,
+          "top": 12,
+          "right": 43,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "09d95c9a8cb723f4124b5cdb9d4509e9d754eca6667b048f117b788159f72380",
+      "sha256Before": "f59390314576c730c3ab9ed62ed43543b8d2ab36d052d1aa04e1a6b4507cdaf2",
+      "sha256Expected": "f59390314576c730c3ab9ed62ed43543b8d2ab36d052d1aa04e1a6b4507cdaf2",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/rewards/pendrive_federal.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/recompensas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/rewards/pendrive_federal.png",
+      "dimensions": [
+        429,
+        358
+      ],
+      "canonicalMainComponent": {
+        "area": 68734,
+        "bbox": [
+          62,
+          554,
+          470,
+          891
+        ],
+        "centroid": [
+          273.4,
+          717.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        62,
+        554,
+        470,
+        891
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          409,
+          338
+        ],
+        "packedSize": [
+          409,
+          338
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          10,
+          12
+        ],
+        "visibleBbox": [
+          10,
+          12,
+          418,
+          349
+        ],
+        "padding": {
+          "left": 10,
+          "top": 12,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "0565945022fd4e6a40bd4b3c53d4a0e3cef6ac7a3a2bc796d51b48d55b429c03",
+      "sha256Before": "925c7d6c5422e0630e7d2bd5002553ccdb4bd3b489c103d1fe0c0f8a6c945bc2",
+      "sha256Expected": "925c7d6c5422e0630e7d2bd5002553ccdb4bd3b489c103d1fe0c0f8a6c945bc2",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/botella_vidrio.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/botella_vidrio.png",
+      "dimensions": [
+        354,
+        355
+      ],
+      "canonicalMainComponent": {
+        "area": 24329,
+        "bbox": [
+          844,
+          469,
+          936,
+          803
+        ],
+        "centroid": [
+          890,
+          658.5
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 2530,
+          "bbox": [
+            0,
+            80,
+            15,
+            293
+          ],
+          "centroid": [
+            5.7,
+            178.3
+          ]
+        },
+        {
+          "area": 4088,
+          "bbox": [
+            326,
+            96,
+            353,
+            328
+          ],
+          "centroid": [
+            343.4,
+            222.7
+          ]
+        }
+      ],
+      "removedOpaquePixels": 6618,
+      "sourceBbox": [
+        842,
+        467,
+        938,
+        803
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          97,
+          337
+        ],
+        "packedSize": [
+          97,
+          337
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          128,
+          10
+        ],
+        "visibleBbox": [
+          130,
+          12,
+          222,
+          346
+        ],
+        "padding": {
+          "left": 130,
+          "top": 12,
+          "right": 131,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "f408a0f71e1086480e1f897a940846781a39e8621133347b08f9c8daae45b337",
+      "sha256Before": "7bfe9d17663a675d1677f07057ea259b05ade190a246a08e5e79fdd6354bc9b3",
+      "sha256Expected": "7bfe9d17663a675d1677f07057ea259b05ade190a246a08e5e79fdd6354bc9b3",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/cadena_oxidada.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/cadena_oxidada.png",
+      "dimensions": [
+        331,
+        266
+      ],
+      "canonicalMainComponent": {
+        "area": 48543,
+        "bbox": [
+          732,
+          157,
+          1042,
+          402
+        ],
+        "centroid": [
+          885.4,
+          270.6
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            832,
+            179,
+            832,
+            179
+          ],
+          "centroid": [
+            832,
+            179
+          ]
+        },
+        {
+          "area": 1,
+          "bbox": [
+            838,
+            211,
+            838,
+            211
+          ],
+          "centroid": [
+            838,
+            211
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        730,
+        155,
+        1044,
+        404
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          315,
+          250
+        ],
+        "packedSize": [
+          315,
+          250
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          8,
+          8
+        ],
+        "visibleBbox": [
+          10,
+          10,
+          320,
+          255
+        ],
+        "padding": {
+          "left": 10,
+          "top": 10,
+          "right": 10,
+          "bottom": 10
+        }
+      },
+      "sha256Original": "62275a7d38848a2457c8efcbd120806aa5564dfed3c135524a58860b41a4e402",
+      "sha256Before": "f51c626e743f2607ef23e6097d813866fa7093af46b9a2e09255f339f945c6cf",
+      "sha256Expected": "f51c626e743f2607ef23e6097d813866fa7093af46b9a2e09255f339f945c6cf",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/cajon_verdura.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/cajon_verdura.png",
+      "dimensions": [
+        312,
+        296
+      ],
+      "canonicalMainComponent": {
+        "area": 75575,
+        "bbox": [
+          1355,
+          536,
+          1717,
+          811
+        ],
+        "centroid": [
+          1536.5,
+          669
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            1482,
+            546,
+            1482,
+            546
+          ],
+          "centroid": [
+            1482,
+            546
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1355,
+        534,
+        1717,
+        812
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          363,
+          279
+        ],
+        "packedSize": [
+          296,
+          228
+        ],
+        "scaleX": 0.8154,
+        "scaleY": 0.8172,
+        "position": [
+          8,
+          60
+        ],
+        "visibleBbox": [
+          8,
+          62,
+          303,
+          287
+        ],
+        "padding": {
+          "left": 8,
+          "top": 62,
+          "right": 8,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "3c47d64b822c771166dd5210e7d58cfe9a2fb20361a41c51c052f7d20b5fabd9",
+      "sha256Before": "4355eae5f1fce70b5e08f883bf93e6adc74027e9f78972bb6f87d1f3189f05c8",
+      "sha256Expected": "4355eae5f1fce70b5e08f883bf93e6adc74027e9f78972bb6f87d1f3189f05c8",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/llave_inglesa.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/llave_inglesa.png",
+      "dimensions": [
+        338,
+        359
+      ],
+      "canonicalMainComponent": {
+        "area": 26974,
+        "bbox": [
+          1088,
+          76,
+          1371,
+          414
+        ],
+        "centroid": [
+          1218.8,
+          230.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 9,
+          "bbox": [
+            336,
+            113,
+            337,
+            120
+          ],
+          "centroid": [
+            336.9,
+            116.7
+          ]
+        }
+      ],
+      "removedOpaquePixels": 9,
+      "sourceBbox": [
+        1086,
+        75,
+        1373,
+        416
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          288,
+          342
+        ],
+        "packedSize": [
+          288,
+          342
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          25,
+          9
+        ],
+        "visibleBbox": [
+          27,
+          10,
+          310,
+          348
+        ],
+        "padding": {
+          "left": 27,
+          "top": 10,
+          "right": 27,
+          "bottom": 10
+        }
+      },
+      "sha256Original": "42c56b66d8fd40d967cf06f8797da821f1e318df499044e8c7cd3687bb6afe1a",
+      "sha256Before": "4b95e1718cfdbdd48ef2eec8cd261dd36d4abf335b6dabfdc848118746e3d71d",
+      "sha256Expected": "4b95e1718cfdbdd48ef2eec8cd261dd36d4abf335b6dabfdc848118746e3d71d",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/maletin_pesado.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/maletin_pesado.png",
+      "dimensions": [
+        354,
+        325
+      ],
+      "canonicalMainComponent": {
+        "area": 74413,
+        "bbox": [
+          414,
+          498,
+          723,
+          802
+        ],
+        "centroid": [
+          566.7,
+          652.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 114,
+          "bbox": [
+            0,
+            168,
+            3,
+            217
+          ],
+          "centroid": [
+            0.8,
+            193.9
+          ]
+        }
+      ],
+      "removedOpaquePixels": 114,
+      "sourceBbox": [
+        412,
+        496,
+        725,
+        802
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          314,
+          307
+        ],
+        "packedSize": [
+          314,
+          307
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          20,
+          10
+        ],
+        "visibleBbox": [
+          22,
+          12,
+          331,
+          316
+        ],
+        "padding": {
+          "left": 22,
+          "top": 12,
+          "right": 22,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "c3be90ffa84b2d4ca6d8efe7750b68f833f61ce6f2573dedf5615548e4824a91",
+      "sha256Before": "9fa329cc51f935f332fb5a85bebf344446a1cab0bd0bb9684d867afb8f4e503b",
+      "sha256Expected": "9fa329cc51f935f332fb5a85bebf344446a1cab0bd0bb9684d867afb8f4e503b",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/palo_escoba.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/palo_escoba.png",
+      "dimensions": [
+        263,
+        384
+      ],
+      "canonicalMainComponent": {
+        "area": 15614,
+        "bbox": [
+          101,
+          56,
+          375,
+          419
+        ],
+        "centroid": [
+          235.6,
+          242
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        99,
+        56,
+        376,
+        421
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          278,
+          366
+        ],
+        "packedSize": [
+          247,
+          325
+        ],
+        "scaleX": 0.8885,
+        "scaleY": 0.888,
+        "position": [
+          8,
+          51
+        ],
+        "visibleBbox": [
+          10,
+          51,
+          254,
+          373
+        ],
+        "padding": {
+          "left": 10,
+          "top": 51,
+          "right": 8,
+          "bottom": 10
+        }
+      },
+      "sha256Original": "5d758d0e37c2c5526737ca63eabb9cd7e2f9caf0a7a3264879ebfcc8a66b1a6e",
+      "sha256Before": "4f6a95d45e0a026106d69eb54d128ef1a130c73bfb88d195d7cf2e0edefa5795",
+      "sha256Expected": "4f6a95d45e0a026106d69eb54d128ef1a130c73bfb88d195d7cf2e0edefa5795",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/paraguas_roto.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/paraguas_roto.png",
+      "dimensions": [
+        275,
+        373
+      ],
+      "canonicalMainComponent": {
+        "area": 32289,
+        "bbox": [
+          1414,
+          69,
+          1680,
+          421
+        ],
+        "centroid": [
+          1520.6,
+          229.1
+        ]
+      },
+      "attachedComponents": [
+        {
+          "area": 1,
+          "bbox": [
+            1583,
+            330,
+            1583,
+            330
+          ],
+          "centroid": [
+            1583,
+            330
+          ]
+        }
+      ],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        1412,
+        68,
+        1682,
+        423
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          271,
+          356
+        ],
+        "packedSize": [
+          259,
+          340
+        ],
+        "scaleX": 0.9557,
+        "scaleY": 0.9551,
+        "position": [
+          8,
+          25
+        ],
+        "visibleBbox": [
+          10,
+          26,
+          264,
+          363
+        ],
+        "padding": {
+          "left": 10,
+          "top": 26,
+          "right": 10,
+          "bottom": 9
+        }
+      },
+      "sha256Original": "33dc473d216fd30a9cdd941c8b4384e29381c2ee231129ce1a1742eac56ccdc7",
+      "sha256Before": "df1d33ed2d9e40e615b38615744d701e33c02a60c60f716c9a1fd2b579075400",
+      "sha256Expected": "df1d33ed2d9e40e615b38615744d701e33c02a60c60f716c9a1fd2b579075400",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/silla_plastico.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/silla_plastico.png",
+      "dimensions": [
+        354,
+        379
+      ],
+      "canonicalMainComponent": {
+        "area": 44239,
+        "bbox": [
+          1034,
+          471,
+          1293,
+          829
+        ],
+        "centroid": [
+          1173.1,
+          627
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 10555,
+          "bbox": [
+            293,
+            99,
+            353,
+            296
+          ],
+          "centroid": [
+            325.2,
+            196.3
+          ]
+        }
+      ],
+      "removedOpaquePixels": 10555,
+      "sourceBbox": [
+        1032,
+        469,
+        1294,
+        830
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          263,
+          362
+        ],
+        "packedSize": [
+          263,
+          362
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          45,
+          9
+        ],
+        "visibleBbox": [
+          47,
+          11,
+          306,
+          369
+        ],
+        "padding": {
+          "left": 47,
+          "top": 11,
+          "right": 47,
+          "bottom": 9
+        }
+      },
+      "sha256Original": "577588e86dd7f31106690b907b94cede1b3750a1fd775b92a1c2500e4ce8902a",
+      "sha256Before": "21b000738eafb99822e2444e6bf08334673d53ab23c3353b12bcc553aa4b367b",
+      "sha256Expected": "21b000738eafb99822e2444e6bf08334673d53ab23c3353b12bcc553aa4b367b",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/tapa_tacho.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/tapa_tacho.png",
+      "dimensions": [
+        314,
+        260
+      ],
+      "canonicalMainComponent": {
+        "area": 57944,
+        "bbox": [
+          50,
+          548,
+          357,
+          787
+        ],
+        "centroid": [
+          203.4,
+          667.4
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [],
+      "removedOpaquePixels": 0,
+      "sourceBbox": [
+        49,
+        546,
+        359,
+        787
+      ],
+      "recoveredOverflow": true,
+      "packing": {
+        "inputSize": [
+          311,
+          242
+        ],
+        "packedSize": [
+          298,
+          232
+        ],
+        "scaleX": 0.9582,
+        "scaleY": 0.9587,
+        "position": [
+          8,
+          20
+        ],
+        "visibleBbox": [
+          9,
+          22,
+          303,
+          251
+        ],
+        "padding": {
+          "left": 9,
+          "top": 22,
+          "right": 10,
+          "bottom": 8
+        }
+      },
+      "sha256Original": "30ff6b78cb29b8113ebc25f28bbee312f44154e24fefb952f10ee5a290725399",
+      "sha256Before": "28dd16e5517c3de229c43fb91aadb5e539a64426e91fcf96902cd1a7f6fe9942",
+      "sha256Expected": "28dd16e5517c3de229c43fb91aadb5e539a64426e91fcf96902cd1a7f6fe9942",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/weapons/tubo_metalico.png",
+      "kind": "single-image",
+      "source": "sheets_alpha/armas_improvisadas.png",
+      "original": "assets/generated/object-cleanup-backup/public/assets/weapons/tubo_metalico.png",
+      "dimensions": [
+        346,
+        370
+      ],
+      "canonicalMainComponent": {
+        "area": 23125,
+        "bbox": [
+          426,
+          67,
+          689,
+          406
+        ],
+        "centroid": [
+          555.9,
+          240.7
+        ]
+      },
+      "attachedComponents": [],
+      "removedComponents": [
+        {
+          "area": 6,
+          "bbox": [
+            0,
+            10,
+            0,
+            15
+          ],
+          "centroid": [
+            0,
+            12.5
+          ]
+        },
+        {
+          "area": 616,
+          "bbox": [
+            0,
+            18,
+            21,
+            63
+          ],
+          "centroid": [
+            7.9,
+            36.4
+          ]
+        }
+      ],
+      "removedOpaquePixels": 622,
+      "sourceBbox": [
+        424,
+        66,
+        691,
+        408
+      ],
+      "recoveredOverflow": false,
+      "packing": {
+        "inputSize": [
+          268,
+          343
+        ],
+        "packedSize": [
+          268,
+          343
+        ],
+        "scaleX": 1,
+        "scaleY": 1,
+        "position": [
+          39,
+          19
+        ],
+        "visibleBbox": [
+          41,
+          20,
+          304,
+          359
+        ],
+        "padding": {
+          "left": 41,
+          "top": 20,
+          "right": 41,
+          "bottom": 10
+        }
+      },
+      "sha256Original": "ba8a2415279620ae3845c506d210b27f9519de0a07885a2ad231bd5e4b52d4df",
+      "sha256Before": "0218ad7dc3b3c20fcff224820bc2231cd78330a2f9226fe36101d8a114cbb587",
+      "sha256Expected": "0218ad7dc3b3c20fcff224820bc2231cd78330a2f9226fe36101d8a114cbb587",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/destructibles/cajon_rompible.png",
+      "kind": "destructible-strip",
+      "source": "sheets_alpha/destruibles.png",
+      "dimensions": [
+        1448,
+        181
+      ],
+      "frameSize": [
+        362,
+        181
+      ],
+      "frameCount": 4,
+      "frames": [
+        {
+          "frame": 0,
+          "mainComponent": {
+            "area": 33774,
+            "bbox": [
+              82,
+              24,
+              300,
+              210
+            ],
+            "centroid": [
+              191.7,
+              112.8
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            82,
+            24,
+            300,
+            210
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              219,
+              187
+            ],
+            "packedSize": [
+              193,
+              165
+            ],
+            "scaleX": 0.8813,
+            "scaleY": 0.8824,
+            "position": [
+              84,
+              8
+            ],
+            "visibleBbox": [
+              84,
+              8,
+              276,
+              172
+            ],
+            "padding": {
+              "left": 84,
+              "top": 8,
+              "right": 85,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 1,
+          "mainComponent": {
+            "area": 34031,
+            "bbox": [
+              438,
+              26,
+              656,
+              214
+            ],
+            "centroid": [
+              547,
+              115.8
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            438,
+            26,
+            656,
+            214
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              219,
+              189
+            ],
+            "packedSize": [
+              191,
+              165
+            ],
+            "scaleX": 0.8721,
+            "scaleY": 0.873,
+            "position": [
+              85,
+              8
+            ],
+            "visibleBbox": [
+              85,
+              8,
+              275,
+              172
+            ],
+            "padding": {
+              "left": 85,
+              "top": 8,
+              "right": 86,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "mainComponent": {
+            "area": 33277,
+            "bbox": [
+              776,
+              26,
+              1030,
+              209
+            ],
+            "centroid": [
+              884.6,
+              119.5
+            ]
+          },
+          "attachedComponents": [
+            {
+              "area": 194,
+              "bbox": [
+                925,
+                198,
+                948,
+                210
+              ],
+              "centroid": [
+                936.3,
+                204
+              ]
+            }
+          ],
+          "sourceBbox": [
+            776,
+            26,
+            1030,
+            210
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              255,
+              185
+            ],
+            "packedSize": [
+              227,
+              165
+            ],
+            "scaleX": 0.8902,
+            "scaleY": 0.8919,
+            "position": [
+              67,
+              8
+            ],
+            "visibleBbox": [
+              67,
+              8,
+              293,
+              172
+            ],
+            "padding": {
+              "left": 67,
+              "top": 8,
+              "right": 68,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "mainComponent": {
+            "area": 20338,
+            "bbox": [
+              1094,
+              81,
+              1378,
+              196
+            ],
+            "centroid": [
+              1225.6,
+              142.4
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            1094,
+            81,
+            1378,
+            196
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              285,
+              116
+            ],
+            "packedSize": [
+              285,
+              116
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              38,
+              57
+            ],
+            "visibleBbox": [
+              38,
+              57,
+              322,
+              172
+            ],
+            "padding": {
+              "left": 38,
+              "top": 57,
+              "right": 39,
+              "bottom": 8
+            }
+          }
+        }
+      ],
+      "original": "assets/generated/object-cleanup-backup/public/assets/destructibles/cajon_rompible.png",
+      "sha256Original": "b9704f39e4c8b2c8262a6e1104bc105fb64dd7494256c6bf9698d522c5ce9eb1",
+      "sha256Before": "00927383c4273282013b3eb8fd6f21d6bdee1a00da30f4300a97b075bd78d00a",
+      "sha256Expected": "00927383c4273282013b3eb8fd6f21d6bdee1a00da30f4300a97b075bd78d00a",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/destructibles/tacho_basura_rompible.png",
+      "kind": "destructible-strip",
+      "source": "sheets_alpha/destruibles.png",
+      "dimensions": [
+        1448,
+        181
+      ],
+      "frameSize": [
+        362,
+        181
+      ],
+      "frameCount": 4,
+      "frames": [
+        {
+          "frame": 0,
+          "mainComponent": {
+            "area": 21014,
+            "bbox": [
+              120,
+              224,
+              262,
+              402
+            ],
+            "centroid": [
+              190.8,
+              311.5
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            120,
+            224,
+            262,
+            402
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              143,
+              179
+            ],
+            "packedSize": [
+              132,
+              165
+            ],
+            "scaleX": 0.9231,
+            "scaleY": 0.9218,
+            "position": [
+              115,
+              8
+            ],
+            "visibleBbox": [
+              115,
+              8,
+              246,
+              172
+            ],
+            "padding": {
+              "left": 115,
+              "top": 8,
+              "right": 115,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 1,
+          "mainComponent": {
+            "area": 21263,
+            "bbox": [
+              468,
+              224,
+              613,
+              403
+            ],
+            "centroid": [
+              540.8,
+              313.6
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            468,
+            224,
+            613,
+            403
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              146,
+              180
+            ],
+            "packedSize": [
+              134,
+              165
+            ],
+            "scaleX": 0.9178,
+            "scaleY": 0.9167,
+            "position": [
+              114,
+              8
+            ],
+            "visibleBbox": [
+              114,
+              8,
+              247,
+              172
+            ],
+            "padding": {
+              "left": 114,
+              "top": 8,
+              "right": 114,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "mainComponent": {
+            "area": 24465,
+            "bbox": [
+              771,
+              252,
+              1019,
+              402
+            ],
+            "centroid": [
+              883.7,
+              331.2
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            771,
+            252,
+            1019,
+            402
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              249,
+              151
+            ],
+            "packedSize": [
+              249,
+              151
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              56,
+              22
+            ],
+            "visibleBbox": [
+              56,
+              22,
+              304,
+              172
+            ],
+            "padding": {
+              "left": 56,
+              "top": 22,
+              "right": 57,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "mainComponent": {
+            "area": 20700,
+            "bbox": [
+              1083,
+              291,
+              1386,
+              404
+            ],
+            "centroid": [
+              1230.7,
+              356.7
+            ]
+          },
+          "attachedComponents": [
+            {
+              "area": 65,
+              "bbox": [
+                1378,
+                367,
+                1389,
+                373
+              ],
+              "centroid": [
+                1383.5,
+                370.4
+              ]
+            },
+            {
+              "area": 1,
+              "bbox": [
+                1107,
+                372,
+                1107,
+                372
+              ],
+              "centroid": [
+                1107,
+                372
+              ]
+            }
+          ],
+          "sourceBbox": [
+            1083,
+            291,
+            1389,
+            404
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              307,
+              114
+            ],
+            "packedSize": [
+              307,
+              114
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              27,
+              59
+            ],
+            "visibleBbox": [
+              27,
+              59,
+              333,
+              172
+            ],
+            "padding": {
+              "left": 27,
+              "top": 59,
+              "right": 28,
+              "bottom": 8
+            }
+          }
+        }
+      ],
+      "original": "assets/generated/object-cleanup-backup/public/assets/destructibles/tacho_basura_rompible.png",
+      "sha256Original": "64ed0c2e5c0851298fdc3d96ec5a07772f13fa11ecad8a90a906a0a7a4da32a6",
+      "sha256Before": "bef84f589ee2c8eb52019fffe315a0d549b948f5f90808b990243a05ce9993ec",
+      "sha256Expected": "bef84f589ee2c8eb52019fffe315a0d549b948f5f90808b990243a05ce9993ec",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/destructibles/puesto_diarios_ficticio.png",
+      "kind": "destructible-strip",
+      "source": "sheets_alpha/destruibles.png",
+      "dimensions": [
+        1448,
+        181
+      ],
+      "frameSize": [
+        362,
+        181
+      ],
+      "frameCount": 4,
+      "frames": [
+        {
+          "frame": 0,
+          "mainComponent": {
+            "area": 28847,
+            "bbox": [
+              83,
+              413,
+              291,
+              581
+            ],
+            "centroid": [
+              185.5,
+              493.9
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            83,
+            413,
+            291,
+            581
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              209,
+              169
+            ],
+            "packedSize": [
+              204,
+              165
+            ],
+            "scaleX": 0.9761,
+            "scaleY": 0.9763,
+            "position": [
+              79,
+              8
+            ],
+            "visibleBbox": [
+              79,
+              8,
+              282,
+              172
+            ],
+            "padding": {
+              "left": 79,
+              "top": 8,
+              "right": 79,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 1,
+          "mainComponent": {
+            "area": 27452,
+            "bbox": [
+              428,
+              424,
+              653,
+              585
+            ],
+            "centroid": [
+              530.4,
+              504.7
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            428,
+            424,
+            653,
+            585
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              226,
+              162
+            ],
+            "packedSize": [
+              226,
+              162
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              68,
+              11
+            ],
+            "visibleBbox": [
+              68,
+              11,
+              293,
+              172
+            ],
+            "padding": {
+              "left": 68,
+              "top": 11,
+              "right": 68,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "mainComponent": {
+            "area": 27637,
+            "bbox": [
+              768,
+              430,
+              1022,
+              589
+            ],
+            "centroid": [
+              878.7,
+              513
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            768,
+            430,
+            1022,
+            589
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              255,
+              160
+            ],
+            "packedSize": [
+              255,
+              160
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              53,
+              13
+            ],
+            "visibleBbox": [
+              53,
+              13,
+              307,
+              172
+            ],
+            "padding": {
+              "left": 53,
+              "top": 13,
+              "right": 54,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "mainComponent": {
+            "area": 19727,
+            "bbox": [
+              1064,
+              471,
+              1383,
+              587
+            ],
+            "centroid": [
+              1217,
+              538.7
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            1064,
+            471,
+            1383,
+            587
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              320,
+              117
+            ],
+            "packedSize": [
+              320,
+              117
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              21,
+              56
+            ],
+            "visibleBbox": [
+              21,
+              56,
+              340,
+              172
+            ],
+            "padding": {
+              "left": 21,
+              "top": 56,
+              "right": 21,
+              "bottom": 8
+            }
+          }
+        }
+      ],
+      "original": "assets/generated/object-cleanup-backup/public/assets/destructibles/puesto_diarios_ficticio.png",
+      "sha256Original": "e32710958a51691da96f9a6b392a78b1513249b4a67a8ee3963d9a8a7ead5c3f",
+      "sha256Before": "f83b8e367bc1f2235139cd6744a2645179cdc0f1269d3da2aabdc3378c8b083e",
+      "sha256Expected": "f83b8e367bc1f2235139cd6744a2645179cdc0f1269d3da2aabdc3378c8b083e",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/destructibles/vidriera_rota.png",
+      "kind": "destructible-strip",
+      "source": "sheets_alpha/destruibles.png",
+      "dimensions": [
+        1448,
+        181
+      ],
+      "frameSize": [
+        362,
+        181
+      ],
+      "frameCount": 4,
+      "frames": [
+        {
+          "frame": 0,
+          "mainComponent": {
+            "area": 28804,
+            "bbox": [
+              70,
+              599,
+              304,
+              735
+            ],
+            "centroid": [
+              184.9,
+              663.8
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            70,
+            599,
+            304,
+            735
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              235,
+              137
+            ],
+            "packedSize": [
+              235,
+              137
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              63,
+              36
+            ],
+            "visibleBbox": [
+              63,
+              36,
+              297,
+              172
+            ],
+            "padding": {
+              "left": 63,
+              "top": 36,
+              "right": 64,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 1,
+          "mainComponent": {
+            "area": 28497,
+            "bbox": [
+              422,
+              600,
+              655,
+              734
+            ],
+            "centroid": [
+              536.5,
+              663.9
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            422,
+            600,
+            655,
+            734
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              234,
+              135
+            ],
+            "packedSize": [
+              234,
+              135
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              64,
+              38
+            ],
+            "visibleBbox": [
+              64,
+              38,
+              297,
+              172
+            ],
+            "padding": {
+              "left": 64,
+              "top": 38,
+              "right": 64,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "mainComponent": {
+            "area": 17916,
+            "bbox": [
+              766,
+              602,
+              994,
+              733
+            ],
+            "centroid": [
+              879.1,
+              665.6
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            766,
+            602,
+            994,
+            733
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              229,
+              132
+            ],
+            "packedSize": [
+              229,
+              132
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              66,
+              41
+            ],
+            "visibleBbox": [
+              66,
+              41,
+              294,
+              172
+            ],
+            "padding": {
+              "left": 66,
+              "top": 41,
+              "right": 67,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "mainComponent": {
+            "area": 15987,
+            "bbox": [
+              1074,
+              613,
+              1383,
+              739
+            ],
+            "centroid": [
+              1226.5,
+              687.9
+            ]
+          },
+          "attachedComponents": [
+            {
+              "area": 109,
+              "bbox": [
+                1371,
+                712,
+                1396,
+                717
+              ],
+              "centroid": [
+                1383.1,
+                714.3
+              ]
+            },
+            {
+              "area": 8,
+              "bbox": [
+                1162,
+                733,
+                1165,
+                734
+              ],
+              "centroid": [
+                1163.5,
+                733.5
+              ]
+            }
+          ],
+          "sourceBbox": [
+            1074,
+            613,
+            1396,
+            739
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              323,
+              127
+            ],
+            "packedSize": [
+              323,
+              127
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              19,
+              46
+            ],
+            "visibleBbox": [
+              19,
+              46,
+              341,
+              172
+            ],
+            "padding": {
+              "left": 19,
+              "top": 46,
+              "right": 20,
+              "bottom": 8
+            }
+          }
+        }
+      ],
+      "original": "assets/generated/object-cleanup-backup/public/assets/destructibles/vidriera_rota.png",
+      "sha256Original": "6ac4987203f97ca6474ee93c7d04414cd01576f67dcfc737a39a15340424e1d3",
+      "sha256Before": "6640f5220197f0931bac7edfc12a4570d6e80e3599df25d0dcf3953ec53e263d",
+      "sha256Expected": "6640f5220197f0931bac7edfc12a4570d6e80e3599df25d0dcf3953ec53e263d",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/destructibles/cono_transito.png",
+      "kind": "destructible-strip",
+      "source": "sheets_alpha/destruibles.png",
+      "dimensions": [
+        1448,
+        181
+      ],
+      "frameSize": [
+        362,
+        181
+      ],
+      "frameCount": 4,
+      "frames": [
+        {
+          "frame": 0,
+          "mainComponent": {
+            "area": 8049,
+            "bbox": [
+              116,
+              737,
+              249,
+              879
+            ],
+            "centroid": [
+              181.8,
+              826.4
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            116,
+            737,
+            249,
+            879
+          ],
+          "recoveredOverflow": false,
+          "packing": {
+            "inputSize": [
+              134,
+              143
+            ],
+            "packedSize": [
+              134,
+              143
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              114,
+              30
+            ],
+            "visibleBbox": [
+              114,
+              30,
+              247,
+              172
+            ],
+            "padding": {
+              "left": 114,
+              "top": 30,
+              "right": 114,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 1,
+          "mainComponent": {
+            "area": 7829,
+            "bbox": [
+              458,
+              751,
+              596,
+              883
+            ],
+            "centroid": [
+              524.1,
+              834.7
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            458,
+            751,
+            596,
+            883
+          ],
+          "recoveredOverflow": false,
+          "packing": {
+            "inputSize": [
+              139,
+              133
+            ],
+            "packedSize": [
+              139,
+              133
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              111,
+              40
+            ],
+            "visibleBbox": [
+              111,
+              40,
+              249,
+              172
+            ],
+            "padding": {
+              "left": 111,
+              "top": 40,
+              "right": 112,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "mainComponent": {
+            "area": 9156,
+            "bbox": [
+              765,
+              772,
+              955,
+              877
+            ],
+            "centroid": [
+              847.2,
+              838.4
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            765,
+            772,
+            955,
+            877
+          ],
+          "recoveredOverflow": false,
+          "packing": {
+            "inputSize": [
+              191,
+              106
+            ],
+            "packedSize": [
+              191,
+              106
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              85,
+              67
+            ],
+            "visibleBbox": [
+              85,
+              67,
+              275,
+              172
+            ],
+            "padding": {
+              "left": 85,
+              "top": 67,
+              "right": 86,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "mainComponent": {
+            "area": 7460,
+            "bbox": [
+              1110,
+              808,
+              1314,
+              876
+            ],
+            "centroid": [
+              1202.3,
+              850.8
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            1110,
+            808,
+            1314,
+            876
+          ],
+          "recoveredOverflow": false,
+          "packing": {
+            "inputSize": [
+              205,
+              69
+            ],
+            "packedSize": [
+              205,
+              69
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              78,
+              104
+            ],
+            "visibleBbox": [
+              78,
+              104,
+              282,
+              172
+            ],
+            "padding": {
+              "left": 78,
+              "top": 104,
+              "right": 79,
+              "bottom": 8
+            }
+          }
+        }
+      ],
+      "original": "assets/generated/object-cleanup-backup/public/assets/destructibles/cono_transito.png",
+      "sha256Original": "889d3f64fb29eb30fc94241f120e685d254b1d946418323d95a28bd1bd7fef75",
+      "sha256Before": "ad7c63731634b2ad4054177edb9a8b6cb41a84e6055de290a9b26c72085256c2",
+      "sha256Expected": "ad7c63731634b2ad4054177edb9a8b6cb41a84e6055de290a9b26c72085256c2",
+      "differsFromOriginal": true,
+      "changed": false
+    },
+    {
+      "path": "public/assets/destructibles/barril_plastico.png",
+      "kind": "destructible-strip",
+      "source": "sheets_alpha/destruibles.png",
+      "dimensions": [
+        1448,
+        181
+      ],
+      "frameSize": [
+        362,
+        181
+      ],
+      "frameCount": 4,
+      "frames": [
+        {
+          "frame": 0,
+          "mainComponent": {
+            "area": 21362,
+            "bbox": [
+              117,
+              891,
+              246,
+              1069
+            ],
+            "centroid": [
+              181.5,
+              978.7
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            117,
+            891,
+            246,
+            1069
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              130,
+              179
+            ],
+            "packedSize": [
+              120,
+              165
+            ],
+            "scaleX": 0.9231,
+            "scaleY": 0.9218,
+            "position": [
+              121,
+              8
+            ],
+            "visibleBbox": [
+              121,
+              8,
+              240,
+              172
+            ],
+            "padding": {
+              "left": 121,
+              "top": 8,
+              "right": 121,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 1,
+          "mainComponent": {
+            "area": 20892,
+            "bbox": [
+              458,
+              893,
+              587,
+              1069
+            ],
+            "centroid": [
+              523,
+              980.5
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            458,
+            893,
+            587,
+            1069
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              130,
+              177
+            ],
+            "packedSize": [
+              121,
+              165
+            ],
+            "scaleX": 0.9308,
+            "scaleY": 0.9322,
+            "position": [
+              120,
+              8
+            ],
+            "visibleBbox": [
+              120,
+              9,
+              240,
+              172
+            ],
+            "padding": {
+              "left": 120,
+              "top": 9,
+              "right": 121,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "mainComponent": {
+            "area": 20978,
+            "bbox": [
+              783,
+              893,
+              914,
+              1069
+            ],
+            "centroid": [
+              848.3,
+              980.2
+            ]
+          },
+          "attachedComponents": [],
+          "sourceBbox": [
+            783,
+            893,
+            914,
+            1069
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              132,
+              177
+            ],
+            "packedSize": [
+              123,
+              165
+            ],
+            "scaleX": 0.9318,
+            "scaleY": 0.9322,
+            "position": [
+              119,
+              8
+            ],
+            "visibleBbox": [
+              119,
+              8,
+              241,
+              172
+            ],
+            "padding": {
+              "left": 119,
+              "top": 8,
+              "right": 120,
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "mainComponent": {
+            "area": 15131,
+            "bbox": [
+              1081,
+              939,
+              1344,
+              1061
+            ],
+            "centroid": [
+              1186.6,
+              1009.2
+            ]
+          },
+          "attachedComponents": [
+            {
+              "area": 548,
+              "bbox": [
+                1078,
+                1036,
+                1119,
+                1053
+              ],
+              "centroid": [
+                1097.3,
+                1044.6
+              ]
+            },
+            {
+              "area": 288,
+              "bbox": [
+                1307,
+                1046,
+                1341,
+                1056
+              ],
+              "centroid": [
+                1324.3,
+                1051.1
+              ]
+            },
+            {
+              "area": 103,
+              "bbox": [
+                1276,
+                1054,
+                1293,
+                1060
+              ],
+              "centroid": [
+                1284.2,
+                1056.9
+              ]
+            },
+            {
+              "area": 97,
+              "bbox": [
+                1190,
+                1056,
+                1205,
+                1063
+              ],
+              "centroid": [
+                1197.4,
+                1059.3
+              ]
+            }
+          ],
+          "sourceBbox": [
+            1078,
+            939,
+            1344,
+            1063
+          ],
+          "recoveredOverflow": true,
+          "packing": {
+            "inputSize": [
+              267,
+              125
+            ],
+            "packedSize": [
+              267,
+              125
+            ],
+            "scaleX": 1,
+            "scaleY": 1,
+            "position": [
+              47,
+              48
+            ],
+            "visibleBbox": [
+              47,
+              48,
+              313,
+              172
+            ],
+            "padding": {
+              "left": 47,
+              "top": 48,
+              "right": 48,
+              "bottom": 8
+            }
+          }
+        }
+      ],
+      "original": "assets/generated/object-cleanup-backup/public/assets/destructibles/barril_plastico.png",
+      "sha256Original": "87b56b981ed8842e321a8c744d3ff3e46efebd70f03b20d485868271fa5372cd",
+      "sha256Before": "fa05d1f4191a4b1c1011190c8085c3233848f4b907d07b7a9004e927fa235975",
+      "sha256Expected": "fa05d1f4191a4b1c1011190c8085c3233848f4b907d07b7a9004e927fa235975",
+      "differsFromOriginal": true,
+      "changed": false
+    }
+  ],
+  "exceptions": [
+    "Destructibles are rebuilt from sheets_alpha/destruibles.png because the previous fixed-row slices had already discarded overflowing pixels.",
+    "Single-image objects are rebuilt from their complete sheets_alpha sources for the same reason; the old slices remain in the recoverable backup.",
+    "Canvas dimensions remain unchanged for every single image and every destructible strip."
+  ]
+}

@@ -10,7 +10,7 @@ Beat'em up 2.5D de comedia negra argentina. Buenos Aires, 2026.
 ## Instalación
 
 ```bash
-npm install
+npm ci
 ```
 
 ## Comandos
@@ -23,7 +23,10 @@ npm install
 | `npm run typecheck` | Verificación de tipos TypeScript |
 | `npm run lint` | Linting con ESLint |
 | `npm run test` | Tests con Vitest |
-| `npm run check` | typecheck + lint + test + build |
+| `npm run sprites:v2:build` | Reconstruye los 11 atlas de personajes desde fuentes alpha |
+| `npm run objects:clean` | Reconstruye props, armas, pickups y rompibles desde las láminas canónicas |
+| `npm run assets:check` | Valida grillas, alpha, gutters, duplicados y recortes de assets |
+| `npm run check` | typecheck + lint + assets + tests + build |
 
 ## Controles
 
@@ -46,7 +49,9 @@ npm install
 
 Ver `docs/PRODUCTION_STATE.md` para el estado actual de los hitos.
 
-Hitos implementados: **001-005** (base jugable mínima)
+Hitos implementados: **001-067**. El Hito 067 reemplaza el pipeline visual
+destructivo por atlas regenerados, escalas físicas por asset y validación de
+integridad gráfica reproducible.
 
 ## Stack
 

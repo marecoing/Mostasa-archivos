@@ -22,6 +22,8 @@ export interface BreakableDef {
   /** half-width / half-depth of its collision box in world units */
   halfW: number;
   halfD: number;
+  /** height that must be cleared to jump over it (world Z / screen px) */
+  collisionHeight: number;
   /** VFX id played when destroyed */
   destroyVfx: string;
   /** frame rate of the destruction animation */
@@ -31,9 +33,18 @@ export interface BreakableDef {
 
 export const BREAKABLES: Record<string, BreakableDef> = {
   cajon_rompible: {
-    id: 'cajon_rompible', path: 'assets/destructibles/cajon_rompible.png',
-    displayName: 'Cajón', frameWidth: 362, frameHeight: 181, frameCount: 4,
-    durability: 5, halfW: 34, halfD: 22, destroyVfx: 'polvo_caida', breakFrameRate: 18,
+    id: 'cajon_rompible',
+    path: 'assets/destructibles/cajon_rompible.png',
+    displayName: 'Cajón',
+    frameWidth: 362,
+    frameHeight: 181,
+    frameCount: 4,
+    durability: 5,
+    halfW: 45,
+    halfD: 22,
+    collisionHeight: 55,
+    destroyVfx: 'polvo_caida',
+    breakFrameRate: 18,
     dropTable: [
       { itemId: 'monedas_sueltas', weight: 3 },
       { itemId: 'empanada_rotiseria', weight: 2 },
@@ -41,9 +52,18 @@ export const BREAKABLES: Record<string, BreakableDef> = {
     ],
   },
   tacho_basura_rompible: {
-    id: 'tacho_basura_rompible', path: 'assets/destructibles/tacho_basura_rompible.png',
-    displayName: 'Tacho de Basura', frameWidth: 362, frameHeight: 181, frameCount: 4,
-    durability: 5, halfW: 30, halfD: 22, destroyVfx: 'polvo_caida', breakFrameRate: 18,
+    id: 'tacho_basura_rompible',
+    path: 'assets/destructibles/tacho_basura_rompible.png',
+    displayName: 'Tacho de Basura',
+    frameWidth: 362,
+    frameHeight: 181,
+    frameCount: 4,
+    durability: 5,
+    halfW: 42,
+    halfD: 22,
+    collisionHeight: 80,
+    destroyVfx: 'polvo_caida',
+    breakFrameRate: 18,
     dropTable: [
       { itemId: 'monedas_sueltas', weight: 3 },
       { itemId: 'choripan_callejero', weight: 2 },
@@ -51,9 +71,18 @@ export const BREAKABLES: Record<string, BreakableDef> = {
     ],
   },
   puesto_diarios_ficticio: {
-    id: 'puesto_diarios_ficticio', path: 'assets/destructibles/puesto_diarios_ficticio.png',
-    displayName: 'Puesto de Diarios', frameWidth: 362, frameHeight: 181, frameCount: 4,
-    durability: 8, halfW: 40, halfD: 24, destroyVfx: 'polvo_caida', breakFrameRate: 16,
+    id: 'puesto_diarios_ficticio',
+    path: 'assets/destructibles/puesto_diarios_ficticio.png',
+    displayName: 'Puesto de Diarios',
+    frameWidth: 362,
+    frameHeight: 181,
+    frameCount: 4,
+    durability: 8,
+    halfW: 82,
+    halfD: 24,
+    collisionHeight: 140,
+    destroyVfx: 'polvo_caida',
+    breakFrameRate: 16,
     dropTable: [
       { itemId: 'monedas_sueltas', weight: 3 },
       { itemId: 'fajo_billetes_ficticios', weight: 1 },
@@ -61,9 +90,18 @@ export const BREAKABLES: Record<string, BreakableDef> = {
     ],
   },
   vidriera_rota: {
-    id: 'vidriera_rota', path: 'assets/destructibles/vidriera_rota.png',
-    displayName: 'Vidriera', frameWidth: 362, frameHeight: 181, frameCount: 4,
-    durability: 4, halfW: 42, halfD: 20, destroyVfx: 'vidrio_roto_vfx', breakFrameRate: 22,
+    id: 'vidriera_rota',
+    path: 'assets/destructibles/vidriera_rota.png',
+    displayName: 'Vidriera',
+    frameWidth: 362,
+    frameHeight: 181,
+    frameCount: 4,
+    durability: 4,
+    halfW: 88,
+    halfD: 20,
+    collisionHeight: 150,
+    destroyVfx: 'vidrio_roto_vfx',
+    breakFrameRate: 22,
     dropTable: [
       { itemId: 'monedas_sueltas', weight: 2 },
       { itemId: 'botiquin_once', weight: 1 },
@@ -71,18 +109,36 @@ export const BREAKABLES: Record<string, BreakableDef> = {
     ],
   },
   cono_transito: {
-    id: 'cono_transito', path: 'assets/destructibles/cono_transito.png',
-    displayName: 'Cono de Tránsito', frameWidth: 362, frameHeight: 181, frameCount: 4,
-    durability: 3, halfW: 22, halfD: 18, destroyVfx: 'polvo_caida', breakFrameRate: 20,
+    id: 'cono_transito',
+    path: 'assets/destructibles/cono_transito.png',
+    displayName: 'Cono de Tránsito',
+    frameWidth: 362,
+    frameHeight: 181,
+    frameCount: 4,
+    durability: 3,
+    halfW: 24,
+    halfD: 18,
+    collisionHeight: 35,
+    destroyVfx: 'polvo_caida',
+    breakFrameRate: 20,
     dropTable: [
       { itemId: 'monedas_sueltas', weight: 2 },
       { itemId: 'gaseosa_ficticia', weight: 1 },
     ],
   },
   barril_plastico: {
-    id: 'barril_plastico', path: 'assets/destructibles/barril_plastico.png',
-    displayName: 'Barril', frameWidth: 362, frameHeight: 181, frameCount: 4,
-    durability: 8, halfW: 30, halfD: 26, destroyVfx: 'polvo_caida', breakFrameRate: 16,
+    id: 'barril_plastico',
+    path: 'assets/destructibles/barril_plastico.png',
+    displayName: 'Barril',
+    frameWidth: 362,
+    frameHeight: 181,
+    frameCount: 4,
+    durability: 8,
+    halfW: 36,
+    halfD: 26,
+    collisionHeight: 75,
+    destroyVfx: 'polvo_caida',
+    breakFrameRate: 16,
     dropTable: [
       { itemId: 'monedas_sueltas', weight: 3 },
       { itemId: 'pizza_slice_ficticia', weight: 2 },
@@ -106,5 +162,5 @@ export function rollDrop(def: BreakableDef, rng: number): string | null {
     r -= entry.weight;
     if (r < 0) return entry.itemId;
   }
-  return def.dropTable[def.dropTable.length - 1]!.itemId;
+  return def.dropTable.at(-1)?.itemId ?? null;
 }

@@ -11,11 +11,21 @@ import {
   applyFriction,
   isOnGround,
 } from '../core/Physics25D';
-import { clampEntityToLane, buildPlayerPushbox, buildEnemyPushbox, resolvePushboxes } from '../core/Pushbox';
+import {
+  clampEntityToLane,
+  buildPlayerPushbox,
+  buildEnemyPushbox,
+  resolvePushboxes,
+} from '../core/Pushbox';
 import { resolveSolids } from '../core/Solids';
 import type { SolidVolume } from '../core/Solids';
 import type { StageLane } from '../core/Pushbox';
-import { CameraSystem, createDefaultCameraConfig, SHAKE_LIGHT, SHAKE_MEDIUM } from '../systems/CameraSystem';
+import {
+  CameraSystem,
+  createDefaultCameraConfig,
+  SHAKE_LIGHT,
+  SHAKE_MEDIUM,
+} from '../systems/CameraSystem';
 import { InputManager } from '../systems/input/InputManager';
 import { INPUT_ACTIONS } from '../systems/input/InputActions';
 import type { InputSnapshot } from '../systems/input/InputActions';
@@ -53,8 +63,12 @@ import { progressFraction, zoneMarkers, zoneMarkerColor } from '../systems/Stage
 import { showGuidance } from '../systems/GuidanceArrow';
 import { zoneClearReward, ZONE_PERFECT_BONUS } from '../systems/ZoneBonus';
 import {
-  eliteEveryN, isEliteSpawn,
-  ELITE_HP_MULT, ELITE_DAMAGE_MULT, ELITE_SCALE, ELITE_KILL_BONUS,
+  eliteEveryN,
+  isEliteSpawn,
+  ELITE_HP_MULT,
+  ELITE_DAMAGE_MULT,
+  ELITE_SCALE,
+  ELITE_KILL_BONUS,
 } from '../systems/EliteSystem';
 import { enemyTint } from '../systems/EnemyPalette';
 import { encountersForStage } from '../data/WaveManifest';
@@ -66,25 +80,20 @@ import { loadProgress, recordPerfectZone } from '../data/CampaignProgress';
 import { effectsFor } from '../data/ShopManifest';
 import { loadDifficulty } from '../data/DifficultyManifest';
 import { loadStagePanels, stagePanelKey } from '../systems/StageBackground';
-
-// Beat'em up screen presence: fighters stand ~30-38% of the frame height
-// (Streets-of-Rage range). The normalized sheets are tight boxes with feet
-// 3px above the cell bottom, so visible height ≈ frameHeight × scale.
-const PLAYER_SPRITE_SCALE = 1.3;
-const SPRITE_ORIGIN_Y = 0.98;
-// Visible enemy height = stats.height × K. With the player at ~273px, K=4.0
-// puts a grunt (68) exactly at the hero's height (272px); bulkier archetypes
-// (tank 80, miniboss 90, boss 100) overtop him in proportion.
-const ENEMY_SCREEN_HEIGHT_K = 4.0;
-// Breakable art ships as 362×181 frames rendered 1:1 (a crate ~2× the hero).
-// Calibrate so a destructible reads roughly waist-height beside Mostasa.
-const BREAKABLE_RENDER_SCALE = 0.5;
-/**
- * Vertical render offset (screen px) that drops the 2.5D character lane down
- * onto the painted floor of the stage backdrop. Applied via worldToScreen's
- * cameraY on render calls only — physics/logic are unaffected.
- */
-const FLOOR_OFFSET = 168;
+import {
+  BREAKABLE_VISUALS,
+  ENEMY_HEIGHT_TO_SCREEN,
+  FLOOR_OFFSET_PX,
+  HUD_DEPTH,
+  PICKUP_VISUALS,
+  PLAYER_TARGET_HEIGHT_PX,
+  WEAPON_VISUALS,
+  characterOriginY,
+  characterScaleForTarget,
+  scaleForVisibleHeight,
+  visualScale,
+} from '../data/VisualMetrics';
+import type { ScreenRect } from '../data/VisualMetrics';
 
 const WALK_SPEED_X = 280;
 const WALK_SPEED_Y = 210;
@@ -112,6 +121,7 @@ const STAGE_LANE: StageLane = {
   minY: 420,
   maxY: 840,
 };
+const BASE_STAGE_LANE_MAX_X = STAGE_LANE.maxX;
 
 export class GameScene extends Phaser.Scene {
   private playerPos: Vec3 = { x: 400, y: 480, z: 0 };
@@ -216,6 +226,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.resetRuntimeState();
     this.applyUpgrades();
     this.cameras.main.setBackgroundColor('#0a0a18');
     registerAllCharacterAnims(this);
@@ -245,7 +256,7 @@ export class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(200);
+      .setDepth(HUD_DEPTH + 20);
 
     this.time.delayedCall(3000, () => {
       this.tweens.add({
@@ -255,6 +266,64 @@ export class GameScene extends Phaser.Scene {
         onComplete: () => noticeText.destroy(),
       });
     });
+  }
+
+  /**
+   * Phaser reuses the Scene instance after restart/start. Display objects are
+   * removed by Phaser, but our entity arrays and pure runtime state are not;
+   * clear them before rebuilding so stale sprites never leak into a new run.
+   */
+  private resetRuntimeState(): void {
+    this.playerPos = { x: 400, y: 480, z: 0 };
+    this.playerVel = { x: 0, y: 0, z: 0 };
+    this.playerFacing = 1;
+    this.activeAttack = null;
+    this.accumulator = 0;
+    this.isDebugVisible = false;
+
+    this.enemies = [];
+    this.enemyGraphics = [];
+    this.enemyShadows = [];
+    this.enemySprites = [];
+    this.enemyLabels = [];
+    this.propSolids = [];
+    this.grabbedEnemyIndex = -1;
+    this.hitstopFrames = 0;
+    this.broncaMeter = 0;
+    this.combo = new ComboSystem();
+
+    delete this.stageBg;
+    delete this.props;
+    this.breakables = [];
+    this.breakableSprites = [];
+    this.pickups = [];
+    this.pickupSprites = [];
+    this.weapons = [];
+    this.weaponSprites = [];
+    this.equippedWeapon = null;
+    delete this.heldWeaponSprite;
+    this.weaponDepletedThisSwing = false;
+    delete this.weaponHudText;
+
+    this.waveGateMinX = 0;
+    delete this.objectiveText;
+    delete this.bossBarBg;
+    delete this.bossBarFill;
+    delete this.bossBarLabel;
+    delete this.progressGfx;
+    delete this.guidanceText;
+    this.stageStartMs = 0;
+    this.bossPhase2Done = false;
+    this.stageEnded = false;
+    this.playerIFrames = 0;
+    this.tookDamageThisZone = false;
+    this.perfectStreak = 0;
+
+    this.paused = false;
+    delete this.pauseContainer;
+    this.pauseRowTexts = [];
+    this.pauseIndex = 0;
+    STAGE_LANE.maxX = BASE_STAGE_LANE_MAX_X;
   }
 
   /**
@@ -287,7 +356,9 @@ export class GameScene extends Phaser.Scene {
 
   private setupSystems(): void {
     this.input2d = new InputManager(this);
-    this.camera = new CameraSystem(createDefaultCameraConfig(STAGE_LANE.maxX, GAME_WIDTH, GAME_HEIGHT));
+    this.camera = new CameraSystem(
+      createDefaultCameraConfig(STAGE_LANE.maxX, GAME_WIDTH, GAME_HEIGHT),
+    );
     this.fsm = new PlayerStateMachine();
     this.debugOverlay = new DebugOverlay(this);
     this.vfx = new VfxSystem(this);
@@ -327,7 +398,7 @@ export class GameScene extends Phaser.Scene {
     // coordinates (inverse of worldToScreen at z=0 with the fixed floor cam).
     this.propSolids = props.solidProps().map((p) => ({
       x: p.worldX,
-      y: (p.groundScreenY - FLOOR_OFFSET) / DEPTH_SCALE,
+      y: (p.groundScreenY - FLOOR_OFFSET_PX) / DEPTH_SCALE,
       halfW: p.footprint.halfW,
       halfD: p.footprint.halfD,
       height: p.footprint.height,
@@ -339,7 +410,13 @@ export class GameScene extends Phaser.Scene {
     const out = [...this.propSolids];
     for (const b of this.breakables) {
       if (b.destroyed) continue;
-      out.push({ x: b.x, y: b.y, halfW: b.def.halfW, halfD: b.def.halfD, height: 55 });
+      out.push({
+        x: b.x,
+        y: b.y,
+        halfW: b.def.halfW,
+        halfD: b.def.halfD,
+        height: b.def.collisionHeight,
+      });
     }
     return out;
   }
@@ -349,11 +426,12 @@ export class GameScene extends Phaser.Scene {
     for (const item of layoutForStage(this.stageId).breakables) {
       const def = BREAKABLES[item.id];
       if (!def || !this.textures.exists(breakableKey(item.id))) continue;
+      const visual = BREAKABLE_VISUALS[item.id];
       const ent = new BreakableEntity(def, item.x, item.y);
       const sprite = this.add
         .sprite(0, 0, breakableKey(item.id), 0)
-        .setOrigin(0.5, 0.92)
-        .setScale(BREAKABLE_RENDER_SCALE);
+        .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
+        .setScale(visual ? visualScale(visual) : 1);
       this.breakables.push(ent);
       this.breakableSprites.push(sprite);
     }
@@ -364,8 +442,12 @@ export class GameScene extends Phaser.Scene {
     for (const item of layoutForStage(this.stageId).weapons) {
       const def = WEAPONS[item.id];
       if (!def || !this.textures.exists(itemKey(item.id))) continue;
+      const visual = WEAPON_VISUALS[item.id];
       const ent = new WeaponEntity(def, item.x, item.y);
-      const sprite = this.add.sprite(0, 0, itemKey(item.id)).setOrigin(0.5, 0.9).setScale(0.3);
+      const sprite = this.add
+        .sprite(0, 0, itemKey(item.id))
+        .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
+        .setScale(visual ? visualScale(visual) : 1);
       this.weapons.push(ent);
       this.weaponSprites.push(sprite);
     }
@@ -376,7 +458,7 @@ export class GameScene extends Phaser.Scene {
     this.weaponHudText = this.add
       .text(228, 84, '', { fontFamily: 'monospace', fontSize: '9px', color: '#e8c046' })
       .setScrollFactor(0)
-      .setDepth(301);
+      .setDepth(HUD_DEPTH + 1);
     this.updateWeaponHud();
   }
 
@@ -384,7 +466,13 @@ export class GameScene extends Phaser.Scene {
     this.equippedWeapon = { def, durabilityLeft: def.durability };
     this.audio.play('weapon_pickup');
     if (this.heldWeaponSprite) {
-      this.heldWeaponSprite.setTexture(itemKey(def.id)).setVisible(true).setScale(0.32);
+      const visual = WEAPON_VISUALS[def.id];
+      this.heldWeaponSprite
+        .setTexture(itemKey(def.id))
+        .setVisible(true)
+        .setScale(
+          visual ? scaleForVisibleHeight(visual.heldHeightPx, visual.referenceHeightPx) : 1,
+        );
     }
     this.updateWeaponHud();
   }
@@ -413,7 +501,10 @@ export class GameScene extends Phaser.Scene {
       const w = this.weapons[i];
       const sprite = this.weaponSprites[i];
       if (!w || !sprite) continue;
-      if (w.taken) { sprite.setVisible(false); continue; }
+      if (w.taken) {
+        sprite.setVisible(false);
+        continue;
+      }
 
       w.tick(GRAVITY, dt, GROUND_Z);
 
@@ -425,7 +516,7 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
 
-      const { screenX, screenY } = worldToScreen(w.x, w.y, w.z, camX, -FLOOR_OFFSET);
+      const { screenX, screenY } = worldToScreen(w.x, w.y, w.z, camX, -FLOOR_OFFSET_PX);
       sprite.setPosition(screenX, screenY);
       sprite.setDepth(w.y + 5);
     }
@@ -434,12 +525,24 @@ export class GameScene extends Phaser.Scene {
   private updateHeldWeaponSprite(screenX: number, screenY: number): void {
     if (!this.heldWeaponSprite || !this.equippedWeapon) return;
     const swinging = this.fsm.isAttacking();
+    const visual = WEAPON_VISUALS[this.equippedWeapon.def.id];
+    const flipX = visual
+      ? visual.pointsRight
+        ? this.playerFacing === -1
+        : this.playerFacing === 1
+      : this.playerFacing === -1;
+    const gripX = visual ? (flipX ? 1 - visual.gripX : visual.gripX) : 0.5;
+    const gripY = visual?.gripY ?? 0.5;
+    const angle = visual
+      ? (swinging ? visual.swingAngle : visual.idleAngle) * this.playerFacing
+      : (swinging ? -35 : 0) * this.playerFacing;
     const handX = screenX + this.playerFacing * (swinging ? 48 : 28);
-    const handY = screenY - 118; // hand height on the current ~273px fighter
+    const handY = screenY - 118;
     this.heldWeaponSprite
+      .setOrigin(gripX, gripY)
       .setPosition(handX, handY)
-      .setFlipX(this.playerFacing === -1)
-      .setAngle(swinging ? this.playerFacing * -35 : 0)
+      .setFlipX(flipX)
+      .setAngle(angle)
       .setDepth(this.playerPos.y + 1);
   }
 
@@ -448,12 +551,16 @@ export class GameScene extends Phaser.Scene {
     this.stageStartMs = this.time.now;
     this.objectiveText = this.add
       .text(GAME_WIDTH / 2, 40, '', {
-        fontFamily: 'monospace', fontSize: '13px', color: '#ff6644',
-        stroke: '#000000', strokeThickness: 3, align: 'center',
+        fontFamily: 'monospace',
+        fontSize: '13px',
+        color: '#ff6644',
+        stroke: '#000000',
+        strokeThickness: 3,
+        align: 'center',
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(320)
+      .setDepth(HUD_DEPTH + 20)
       .setVisible(false);
 
     this.createBossBar();
@@ -470,33 +577,55 @@ export class GameScene extends Phaser.Scene {
   private createBossBar(): void {
     this.bossBarLabel = this.add
       .text(GAME_WIDTH / 2, this.bossBarY - 14, '', {
-        fontFamily: 'monospace', fontSize: '14px', color: '#ffdddd',
-        stroke: '#000000', strokeThickness: 3,
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#ffdddd',
+        stroke: '#000000',
+        strokeThickness: 3,
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(322)
+      .setDepth(HUD_DEPTH + 22)
       .setVisible(false);
-    this.bossBarBg = this.add.graphics().setScrollFactor(0).setDepth(321).setVisible(false);
+    this.bossBarBg = this.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(HUD_DEPTH + 21)
+      .setVisible(false);
     this.bossBarBg.fillStyle(0x120a0a, 0.9);
     this.bossBarBg.fillRect(this.bossBarX - 2, this.bossBarY - 2, this.bossBarW + 4, 16);
     this.bossBarBg.lineStyle(1, 0xcc4422, 0.8);
     this.bossBarBg.strokeRect(this.bossBarX - 2, this.bossBarY - 2, this.bossBarW + 4, 16);
-    this.bossBarFill = this.add.graphics().setScrollFactor(0).setDepth(322).setVisible(false);
-    this.progressGfx = this.add.graphics().setScrollFactor(0).setDepth(315);
+    this.bossBarFill = this.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(HUD_DEPTH + 22)
+      .setVisible(false);
+    this.progressGfx = this.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(HUD_DEPTH + 15);
 
     this.guidanceText = this.add
       .text(GAME_WIDTH - 78, GAME_HEIGHT / 2, '→\nSEGUÍ', {
-        fontFamily: 'monospace', fontSize: '28px', color: '#e8c046',
-        stroke: '#000000', strokeThickness: 4, align: 'center',
+        fontFamily: 'monospace',
+        fontSize: '28px',
+        color: '#e8c046',
+        stroke: '#000000',
+        strokeThickness: 4,
+        align: 'center',
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(318)
+      .setDepth(HUD_DEPTH + 18)
       .setVisible(false);
     this.tweens.add({
-      targets: this.guidanceText, x: GAME_WIDTH - 62,
-      duration: 620, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+      targets: this.guidanceText,
+      x: GAME_WIDTH - 62,
+      duration: 620,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
     });
   }
 
@@ -562,7 +691,9 @@ export class GameScene extends Phaser.Scene {
   /** Update the dedicated boss health bar from the active zone + boss enemy. */
   private updateBossBar(zoneKind: string | undefined): void {
     const bossType = zoneKind === 'boss' ? 'boss' : zoneKind === 'mini_boss' ? 'miniboss' : null;
-    const boss = bossType ? this.enemies.find((e) => e && !e.dead && e.type === bossType) : undefined;
+    const boss = bossType
+      ? this.enemies.find((e) => e && !e.dead && e.type === bossType)
+      : undefined;
     const enc = encountersForStage(this.stageId);
     const view = bossBarView({
       zoneKind,
@@ -661,13 +792,22 @@ export class GameScene extends Phaser.Scene {
   private flashBanner(text: string, color = '#ff5533'): void {
     const t = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.28, text, {
-        fontFamily: 'monospace', fontSize: '22px', color,
-        stroke: '#000000', strokeThickness: 4,
+        fontFamily: 'monospace',
+        fontSize: '22px',
+        color,
+        stroke: '#000000',
+        strokeThickness: 4,
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(330);
-    this.tweens.add({ targets: t, alpha: 0, scale: 1.3, duration: 1400, onComplete: () => t.destroy() });
+      .setDepth(HUD_DEPTH + 30);
+    this.tweens.add({
+      targets: t,
+      alpha: 0,
+      scale: 1.3,
+      duration: 1400,
+      onComplete: () => t.destroy(),
+    });
   }
 
   private finishStage(): void {
@@ -713,7 +853,7 @@ export class GameScene extends Phaser.Scene {
     }
     const shadow = this.add.graphics().setDepth(0);
     const sprite = this.add.sprite(0, 0, spriteKey);
-    sprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
+    sprite.setOrigin(0.5, characterOriginY(spriteKey));
     playState(sprite, spriteKey, 'idle');
     const hud = this.add.graphics().setDepth(1);
     const label = this.add
@@ -806,8 +946,10 @@ export class GameScene extends Phaser.Scene {
   private createPlayerSprite(): void {
     this.playerShadow = this.add.graphics();
     this.playerSprite = this.add.sprite(0, 0, 'mostasa');
-    this.playerSprite.setOrigin(0.5, SPRITE_ORIGIN_Y);
-    this.playerSprite.setScale(PLAYER_SPRITE_SCALE);
+    this.playerSprite.setOrigin(0.5, characterOriginY('mostasa'));
+    this.playerSprite.setScale(
+      characterScaleForTarget('mostasa', PLAYER_TARGET_HEIGHT_PX, gridFor('mostasa').frameHeight),
+    );
     playState(this.playerSprite, 'mostasa', 'idle');
     this.updatePlayerSpritePosition();
   }
@@ -819,7 +961,7 @@ export class GameScene extends Phaser.Scene {
       this.playerPos.y,
       this.playerPos.z,
       camX,
-      -FLOOR_OFFSET,
+      -FLOOR_OFFSET_PX,
     );
 
     const { screenX: shadowX, screenY: shadowY } = worldToScreen(
@@ -827,7 +969,7 @@ export class GameScene extends Phaser.Scene {
       this.playerPos.y,
       GROUND_Z,
       camX,
-      -FLOOR_OFFSET,
+      -FLOOR_OFFSET_PX,
     );
 
     this.playerShadow.clear();
@@ -891,8 +1033,20 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
 
-      const { screenX, screenY } = worldToScreen(enemy.pos.x, enemy.pos.y, enemy.pos.z, camX, -FLOOR_OFFSET);
-      const { screenX: sx, screenY: sy } = worldToScreen(enemy.pos.x, enemy.pos.y, GROUND_Z, camX, -FLOOR_OFFSET);
+      const { screenX, screenY } = worldToScreen(
+        enemy.pos.x,
+        enemy.pos.y,
+        enemy.pos.z,
+        camX,
+        -FLOOR_OFFSET_PX,
+      );
+      const { screenX: sx, screenY: sy } = worldToScreen(
+        enemy.pos.x,
+        enemy.pos.y,
+        GROUND_Z,
+        camX,
+        -FLOOR_OFFSET_PX,
+      );
 
       shadow.clear();
       // Layered contact shadow grounds the enemy on the floor.
@@ -911,7 +1065,12 @@ export class GameScene extends Phaser.Scene {
 
       // Character sprite driven by enemy FSM state
       const grid = gridFor(enemy.spriteKey);
-      const scale = ((enemy.height * ENEMY_SCREEN_HEIGHT_K) / grid.frameHeight) * (enemy.elite ? ELITE_SCALE : 1);
+      const scale =
+        characterScaleForTarget(
+          enemy.spriteKey,
+          enemy.height * ENEMY_HEIGHT_TO_SCREEN,
+          grid.frameHeight,
+        ) * (enemy.elite ? ELITE_SCALE : 1);
       sprite.setScale(scale);
       sprite.setPosition(screenX, screenY);
       sprite.setFlipX(enemy.facing === -1);
@@ -951,73 +1110,107 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Screen-space fighter bounds used exclusively for foreground occlusion. */
+  private fighterScreenRects(): ScreenRect[] {
+    const out: ScreenRect[] = [];
+    const add = (sprite: Phaser.GameObjects.Sprite, depth: number): void => {
+      if (!sprite.active || !sprite.visible) return;
+      const bounds = sprite.getBounds();
+      out.push({
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+        depth,
+      });
+    };
+
+    add(this.playerSprite, this.playerPos.y);
+    for (let i = 0; i < this.enemySprites.length; i++) {
+      const sprite = this.enemySprites[i];
+      const enemy = this.enemies[i];
+      if (sprite && enemy && !enemy.dead) add(sprite, enemy.pos.y);
+    }
+    return out;
+  }
+
   private createHUD(): void {
     const g = this.add.graphics();
     g.fillStyle(0x000000, 0.7);
     g.fillRect(8, 8, 300, 90);
     g.lineStyle(1, 0xe8c046, 0.4);
     g.strokeRect(8, 8, 300, 90);
-    g.setScrollFactor(0).setDepth(300);
+    g.setScrollFactor(0).setDepth(HUD_DEPTH);
 
     this.add
       .text(18, 14, 'MOSTASA', { fontFamily: 'monospace', fontSize: '11px', color: '#e8c046' })
       .setScrollFactor(0)
-      .setDepth(301);
+      .setDepth(HUD_DEPTH + 1);
 
     this.add
       .text(18, 30, 'AGUANTE', { fontFamily: 'monospace', fontSize: '9px', color: '#888888' })
       .setScrollFactor(0)
-      .setDepth(301);
+      .setDepth(HUD_DEPTH + 1);
 
     const hpBg = this.add.graphics();
     hpBg.fillStyle(0x222222, 1);
     hpBg.fillRect(18, 42, 200, 10);
     hpBg.lineStyle(1, 0x44ff66, 0.5);
     hpBg.strokeRect(18, 42, 200, 10);
-    hpBg.setScrollFactor(0).setDepth(301);
+    hpBg.setScrollFactor(0).setDepth(HUD_DEPTH + 1);
 
-    this.aguanteBar = this.add.graphics().setScrollFactor(0).setDepth(302);
+    this.aguanteBar = this.add
+      .graphics()
+      .setScrollFactor(0)
+      .setDepth(HUD_DEPTH + 2);
     this.updateAguanteBar();
 
     this.add
       .text(18, 58, 'BRONCA', { fontFamily: 'monospace', fontSize: '9px', color: '#888888' })
       .setScrollFactor(0)
-      .setDepth(301);
+      .setDepth(HUD_DEPTH + 1);
 
     const broncaBg = this.add.graphics();
     broncaBg.fillStyle(0x222222, 1);
     broncaBg.fillRect(18, 70, 200, 8);
     broncaBg.lineStyle(1, 0xff6644, 0.5);
     broncaBg.strokeRect(18, 70, 200, 8);
-    broncaBg.setScrollFactor(0).setDepth(301);
+    broncaBg.setScrollFactor(0).setDepth(HUD_DEPTH + 1);
 
     this.broncaBar = this.add.graphics();
-    this.broncaBar.setScrollFactor(0).setDepth(302);
+    this.broncaBar.setScrollFactor(0).setDepth(HUD_DEPTH + 2);
     this.updateBroncaBar();
 
     this.hudInfoText = this.add
       .text(18, 84, '', { fontFamily: 'monospace', fontSize: '9px', color: '#aaaaaa' })
       .setScrollFactor(0)
-      .setDepth(301);
+      .setDepth(HUD_DEPTH + 1);
     this.updateHudInfo();
 
     // Combo counter (top-right), hidden until a chain starts.
     this.comboText = this.add
       .text(GAME_WIDTH - 30, 96, '', {
-        fontFamily: 'monospace', fontSize: '34px', color: '#ffdd44',
-        stroke: '#000000', strokeThickness: 5, align: 'right',
+        fontFamily: 'monospace',
+        fontSize: '34px',
+        color: '#ffdd44',
+        stroke: '#000000',
+        strokeThickness: 5,
+        align: 'right',
       })
       .setOrigin(1, 0.5)
       .setScrollFactor(0)
-      .setDepth(320)
+      .setDepth(HUD_DEPTH + 20)
       .setVisible(false);
     this.comboLabelText = this.add
       .text(GAME_WIDTH - 30, 124, '', {
-        fontFamily: 'monospace', fontSize: '13px', color: '#ff8844', align: 'right',
+        fontFamily: 'monospace',
+        fontSize: '13px',
+        color: '#ff8844',
+        align: 'right',
       })
       .setOrigin(1, 0.5)
       .setScrollFactor(0)
-      .setDepth(320)
+      .setDepth(HUD_DEPTH + 20)
       .setVisible(false);
   }
 
@@ -1082,7 +1275,7 @@ export class GameScene extends Phaser.Scene {
         lineSpacing: 2,
       })
       .setScrollFactor(0)
-      .setDepth(500)
+      .setDepth(HUD_DEPTH + 500)
       .setVisible(false);
   }
 
@@ -1127,11 +1320,16 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Debug spawning
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_GRUNT].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'grunt', 'enemy_001');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_SPEEDSTER].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'speedster', 'enemy_005');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_TANK].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'tank', 'enemy_004');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_ZONER].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'zoner', 'enemy_003');
-    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_MINIBOSS].justPressed) this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'miniboss', 'enemy_009');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_GRUNT].justPressed)
+      this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'grunt', 'enemy_001');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_SPEEDSTER].justPressed)
+      this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'speedster', 'enemy_005');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_TANK].justPressed)
+      this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'tank', 'enemy_004');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_ZONER].justPressed)
+      this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'zoner', 'enemy_003');
+    if (snap[INPUT_ACTIONS.DEBUG_SPAWN_MINIBOSS].justPressed)
+      this.spawnEnemy(this.playerPos.x + 120, this.playerPos.y, 'miniboss', 'enemy_009');
     if (snap[INPUT_ACTIONS.DEBUG_FILL_BRONCA].justPressed) {
       this.broncaMeter = BRONCA_MAX;
       this.updateBroncaBar();
@@ -1206,7 +1404,8 @@ export class GameScene extends Phaser.Scene {
         if (!enemy) continue;
         const dealt = enemy.fsm.isVulnerable() ? atk.damage : 0;
         enemy.applyHit(atk, this.playerFacing);
-        if (dealt > 0) this.spawnDamageNumber(dealt, enemy.pos.x, enemy.pos.y, enemy.pos.z + enemy.height);
+        if (dealt > 0)
+          this.spawnDamageNumber(dealt, enemy.pos.x, enemy.pos.y, enemy.pos.z + enemy.height);
         connected = true;
         this.broncaMeter = Math.min(BRONCA_MAX, this.broncaMeter + BRONCA_PER_HIT);
         this.updateBroncaBar();
@@ -1222,7 +1421,10 @@ export class GameScene extends Phaser.Scene {
         this.camera.triggerShake(usesHeavyShake(mult) ? SHAKE_MEDIUM : SHAKE_LIGHT);
         this.playVfxAtWorld(
           heavy ? 'impacto_pesado' : 'impacto_puno',
-          enemy.pos.x, enemy.pos.y, enemy.pos.z + 40, impactScale(mult),
+          enemy.pos.x,
+          enemy.pos.y,
+          enemy.pos.z + 40,
+          impactScale(mult),
         );
         if (crossedComboBand(this.combo.count)) this.comboBandFlash();
         this.audio.play(heavy ? 'heavy_hit' : 'punch');
@@ -1234,7 +1436,11 @@ export class GameScene extends Phaser.Scene {
 
       // Hitbox vs breakables
       const bHits = checkPlayerHitsBreakables(
-        this.playerPos.x, this.playerPos.y, this.playerFacing, atk, this.breakables,
+        this.playerPos.x,
+        this.playerPos.y,
+        this.playerFacing,
+        atk,
+        this.breakables,
       );
       for (const idx of bHits) {
         const b = this.breakables[idx];
@@ -1321,24 +1527,42 @@ export class GameScene extends Phaser.Scene {
 
     // Lane clamp
     const pb = buildPlayerPushbox(this.playerPos.x, this.playerPos.y);
-    const clamped = clampEntityToLane(this.playerPos.x, this.playerPos.y, pb.halfW, pb.halfD, STAGE_LANE);
+    const clamped = clampEntityToLane(
+      this.playerPos.x,
+      this.playerPos.y,
+      pb.halfW,
+      pb.halfD,
+      STAGE_LANE,
+    );
     this.playerPos.x = clamped.x;
     this.playerPos.y = clamped.y;
 
     // Solid obstacles (crates, lamp posts, benches) block movement on the
     // ground plane — jumping over the low ones is allowed (§ colisión 2.5D).
     const solids = this.collectSolids();
-    const solved = resolveSolids(this.playerPos.x, this.playerPos.y, pb.halfW, pb.halfD, this.playerPos.z, solids);
+    const solved = resolveSolids(
+      this.playerPos.x,
+      this.playerPos.y,
+      pb.halfW,
+      pb.halfD,
+      this.playerPos.z,
+      solids,
+    );
     this.playerPos.x = solved.x;
     this.playerPos.y = solved.y;
 
     // Encounter movement gate: can't leave an active arena until it clears.
-    this.playerPos.x = Math.max(this.waveGateMinX, Math.min(this.playerPos.x, this.waveSystem.gateX));
+    this.playerPos.x = Math.max(
+      this.waveGateMinX,
+      Math.min(this.playerPos.x, this.waveSystem.gateX),
+    );
 
     // Tick enemy physics + attacks (attack-token limited, Biblia §10).
     const MAX_ATTACKERS = 2;
     let attackingNow = this.enemies.reduce(
-      (n, e) => n + (e && !e.dead && e.fsm.isAttacking() ? 1 : 0), 0);
+      (n, e) => n + (e && !e.dead && e.fsm.isAttacking() ? 1 : 0),
+      0,
+    );
     for (const enemy of this.enemies) {
       if (!enemy || enemy.dead) continue;
       const wasAttacking = enemy.fsm.isAttacking();
@@ -1346,14 +1570,27 @@ export class GameScene extends Phaser.Scene {
       enemy.tickPhysics(this.playerPos.x, this.playerPos.y, STAGE_LANE, allow);
       if (!wasAttacking && enemy.fsm.isAttacking()) attackingNow++;
       // Enemies respect the same solid obstacles as the player.
-      const fixed = resolveSolids(enemy.pos.x, enemy.pos.y, enemy.halfW, enemy.halfD, enemy.pos.z, solids);
+      const fixed = resolveSolids(
+        enemy.pos.x,
+        enemy.pos.y,
+        enemy.halfW,
+        enemy.halfD,
+        enemy.pos.z,
+        solids,
+      );
       enemy.pos.x = fixed.x;
       enemy.pos.y = fixed.y;
 
       // Telegraph a freshly-committed boss attack with a distinct tell.
       if (enemy.attackJustStarted) {
         const isCharge = enemy.attackJustStarted === 'charge';
-        this.playVfxAtWorld(isCharge ? 'bronca_especial' : 'polvo_caida', enemy.pos.x, enemy.pos.y, 70, isCharge ? 1.2 : 1);
+        this.playVfxAtWorld(
+          isCharge ? 'bronca_especial' : 'polvo_caida',
+          enemy.pos.x,
+          enemy.pos.y,
+          70,
+          isCharge ? 1.2 : 1,
+        );
         this.audio.play(isCharge ? 'heavy_hit' : 'ui_confirm');
         enemy.attackJustStarted = null;
       }
@@ -1381,8 +1618,10 @@ export class GameScene extends Phaser.Scene {
           buildEnemyPushbox(a.pos.x, a.pos.y, a.halfW, a.halfD),
           buildEnemyPushbox(b.pos.x, b.pos.y, b.halfW, b.halfD),
         );
-        a.pos.x = res.ax; a.pos.y = res.ay;
-        b.pos.x = res.bx; b.pos.y = res.by;
+        a.pos.x = res.ax;
+        a.pos.y = res.ay;
+        b.pos.x = res.bx;
+        b.pos.y = res.by;
       }
       const lane = clampEntityToLane(a.pos.x, a.pos.y, a.halfW, a.halfD, STAGE_LANE);
       a.pos.x = lane.x;
@@ -1479,22 +1718,32 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Play a VFX at a world position (projected to screen). */
-  private playVfxAtWorld(id: string, worldX: number, worldY: number, worldZ: number, scaleMul = 1): void {
+  private playVfxAtWorld(
+    id: string,
+    worldX: number,
+    worldY: number,
+    worldZ: number,
+    scaleMul = 1,
+  ): void {
     const camX = this.camera?.worldX ?? 0;
-    const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET);
+    const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET_PX);
     this.vfx.play(id, screenX, screenY, worldY + 200, scaleMul);
   }
 
   /** Floating damage number rising off a struck enemy (Biblia §12). */
   private spawnDamageNumber(damage: number, worldX: number, worldY: number, worldZ: number): void {
     const camX = this.camera?.worldX ?? 0;
-    const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET);
+    const { screenX, screenY } = worldToScreen(worldX, worldY, worldZ, camX, -FLOOR_OFFSET_PX);
     const style = damageStyle(damage);
     const jitter = Math.round((Math.random() - 0.5) * 24);
     const t = this.add
       .text(screenX + jitter, screenY - 10, String(damage), {
-        fontFamily: 'monospace', fontSize: `${style.size}px`, color: style.color,
-        stroke: '#000000', strokeThickness: 4, fontStyle: 'bold',
+        fontFamily: 'monospace',
+        fontSize: `${style.size}px`,
+        color: style.color,
+        stroke: '#000000',
+        strokeThickness: 4,
+        fontStyle: 'bold',
       })
       .setOrigin(0.5, 1)
       .setDepth(worldY + 400);
@@ -1519,8 +1768,12 @@ export class GameScene extends Phaser.Scene {
   private spawnPickup(itemId: string, x: number, y: number): void {
     const def = DROPPABLES[itemId];
     if (!def || !this.textures.exists(itemKey(itemId))) return;
+    const visual = PICKUP_VISUALS[itemId];
     const ent = new PickupEntity(def, x, y);
-    const sprite = this.add.sprite(0, 0, itemKey(itemId)).setOrigin(0.5, 0.9).setScale(0.28);
+    const sprite = this.add
+      .sprite(0, 0, itemKey(itemId))
+      .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
+      .setScale(visual ? visualScale(visual) : 1);
     this.pickups.push(ent);
     this.pickupSprites.push(sprite);
   }
@@ -1555,8 +1808,11 @@ export class GameScene extends Phaser.Scene {
       const b = this.breakables[i];
       const sprite = this.breakableSprites[i];
       if (!b || !sprite) continue;
-      if (b.destroyed) { sprite.setVisible(false); continue; }
-      const { screenX, screenY } = worldToScreen(b.x, b.y, 0, camX, -FLOOR_OFFSET);
+      if (b.destroyed) {
+        sprite.setVisible(false);
+        continue;
+      }
+      const { screenX, screenY } = worldToScreen(b.x, b.y, 0, camX, -FLOOR_OFFSET_PX);
       sprite.setFrame(b.damageFrame());
       sprite.setPosition(screenX, screenY);
       sprite.setDepth(b.y);
@@ -1569,7 +1825,10 @@ export class GameScene extends Phaser.Scene {
       const p = this.pickups[i];
       const sprite = this.pickupSprites[i];
       if (!p || !sprite) continue;
-      if (p.collected) { sprite.setVisible(false); continue; }
+      if (p.collected) {
+        sprite.setVisible(false);
+        continue;
+      }
 
       p.tick(GRAVITY, dt, GROUND_Z);
 
@@ -1580,7 +1839,7 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
 
-      const { screenX, screenY } = worldToScreen(p.x, p.y, p.z, camX, -FLOOR_OFFSET);
+      const { screenX, screenY } = worldToScreen(p.x, p.y, p.z, camX, -FLOOR_OFFSET_PX);
       sprite.setPosition(screenX, screenY);
       sprite.setDepth(p.y + 5);
     }
@@ -1602,14 +1861,24 @@ export class GameScene extends Phaser.Scene {
     this.pauseIndex = 0;
     this.pauseRowTexts = [];
 
-    const dim = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.72);
+    const dim = this.add.rectangle(
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2,
+      GAME_WIDTH,
+      GAME_HEIGHT,
+      0x000000,
+      0.72,
+    );
     const panel = this.add
       .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 420, 380, 0x10101c, 0.96)
       .setStrokeStyle(2, 0xe8c046);
     const title = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 150, 'PAUSA', {
-        fontFamily: 'monospace', fontSize: '26px', color: '#e8c046',
-        stroke: '#000000', strokeThickness: 4,
+        fontFamily: 'monospace',
+        fontSize: '26px',
+        color: '#e8c046',
+        stroke: '#000000',
+        strokeThickness: 4,
       })
       .setOrigin(0.5);
 
@@ -1617,7 +1886,9 @@ export class GameScene extends Phaser.Scene {
     GameScene.PAUSE_ROWS.forEach((_, i) => {
       const t = this.add
         .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 92 + i * 46, '', {
-          fontFamily: 'monospace', fontSize: '16px', color: '#cccccc',
+          fontFamily: 'monospace',
+          fontSize: '16px',
+          color: '#cccccc',
         })
         .setOrigin(0.5);
       this.pauseRowTexts.push(t);
@@ -1625,14 +1896,21 @@ export class GameScene extends Phaser.Scene {
     });
 
     const hint = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 168, '↑↓ ELEGIR    ←→ AJUSTAR    ENTER OK    ESC VOLVER', {
-        fontFamily: 'monospace', fontSize: '10px', color: '#666666',
-      })
+      .text(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT / 2 + 168,
+        '↑↓ ELEGIR    ←→ AJUSTAR    ENTER OK    ESC VOLVER',
+        {
+          fontFamily: 'monospace',
+          fontSize: '10px',
+          color: '#666666',
+        },
+      )
       .setOrigin(0.5);
 
     this.pauseContainer = this.add
       .container(0, 0, [dim, panel, title, ...rows, hint])
-      .setDepth(1000)
+      .setDepth(HUD_DEPTH + 1000)
       .setScrollFactor(0)
       .setVisible(false);
 
@@ -1754,9 +2032,9 @@ export class GameScene extends Phaser.Scene {
     this.camera.update(delta);
 
     this.stageBg?.update(this.camera.worldX);
-    this.props?.update(this.camera.worldX, this.playerSprite?.x);
     this.updatePlayerSpritePosition();
     this.updateEnemySprites();
+    this.props?.update(this.camera.worldX, this.fighterScreenRects());
     this.updateBreakableSprites();
     this.updatePickups(FIXED_TIMESTEP);
     this.updateWeapons(FIXED_TIMESTEP);
@@ -1782,7 +2060,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateDebugText(): void {
-    const aliveCount = this.enemies.filter(e => e && !e.dead).length;
+    const aliveCount = this.enemies.filter((e) => e && !e.dead).length;
     this.debugText.setText(
       [
         `FPS: ${Math.round(this.game.loop.actualFps)}`,

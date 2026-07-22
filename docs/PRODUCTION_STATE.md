@@ -1,8 +1,8 @@
 # MOSTASA'S RAGE — PRODUCTION STATE
 
 ## Versión actual: 0.1.0
-## Última actualización: 2026-07-16
-## Rama: claude/mostasas-rage-game-build-ausmwi
+## Última actualización: 2026-07-22
+## Rama: codex/visual-integrity-overhaul
 
 ---
 
@@ -1022,9 +1022,41 @@
 - +1 test de anillo de emboscada (ambos lados en X, cerca y lejos en Y,
   dentro del arena); 442 tests en verde; typecheck/lint/build limpios
 
-## HITOS PENDIENTES
+### HITO 067 — Integridad visual integral + atlas realistas ✅
 
-- ... (hitos 052-060)
+- Regeneradas con ImageGen las 11 hojas de movimiento del Escenario 1 en un
+  estilo semi-realista coherente. Se preservaron identidades, vestuario,
+  acciones y props; ya no existen líneas de grilla atravesando cuerpos,
+  torsos seccionados ni fragmentos de frames vecinos.
+- Nuevo pipeline v3 determinista: segmentación alpha estricta, una sola escala
+  isotrópica por personaje, remuestreo bilineal con alpha premultiplicado,
+  pivote inferior estable y gutter transparente de 8 px. No duplica ni cicla
+  poses para rellenar una hoja.
+- Manifiesto visual generado con grilla, ocupación real, altura corporal de
+  referencia y ancla de pies. `enemy_003` declara dos celdas intencionalmente
+  vacías que ningún clip usa; el miniboss conserva sus 88 poses reales en 8×11.
+- Reconstruidos desde las láminas canónicas 44 props/armas/pickups/recompensas
+  y las 6 tiras de rompibles. Se eliminaron componentes de objetos vecinos y
+  se recuperaron siluetas antes truncadas, manteniendo los canvases runtime.
+- Escala física por asset para personajes, props, armas, pickups y rompibles;
+  alturas visibles y anclas sustituyen las constantes globales. Armas incluyen
+  punto de agarre; rompibles, altura de colisión individual.
+- Props delanteros ordenados por la Y de su base y desvanecidos sólo ante una
+  intersección 2D real con un luchador. HUD aislado a depth 10000+.
+- Antialias habilitado para el arte realista. El debug overlay comparte la
+  misma proyección vertical que los sprites.
+- Costuras de panel eliminadas mediante coordenadas enteras y bleed visual de
+  2 px sin modificar `worldWidth` ni coordenadas de gameplay.
+- Validación reproducible: 11/11 atlas, 50/50 objetos y 471 tests; cero fugas
+  de gutter, duplicados, residuos cromáticos o clips que apunten a celdas
+  vacías. Typecheck, lint y build de producción correctos.
+
+## PRÓXIMAS PRIORIDADES
+
+1. Sustituir audio procedural por el banco final de música, SFX y voces.
+2. Completar arte de personajes de los Escenarios 2–10 con el mismo contrato.
+3. Añadir baselines de regresión visual en navegador para los diez escenarios.
+4. Continuar accesibilidad, localización y revisión legal de arte final.
 
 ---
 
@@ -1033,7 +1065,8 @@
 | Check       | Estado  |
 |-------------|---------|
 | typecheck   | ✅ OK   |
-| lint        | ✅ OK   |
+| lint        | ✅ OK (4 advertencias heredadas, 0 errores) |
+| assets      | ✅ OK   |
 | test        | ✅ OK   |
 | build       | ✅ OK   |
 
@@ -1041,9 +1074,11 @@
 
 ## ASSETS
 
-- Todos los assets son placeholders generados por código (Graphics API de Phaser)
-- No se han generado imágenes con Nano Banana (se activa en Hito 047)
-- No se han generado audios (se activa en Hito 042)
+- 11 atlas de personajes semi-realistas integrados y validados.
+- 44 objetos individuales y 6 tiras de rompibles saneados desde fuentes
+  canónicas, con respaldo no destructivo de los PNG anteriores.
+- Fondos modulares de los 10 escenarios integrados en runtime.
+- El audio sigue siendo procedural/provisional.
 
 ---
 
@@ -1056,57 +1091,24 @@ Ver `docs/adr/` para Architecture Decision Records.
 | 001 | Usar Phaser 4.2.1 (versión estable más reciente de Phaser 4) |
 | 002 | Física 2.5D propia (X/Y/Z) desacoplada de Arcade Physics de Phaser |
 | 003 | Fixed timestep 60Hz con acumulador para física determinista |
-| 004 | Texturas placeholder generadas por Graphics API sin assets externos |
+| 004 | Manifiestos visuales data-driven; escala desde altura visible, no canvas |
+| 005 | Fuentes de arte preservadas; pipelines de atlas y objetos reproducibles |
 
 ---
 
 ## ESTADO DEL TEST SUITE
 
-| Archivo                         | Tests  | Estado |
-|---------------------------------|--------|--------|
-| Physics25D.test.ts              | 24     | ✅ OK  |
-| CameraSystem.test.ts            | 18     | ✅ OK  |
-| Pushbox.test.ts                 | 17     | ✅ OK  |
-| AttackData.test.ts              | 14     | ✅ OK  |
-| PlayerStateMachine.test.ts      | 59     | ✅ OK  |
-| EnemyStateMachine.test.ts       | 35     | ✅ OK  |
-| CombatSystem.test.ts            | 26     | ✅ OK  |
-| AnimationData.test.ts           | 23     | ✅ OK  |
-| AssetSystems.test.ts            | 20     | ✅ OK  |
-| WaveSystem.test.ts              | 10     | ✅ OK  |
-| RankSystem.test.ts              | 8      | ✅ OK  |
-| EnemyAttack.test.ts             | 10     | ✅ OK  |
-| SoundBank.test.ts               | 12     | ✅ OK  |
-| AudioSystem.test.ts             | 4      | ✅ OK  |
-| AudioSettings.test.ts           | 6      | ✅ OK  |
-| StoryManifest.test.ts           | 3      | ✅ OK  |
-| ShopManifest.test.ts            | 11     | ✅ OK  |
-| ComboSystem.test.ts             | 9      | ✅ OK  |
-| CampaignStats.test.ts           | 5      | ✅ OK  |
-| AchievementManifest.test.ts     | 8      | ✅ OK  |
-| DifficultyManifest.test.ts      | 6      | ✅ OK  |
-| BossBar.test.ts                 | 8      | ✅ OK  |
-| ComboFeedback.test.ts           | 6      | ✅ OK  |
-| DamageNumbers.test.ts           | 4      | ✅ OK  |
-| StageProgress.test.ts           | 7      | ✅ OK  |
-| GuidanceArrow.test.ts           | 5      | ✅ OK  |
-| ZoneBonus.test.ts               | 5      | ✅ OK  |
-| EliteSystem.test.ts             | 5      | ✅ OK  |
-| EnemyPalette.test.ts            | 8      | ✅ OK  |
-| BossAI.test.ts                  | 11     | ✅ OK  |
-| PropManifest.test.ts            | 8      | ✅ OK  |
-| CampaignProgress.test.ts        | 11     | ✅ OK  |
-| StageData.test.ts               | 34     | ✅ OK  |
-| Solids.test.ts                  | 8      | ✅ OK  |
-| **Total**                       | **440**| ✅ OK  |
+- 37 archivos de test.
+- 471 tests aprobados.
+- Incluye contratos de atlas, ocupación de celdas, clips, metadatos visuales,
+  escalas físicas, oclusión y geometría sin costuras de panel.
 
 ---
 
 ## LIMITACIONES DE LA BUILD ACTUAL
 
-1. Sin sprites finales (placeholders rectangulares)
-2. Audio 100% procedural (WebAudio sintetizado); faltan assets de audio finales
-3. Sin combate funcional (solo movimiento)
-4. Sin enemigos
-5. Sin máquina de estados del jugador
-6. Sin waves ni sistema de combate
+1. El audio continúa 100% procedural; faltan música, SFX y voces finales.
+2. Sólo el elenco del Escenario 1 tiene atlas finales; niveles posteriores
+   reutilizan esos diez enemigos de forma provisional.
+3. Falta una suite E2E versionada con baselines visuales por navegador.
+4. El arte final aún necesita revisión de accesibilidad y legal antes de 1.0.

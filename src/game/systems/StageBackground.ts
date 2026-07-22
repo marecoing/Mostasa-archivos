@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { GAME_HEIGHT } from '../config/GameConfig';
 import { stageById } from '../data/StageManifest';
 import type { StageDef } from '../data/StageManifest';
@@ -15,6 +15,23 @@ export function loadStagePanels(scene: Phaser.Scene, stageId: string): void {
   stage.panelPaths.forEach((path, i) => {
     scene.load.image(stagePanelKey(stageId, i + 1), path);
   });
+}
+
+/**
+ * Extra rendered width used to hide bilinear-filter seams between adjacent
+ * panels. It is visual bleed only: panel spacing and world width remain based
+ * on the canonical display width.
+ */
+export const STAGE_PANEL_SEAM_OVERLAP_PX = 2;
+
+/** Integer panel position with no per-panel rounding drift. */
+export function stagePanelScreenX(
+  panelIndex: number,
+  panelDisplayWidth: number,
+  cameraWorldX: number,
+): number {
+  const snappedCameraX = Math.round(cameraWorldX);
+  return panelIndex * panelDisplayWidth - snappedCameraX;
 }
 
 /**
@@ -43,14 +60,16 @@ export class StageBackground {
     this.scene = scene;
     const scale = (GAME_HEIGHT / 1024) * StageBackground.SCALE_MUL;
     this.panelDisplayWidth = Math.round(stage.panelWidth * scale);
+    const panelDisplayHeight = Math.round(stage.panelHeight * scale);
+    const panelRenderWidth = this.panelDisplayWidth + STAGE_PANEL_SEAM_OVERLAP_PX;
 
     for (let i = 0; i < stage.panelCount; i++) {
       const key = stagePanelKey(stage.id, i + 1);
       if (!scene.textures.exists(key)) continue;
       const img = scene.add
-        .image(i * this.panelDisplayWidth, StageBackground.Y_OFFSET, key)
+        .image(stagePanelScreenX(i, this.panelDisplayWidth, 0), StageBackground.Y_OFFSET, key)
         .setOrigin(0, 0)
-        .setScale(scale)
+        .setDisplaySize(panelRenderWidth, panelDisplayHeight)
         .setScrollFactor(0)
         .setDepth(-1000);
       this.panels.push(img);
@@ -61,7 +80,8 @@ export class StageBackground {
   /** Scroll the backdrop to match the camera's world X (parallax 1.0). */
   update(cameraWorldX: number): void {
     for (let i = 0; i < this.panels.length; i++) {
-      this.panels[i]!.setX(i * this.panelDisplayWidth - cameraWorldX);
+      const panel = this.panels[i];
+      if (panel) panel.setX(stagePanelScreenX(i, this.panelDisplayWidth, cameraWorldX));
     }
   }
 

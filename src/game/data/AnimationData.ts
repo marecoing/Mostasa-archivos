@@ -1,21 +1,21 @@
 /**
  * Animation data for character sprite sheets.
  *
- * The sheets in public/assets/characters are the output of
- * `npm run sprites:process` + `node scripts/normalize-sprites.mjs`: the
- * uploaded art was NOT grid-aligned, so the normalizer re-slices it by
- * connected components and repacks uniform cells (feet anchored at the cell
- * bottom, each row's frames cycled to fill every column). The grids below
- * come from the normalizer's output — regenerate them together.
+ * Runtime geometry comes from CharacterAssetManifest, generated together
+ * with each atlas by `npm run sprites:v2:build`. Legacy sheets remain valid
+ * while the ImageGen v2 replacement proceeds incrementally.
  *
  * Row layout (verified visually on the normalized sheets):
  *   Mostasa (9 rows):  0 idle | 1 walk | 2 dash/jab | 3 punches | 4 kicks |
  *                      5 advance/guard | 6 hurt | 7 down+crawl+rise | 8 victory
  *   Common  (8 rows):  0 idle | 1 walk | 2 run | 3 punch | 4 kick |
  *                      5 weapon | 6 fall+crawl+rise | 7 crouch→lying
- *   Mini-boss (10 rows): 0 idle | 1 walk | 2 run | 3 threat | 4 poke |
- *                      5 whip overhead | 6 whip sweep | 7 carry | 8 stagger | 9 lying
+ *   Mini-boss (11 rows): 0 idle | 1 walk | 2 run | 3 threat | 4 poke |
+ *                      5 whip overhead | 6 whip sweep | 7 carry | 8 stagger |
+ *                      9 fall/recovery | 10 lying
  */
+
+import { CHARACTER_ASSET_MANIFEST } from './CharacterAssetManifest';
 
 export const SPRITE_COLS = 8;
 
@@ -27,22 +27,22 @@ export interface CharacterGrid {
 }
 
 /** Per-sheet frame geometry. Keyed by texture key. */
-export const CHARACTER_GRIDS: Record<string, CharacterGrid> = {
-  mostasa: { frameWidth: 118, frameHeight: 208, cols: 10, rows: 9 },
-  enemy_001: { frameWidth: 162, frameHeight: 182, cols: 10, rows: 8 },
-  enemy_002: { frameWidth: 170, frameHeight: 200, cols: 9, rows: 8 },
-  enemy_003: { frameWidth: 150, frameHeight: 198, cols: 9, rows: 8 },
-  enemy_004: { frameWidth: 126, frameHeight: 174, cols: 9, rows: 9 },
-  enemy_005: { frameWidth: 108, frameHeight: 168, cols: 10, rows: 9 },
-  enemy_006: { frameWidth: 130, frameHeight: 168, cols: 10, rows: 9 },
-  enemy_007: { frameWidth: 166, frameHeight: 188, cols: 9, rows: 8 },
-  enemy_008: { frameWidth: 168, frameHeight: 178, cols: 10, rows: 8 },
-  enemy_009: { frameWidth: 226, frameHeight: 164, cols: 8, rows: 10 },
-  enemy_010: { frameWidth: 130, frameHeight: 204, cols: 10, rows: 9 },
-};
+export const CHARACTER_GRIDS: Record<string, CharacterGrid> = Object.fromEntries(
+  Object.entries(CHARACTER_ASSET_MANIFEST).map(([key, metadata]) => [
+    key,
+    {
+      frameWidth: metadata.frameWidth,
+      frameHeight: metadata.frameHeight,
+      cols: metadata.cols,
+      rows: metadata.rows,
+    },
+  ]),
+);
 
 export function gridFor(spriteKey: string): CharacterGrid {
-  return CHARACTER_GRIDS[spriteKey] ?? CHARACTER_GRIDS['enemy_001']!;
+  const fallback = CHARACTER_GRIDS['enemy_001'];
+  if (!fallback) throw new Error('Missing fallback character grid: enemy_001');
+  return CHARACTER_GRIDS[spriteKey] ?? fallback;
 }
 
 export interface AnimClip {
@@ -77,23 +77,23 @@ function clip(
  * Keyed by PlayerStateMachine state id string.
  */
 export const MOSTASA_ANIMS: Record<string, AnimClip> = {
-  idle:       clip(0, 0, 10, 8, true),
-  walk:       clip(1, 0, 10, 12, true),
-  run:        clip(1, 0, 10, 18, true),
-  light_1:    clip(3, 0, 5, 26),
-  light_2:    clip(3, 5, 5, 26),
-  light_3:    clip(4, 5, 4, 22),
-  heavy:      clip(4, 4, 6, 16),
+  idle: clip(0, 0, 10, 8, true),
+  walk: clip(1, 0, 10, 12, true),
+  run: clip(1, 0, 10, 18, true),
+  light_1: clip(3, 0, 5, 26),
+  light_2: clip(3, 5, 5, 26),
+  light_3: clip(4, 5, 4, 22),
+  heavy: clip(4, 4, 6, 16),
   air_attack: clip(3, 3, 4, 24),
-  jump:       clip(2, 0, 1, 10),
-  land:       clip(0, 0, 2, 12),
-  grab:       clip(5, 0, 4, 14),
-  throw:      clip(5, 4, 6, 18),
-  special:    clip(8, 0, 10, 18),
-  hurt:       clip(6, 0, 4, 18),
-  down:       clip(7, 0, 3, 8),
-  get_up:     clip(7, 3, 7, 16),
-  dodge:      clip(2, 0, 3, 14),
+  jump: clip(2, 0, 1, 10),
+  land: clip(0, 0, 2, 12),
+  grab: clip(5, 0, 4, 14),
+  throw: clip(5, 4, 6, 18),
+  special: clip(8, 0, 10, 18),
+  hurt: clip(6, 0, 4, 18),
+  down: clip(7, 0, 3, 8),
+  get_up: clip(7, 3, 7, 16),
+  dodge: clip(2, 0, 3, 14),
 };
 
 /**
@@ -101,34 +101,34 @@ export const MOSTASA_ANIMS: Record<string, AnimClip> = {
  * 6 knockdown 7 downed. get_up reuses the knockdown row reversed.
  */
 export const ENEMY_ANIMS_COMMON: Record<string, AnimClip> = {
-  idle:    clip(0, 0, 9, 8, true),
-  walk:    clip(1, 0, 9, 12, true),
-  attack:  clip(3, 0, 9, 14),
-  hurt:    clip(6, 0, 2, 14),
-  down:    clip(7, 0, 8, 12),
-  get_up:  clip(6, 4, 5, 14),
+  idle: clip(0, 0, 9, 8, true),
+  walk: clip(1, 0, 9, 12, true),
+  attack: clip(3, 0, 9, 14),
+  hurt: clip(6, 0, 2, 14),
+  down: clip(7, 0, 8, 12),
+  get_up: clip(6, 4, 5, 14),
   grabbed: clip(6, 0, 1, 1),
 };
 
-/** Mini-boss (10 rows): poke attack row 4, stagger row 8, lying row 9. */
+/** Mini-boss (11 rows): poke row 4, stagger row 8, lying row 10. */
 export const ENEMY_ANIMS_MINIBOSS: Record<string, AnimClip> = {
-  idle:    clip(0, 0, 8, 8, true),
-  walk:    clip(1, 0, 8, 12, true),
-  attack:  clip(4, 0, 8, 14),
-  hurt:    clip(8, 0, 3, 16),
-  down:    clip(9, 0, 6, 10),
-  get_up:  clip(8, 2, 5, 14),
+  idle: clip(0, 0, 8, 8, true),
+  walk: clip(1, 0, 8, 12, true),
+  attack: clip(4, 0, 8, 14),
+  hurt: clip(8, 0, 3, 16),
+  down: clip(10, 0, 8, 10),
+  get_up: clip(8, 2, 5, 14),
   grabbed: clip(8, 0, 1, 1),
 };
 
 /** Boss (9 rows) — same layout family as the common sheets. */
 export const ENEMY_ANIMS_BOSS: Record<string, AnimClip> = {
-  idle:    clip(0, 0, 10, 8, true),
-  walk:    clip(1, 0, 10, 12, true),
-  attack:  clip(3, 0, 10, 14),
-  hurt:    clip(6, 0, 2, 14),
-  down:    clip(7, 0, 8, 12),
-  get_up:  clip(6, 4, 5, 14),
+  idle: clip(0, 0, 10, 8, true),
+  walk: clip(1, 0, 10, 12, true),
+  attack: clip(3, 0, 10, 14),
+  hurt: clip(6, 0, 2, 14),
+  down: clip(7, 0, 8, 12),
+  get_up: clip(6, 4, 5, 14),
   grabbed: clip(6, 0, 1, 1),
 };
 

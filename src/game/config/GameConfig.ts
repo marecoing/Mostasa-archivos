@@ -42,7 +42,10 @@ export function createGameConfig(parent: string): Phaser.Types.Core.GameConfig {
       height: GAME_HEIGHT,
     },
     render: {
-      antialias: false,
+      // The game uses continuously scaled, photorealistic raster art rather
+      // than pixel-art tiles. Linear filtering avoids jagged fractional-scale
+      // silhouettes and shimmering while the camera moves.
+      antialias: true,
       pixelArt: false,
       roundPixels: true,
     },
@@ -59,6 +62,17 @@ export function createGameConfig(parent: string): Phaser.Types.Core.GameConfig {
     },
     title: "Mostasa's Rage: Ciudad de la Furia",
     version: '0.1.0',
-    scene: [BootScene, PreloadScene, TitleScene, StageSelectScene, CutsceneScene, GameScene, ResultsScene, EndingScene, ShopScene, StatsScene],
+    scene: [
+      BootScene,
+      PreloadScene,
+      TitleScene,
+      StageSelectScene,
+      CutsceneScene,
+      GameScene,
+      ResultsScene,
+      EndingScene,
+      ShopScene,
+      StatsScene,
+    ],
   };
 }

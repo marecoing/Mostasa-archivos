@@ -12,6 +12,8 @@ import {
   CHARACTER_GRIDS,
 } from '../../src/game/data/AnimationData';
 import type { AnimClip } from '../../src/game/data/AnimationData';
+import { CHARACTER_ASSET_MANIFEST } from '../../src/game/data/CharacterAssetManifest';
+import type { CharacterAssetMetadata } from '../../src/game/data/CharacterAssetManifest';
 
 /** Read a PNG's IHDR dimensions straight from the file header. */
 function pngSize(file: string): { width: number; height: number } {
@@ -32,26 +34,71 @@ describe('CHARACTER_GRIDS (normalized sheet geometry)', () => {
     expect(gridFor('enemy_001')).toBe(CHARACTER_GRIDS['enemy_001']);
     expect(gridFor('nope')).toBe(CHARACTER_GRIDS['enemy_001']);
   });
+
+  it('derives every runtime grid from the generated character manifest', () => {
+    for (const [key, metadata] of Object.entries(CHARACTER_ASSET_MANIFEST)) {
+      expect(CHARACTER_GRIDS[key]).toEqual({
+        frameWidth: metadata.frameWidth,
+        frameHeight: metadata.frameHeight,
+        cols: metadata.cols,
+        rows: metadata.rows,
+      });
+      const typedMetadata: CharacterAssetMetadata = metadata;
+      expect(typedMetadata.totalCells ?? metadata.frameCount).toBe(metadata.cols * metadata.rows);
+      expect(metadata.frameCount).toBe(typedMetadata.actualFrameCount ?? metadata.frameCount);
+      expect(metadata.referenceBodyHeight).toBeGreaterThan(0);
+      expect(metadata.footAnchorY).toBeGreaterThan(0);
+      expect(metadata.footAnchorY).toBeLessThan(metadata.frameHeight);
+    }
+  });
 });
 
 describe('clipFrames', () => {
   it('computes contiguous frame indices from row/startFrame', () => {
-    const c: AnimClip = { row: 0, startFrame: 0, frameCount: 8, frameRate: 8, loop: true, reverse: false };
+    const c: AnimClip = {
+      row: 0,
+      startFrame: 0,
+      frameCount: 8,
+      frameRate: 8,
+      loop: true,
+      reverse: false,
+    };
     expect(clipFrames(c)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
   });
 
   it('offsets by row * cols', () => {
-    const c: AnimClip = { row: 2, startFrame: 0, frameCount: 4, frameRate: 8, loop: false, reverse: false };
+    const c: AnimClip = {
+      row: 2,
+      startFrame: 0,
+      frameCount: 4,
+      frameRate: 8,
+      loop: false,
+      reverse: false,
+    };
     expect(clipFrames(c, 10)).toEqual([20, 21, 22, 23]);
   });
 
   it('respects startFrame within a row', () => {
-    const c: AnimClip = { row: 1, startFrame: 4, frameCount: 4, frameRate: 8, loop: false, reverse: false };
+    const c: AnimClip = {
+      row: 1,
+      startFrame: 4,
+      frameCount: 4,
+      frameRate: 8,
+      loop: false,
+      reverse: false,
+    };
     expect(clipFrames(c, 10)).toEqual([14, 15, 16, 17]);
   });
 
   it('returns frames back-to-front when reversed', () => {
-    const c: AnimClip = { row: 1, startFrame: 0, frameCount: 4, frameRate: 8, loop: false, reverse: true };
+    const c: AnimClip = {
+      row: 1,
+      startFrame: 0,
+      frameCount: 4,
+      frameRate: 8,
+      loop: false,
+      reverse: true,
+    };
     expect(clipFrames(c, 10)).toEqual([13, 12, 11, 10]);
   });
 });
@@ -68,7 +115,25 @@ describe('clips fit the grid of every sheet that uses them', () => {
       for (const [state, c] of Object.entries(configForSheet(key))) {
         expect(c.row, `${key}.${state} row`).toBeGreaterThanOrEqual(0);
         expect(c.row, `${key}.${state} row`).toBeLessThanOrEqual(g.rows - 1);
-        expect(c.startFrame + c.frameCount, `${key}.${state} overflows row`).toBeLessThanOrEqual(g.cols);
+        expect(c.startFrame + c.frameCount, `${key}.${state} overflows row`).toBeLessThanOrEqual(
+          g.cols,
+        );
+      }
+    });
+  }
+
+  for (const key of Object.keys(CHARACTER_GRIDS)) {
+    it(`${key}: no clip references a declared empty cell`, () => {
+      const g = CHARACTER_GRIDS[key]!;
+      const metadata: CharacterAssetMetadata =
+        CHARACTER_ASSET_MANIFEST[key as keyof typeof CHARACTER_ASSET_MANIFEST];
+      const emptyCells = new Set(metadata.emptyCells ?? []);
+      for (const [state, c] of Object.entries(configForSheet(key))) {
+        for (const frame of clipFrames(c, g.cols)) {
+          expect(emptyCells.has(frame), `${key}.${state} references empty frame ${frame}`).toBe(
+            false,
+          );
+        }
       }
     });
   }
@@ -77,9 +142,23 @@ describe('clips fit the grid of every sheet that uses them', () => {
 describe('MOSTASA_ANIMS integrity', () => {
   it('defines a clip for every FSM state used by the player', () => {
     const required = [
-      'idle', 'walk', 'run', 'jump', 'land',
-      'light_1', 'light_2', 'light_3', 'heavy', 'air_attack',
-      'grab', 'throw', 'special', 'hurt', 'down', 'get_up', 'dodge',
+      'idle',
+      'walk',
+      'run',
+      'jump',
+      'land',
+      'light_1',
+      'light_2',
+      'light_3',
+      'heavy',
+      'air_attack',
+      'grab',
+      'throw',
+      'special',
+      'hurt',
+      'down',
+      'get_up',
+      'dodge',
     ];
     for (const state of required) {
       expect(MOSTASA_ANIMS[state], `missing clip for ${state}`).toBeDefined();
