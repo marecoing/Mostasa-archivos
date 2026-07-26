@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "jugar": "vite --open --host",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
