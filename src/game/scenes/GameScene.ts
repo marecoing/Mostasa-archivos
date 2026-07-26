@@ -8,7 +8,6 @@ import {
   MAX_DELTA,
   DEPTH_SCALE,
   worldToScreen,
-  applyFriction,
   isOnGround,
 } from '../core/Physics25D';
 import {
@@ -75,6 +74,7 @@ import { groundShadowRings } from '../systems/GroundShadow';
 import { encountersForStage, castForStage } from '../data/WaveManifest';
 import { handScreenPosition } from '../data/HandAnchors';
 import { weaponAngle } from '../data/WeaponPose';
+import { locomotionMode, resolveLocomotion } from '../player/PlayerLocomotion';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
 import { variantForStage } from '../systems/audio/SoundBank';
@@ -98,11 +98,6 @@ import {
 } from '../data/VisualMetrics';
 import type { ScreenRect } from '../data/VisualMetrics';
 
-const WALK_SPEED_X = 280;
-const WALK_SPEED_Y = 210;
-const RUN_SPEED_X = 390;
-const RUN_SPEED_Y = 285;
-const FRICTION = 1600;
 
 const THROW_VEL_X = 500;
 const THROW_VEL_Z = 220;
@@ -1508,44 +1503,25 @@ export class GameScene extends Phaser.Scene {
       this.weaponDepletedThisSwing = false;
     }
 
-    // Handle movement
-    if (this.fsm.canMove()) {
-      const isRunning = snap[INPUT_ACTIONS.RUN].held;
-      const speedX = isRunning ? RUN_SPEED_X : WALK_SPEED_X;
-      const speedY = isRunning ? RUN_SPEED_Y : WALK_SPEED_Y;
-
-      if (snap[INPUT_ACTIONS.MOVE_LEFT].held) {
-        this.playerVel.x = -speedX;
-        this.playerFacing = -1;
-      } else if (snap[INPUT_ACTIONS.MOVE_RIGHT].held) {
-        this.playerVel.x = speedX;
-        this.playerFacing = 1;
-      } else {
-        this.playerVel.x = applyFriction(this.playerVel, FRICTION, dt).x;
-      }
-
-      if (snap[INPUT_ACTIONS.MOVE_UP].held) {
-        this.playerVel.y = -speedY;
-      } else if (snap[INPUT_ACTIONS.MOVE_DOWN].held) {
-        this.playerVel.y = speedY;
-      } else {
-        this.playerVel.y = applyFriction(this.playerVel, FRICTION, dt).y;
-      }
-    } else if (this.fsm.isDodging()) {
-      // The roll glides on its launch momentum, then settles into recovery.
-      this.playerVel.x = applyFriction(this.playerVel, FRICTION * 0.55, dt).x;
-      this.playerVel.y = applyFriction(this.playerVel, FRICTION * 0.55, dt).y;
-    } else if (
+    // Handle movement (rules live in PlayerLocomotion, under test)
+    const stunned =
       this.fsm.currentState === PLAYER_STATE.HURT ||
-      this.fsm.currentState === PLAYER_STATE.DOWN
-    ) {
-      // Keep knockback momentum while stunned; let it decay.
-      this.playerVel.x = applyFriction(this.playerVel, FRICTION * 0.5, dt).x;
-      this.playerVel.y = applyFriction(this.playerVel, FRICTION * 0.5, dt).y;
-    } else {
-      this.playerVel.x = 0;
-      this.playerVel.y = 0;
-    }
+      this.fsm.currentState === PLAYER_STATE.DOWN;
+    const moved = resolveLocomotion(
+      locomotionMode(this.fsm.canMove(), this.fsm.isDodging(), stunned),
+      {
+        left: snap[INPUT_ACTIONS.MOVE_LEFT].held,
+        right: snap[INPUT_ACTIONS.MOVE_RIGHT].held,
+        up: snap[INPUT_ACTIONS.MOVE_UP].held,
+        down: snap[INPUT_ACTIONS.MOVE_DOWN].held,
+        run: snap[INPUT_ACTIONS.RUN].held,
+      },
+      this.playerVel,
+      dt,
+    );
+    this.playerVel.x = moved.velocity.x;
+    this.playerVel.y = moved.velocity.y;
+    if (moved.facing !== null) this.playerFacing = moved.facing;
 
     // Gravity
     if (!isOnGround(this.playerPos) || this.playerVel.z > 0) {
