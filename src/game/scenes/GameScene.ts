@@ -71,6 +71,7 @@ import {
   ELITE_KILL_BONUS,
 } from '../systems/EliteSystem';
 import { enemyTint } from '../systems/EnemyPalette';
+import { groundShadowRings } from '../systems/GroundShadow';
 import { encountersForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
@@ -124,7 +125,7 @@ const STAGE_LANE: StageLane = {
 const BASE_STAGE_LANE_MAX_X = STAGE_LANE.maxX;
 
 export class GameScene extends Phaser.Scene {
-  private playerPos: Vec3 = { x: 400, y: 480, z: 0 };
+  private playerPos: Vec3 = { x: 400, y: 630, z: 0 };
   private playerVel: Vec3 = { x: 0, y: 0, z: 0 };
   private playerFacing: 1 | -1 = 1;
   private playerSprite!: Phaser.GameObjects.Sprite;
@@ -146,6 +147,8 @@ export class GameScene extends Phaser.Scene {
   private enemyLabels: Phaser.GameObjects.Text[] = [];
   /** world-anchored solid prop footprints for this stage */
   private propSolids: SolidVolume[] = [];
+  /** one graphics layer for every non-character ground shadow */
+  private objectShadows!: Phaser.GameObjects.Graphics;
 
   private grabbedEnemyIndex = -1;
   private hitstopFrames = 0;
@@ -233,6 +236,7 @@ export class GameScene extends Phaser.Scene {
     this.createStageBackground();
     this.setupSystems();
     this.createGround();
+    this.objectShadows = this.add.graphics();
     this.createPlayerSprite();
     this.createHUD();
     this.createDebugUI();
@@ -274,7 +278,7 @@ export class GameScene extends Phaser.Scene {
    * clear them before rebuilding so stale sprites never leak into a new run.
    */
   private resetRuntimeState(): void {
-    this.playerPos = { x: 400, y: 480, z: 0 };
+    this.playerPos = { x: 400, y: 630, z: 0 };
     this.playerVel = { x: 0, y: 0, z: 0 };
     this.playerFacing = 1;
     this.activeAttack = null;
@@ -972,14 +976,13 @@ export class GameScene extends Phaser.Scene {
       -FLOOR_OFFSET_PX,
     );
 
+    // Contact shadow from the shared ground-shadow model, so the player, the
+    // enemies and every prop sit on the street the same way.
     this.playerShadow.clear();
-    // Layered contact shadow: a soft outer pool plus a tight dark core grounds
-    // the character firmly on the floor.
-    const shadowAlpha = Math.max(0.12, 0.62 - this.playerPos.z * 0.0012);
-    this.playerShadow.fillStyle(0x000000, shadowAlpha * 0.5);
-    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 84, 26);
-    this.playerShadow.fillStyle(0x000000, shadowAlpha);
-    this.playerShadow.fillEllipse(shadowX, shadowY + 4, 56, 16);
+    for (const r of groundShadowRings(24, this.playerPos.z, PLAYER_TARGET_HEIGHT_PX)) {
+      this.playerShadow.fillStyle(0x000000, r.alpha);
+      this.playerShadow.fillEllipse(shadowX, shadowY + 2, r.rx * 2, r.ry * 2);
+    }
     this.playerShadow.setDepth(this.playerPos.y - 1);
 
     // Drive the animation from the FSM state
@@ -1049,11 +1052,11 @@ export class GameScene extends Phaser.Scene {
       );
 
       shadow.clear();
-      // Layered contact shadow grounds the enemy on the floor.
-      shadow.fillStyle(0x000000, 0.22);
-      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 26, 20);
-      shadow.fillStyle(0x000000, 0.42);
-      shadow.fillEllipse(sx, sy + 4, enemy.halfW * 2 + 8, 12);
+      for (const r of groundShadowRings(
+        enemy.halfW, enemy.pos.z, enemy.height * ENEMY_HEIGHT_TO_SCREEN)) {
+        shadow.fillStyle(0x000000, r.alpha);
+        shadow.fillEllipse(sx, sy + 2, r.rx * 2, r.ry * 2);
+      }
       // Elites get a red aura ring at the feet.
       if (enemy.elite) {
         shadow.fillStyle(0xff2222, 0.18);
@@ -1819,6 +1822,43 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * One pass over everything that rests on the street — breakables, dropped
+   * weapons and pickups — drawing its contact shadow. Without these the props
+   * read as cut-outs pasted over the photoreal backdrop. Drawn into a single
+   * Graphics layer, and depth-sorted just behind the shallowest object so the
+   * shadows always sit under the art.
+   */
+  private updateObjectShadows(): void {
+    const camX = this.camera?.worldX ?? 0;
+    const g = this.objectShadows;
+    if (!g) return;
+    g.clear();
+    g.setDepth(-5);
+
+    const blob = (worldX: number, worldY: number, z: number, halfW: number, height: number): void => {
+      const { screenX, screenY } = worldToScreen(worldX, worldY, GROUND_Z, camX, -FLOOR_OFFSET_PX);
+      if (screenX < -160 || screenX > GAME_WIDTH + 160) return;
+      for (const r of groundShadowRings(halfW, z, height)) {
+        g.fillStyle(0x000000, r.alpha);
+        g.fillEllipse(screenX, screenY + 2, r.rx * 2, r.ry * 2);
+      }
+    };
+
+    for (const b of this.breakables) {
+      if (b.destroyed) continue;
+      blob(b.x, b.y, 0, b.def.halfW, b.def.collisionHeight);
+    }
+    for (const w of this.weapons) {
+      if (w.taken) continue;
+      blob(w.x, w.y, w.z, 16, 40);
+    }
+    for (const p of this.pickups) {
+      if (p.collected) continue;
+      blob(p.x, p.y, p.z, 12, 30);
+    }
+  }
+
   private updatePickups(dt: number): void {
     const camX = this.camera?.worldX ?? 0;
     for (let i = 0; i < this.pickups.length; i++) {
@@ -2035,6 +2075,7 @@ export class GameScene extends Phaser.Scene {
     this.updatePlayerSpritePosition();
     this.updateEnemySprites();
     this.props?.update(this.camera.worldX, this.fighterScreenRects());
+    this.updateObjectShadows();
     this.updateBreakableSprites();
     this.updatePickups(FIXED_TIMESTEP);
     this.updateWeapons(FIXED_TIMESTEP);
