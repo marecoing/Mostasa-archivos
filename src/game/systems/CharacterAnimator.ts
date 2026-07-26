@@ -22,11 +22,25 @@ export const CHARACTER_SHEETS: { key: string; file: string }[] = [
   { key: 'enemy_010', file: 'assets/characters/enemy_010.png' },
 ];
 
-/** Load all character sheets, each with its own measured frame size. */
-export function loadCharacterSheets(scene: Phaser.Scene): void {
-  for (const sheet of CHARACTER_SHEETS) {
-    const g = gridFor(sheet.key);
-    scene.load.spritesheet(sheet.key, sheet.file, {
+/** File path for a character sheet key, or undefined if the key is unknown. */
+export function characterSheetFile(key: string): string | undefined {
+  return CHARACTER_SHEETS.find((s) => s.key === key)?.file;
+}
+
+/**
+ * Queue the given character sheets on a scene's loader, each with its own
+ * measured frame size. Sheets already in the texture cache are skipped, so
+ * this is safe to call again for a later stage. Pass no keys to load the whole
+ * cast (kept for tooling; gameplay loads per stage — see `castForStage`).
+ */
+export function loadCharacterSheets(scene: Phaser.Scene, keys?: readonly string[]): void {
+  const wanted = keys ?? CHARACTER_SHEETS.map((s) => s.key);
+  for (const key of wanted) {
+    if (scene.textures.exists(key)) continue;
+    const file = characterSheetFile(key);
+    if (!file) continue;
+    const g = gridFor(key);
+    scene.load.spritesheet(key, file, {
       frameWidth: g.frameWidth,
       frameHeight: g.frameHeight,
     });

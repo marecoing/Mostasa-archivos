@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, SCENE_KEYS } from '../config/GameConfig';
 import { loadCharacterSheets } from '../systems/CharacterAnimator';
 import { loadStageAssets } from '../systems/AssetLoader';
+import { castForStage } from '../data/WaveManifest';
 
 export class PreloadScene extends Phaser.Scene {
   private progressBar!: Phaser.GameObjects.Graphics;
@@ -110,7 +111,9 @@ export class PreloadScene extends Phaser.Scene {
 
   private loadPlaceholderAssets(): void {
     this.createPlaceholderTextures();
-    loadCharacterSheets(this);
+    // Only the cast Escenario 1 needs before play; the mini-boss and boss
+    // sheets stream in once the stage is running (§ presupuesto de assets).
+    loadCharacterSheets(this, castForStage('01-once').upfront);
     loadStageAssets(this, '01-once');
   }
 

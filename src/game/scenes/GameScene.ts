@@ -40,7 +40,7 @@ import {
   getRadialHits,
   checkPlayerHitsBreakables,
 } from '../systems/CombatSystem';
-import { registerAllCharacterAnims, playState } from '../systems/CharacterAnimator';
+import { registerAllCharacterAnims, playState, loadCharacterSheets } from '../systems/CharacterAnimator';
 import { gridFor } from '../data/AnimationData';
 import { StageBackground } from '../systems/StageBackground';
 import { PropSystem } from '../systems/PropSystem';
@@ -72,7 +72,7 @@ import {
 } from '../systems/EliteSystem';
 import { enemyTint } from '../systems/EnemyPalette';
 import { groundShadowRings } from '../systems/GroundShadow';
-import { encountersForStage } from '../data/WaveManifest';
+import { encountersForStage, castForStage } from '../data/WaveManifest';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
 import { variantForStage } from '../systems/audio/SoundBank';
@@ -226,6 +226,8 @@ export class GameScene extends Phaser.Scene {
     if (!this.textures.exists(stagePanelKey(this.stageId, 1))) {
       loadStagePanels(this, this.stageId);
     }
+    // A stage reached from the selector may need sheets Preload never fetched.
+    loadCharacterSheets(this, castForStage(this.stageId).upfront);
   }
 
   create(): void {
@@ -245,6 +247,7 @@ export class GameScene extends Phaser.Scene {
     this.createHeldWeaponSprite();
     this.createWaveSystem();
     this.createPauseMenu();
+    this.streamDeferredCast();
     this.cameras.main.fadeIn(600, 0, 0, 0);
 
     const stageDef = stageById(this.stageId);
@@ -407,6 +410,26 @@ export class GameScene extends Phaser.Scene {
       halfD: p.footprint.halfD,
       height: p.footprint.height,
     }));
+  }
+
+  /**
+   * Stream in the sheets only the mini-boss and boss zones need, in the
+   * background, once the stage is already playable. Keeping them out of the
+   * blocking load saves ~5.8 MB of download and ~34 MB of texture memory on
+   * Escenario 1 (§ presupuesto de assets); their zones are minutes away, so
+   * the fetch always lands long before the spawn. `spawnEnemy` still guards on
+   * the texture existing, so a slow connection degrades gracefully instead of
+   * rendering a placeholder box.
+   */
+  private streamDeferredCast(): void {
+    const deferred = castForStage(this.stageId).deferred.filter((k) => !this.textures.exists(k));
+    if (deferred.length === 0) return;
+    loadCharacterSheets(this, deferred);
+    this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+      // Animations can only be registered once the textures exist.
+      registerAllCharacterAnims(this);
+    });
+    this.load.start();
   }
 
   /** Live obstacle set: world props plus every still-standing breakable. */
@@ -839,7 +862,10 @@ export class GameScene extends Phaser.Scene {
   private spawnEnemy(x: number, y: number, type: string, spriteKey = 'enemy_001'): void {
     const stats = ENEMY_TYPES[type];
     if (!stats) return;
-    const enemy = new EnemyEntity(x, y, stats, spriteKey);
+    // A streamed-in sheet (mini-boss / boss) may not have landed yet. Fall back
+    // to a loaded sheet rather than rendering Phaser's missing-texture box.
+    const key = this.textures.exists(spriteKey) ? spriteKey : 'enemy_001';
+    const enemy = new EnemyEntity(x, y, stats, key);
     // Scale toughness/aggression to the selected difficulty (§11).
     if (this.diffEnemyHp !== 1) {
       enemy.maxHp = Math.round(enemy.maxHp * this.diffEnemyHp);
@@ -856,9 +882,9 @@ export class GameScene extends Phaser.Scene {
       }
     }
     const shadow = this.add.graphics().setDepth(0);
-    const sprite = this.add.sprite(0, 0, spriteKey);
-    sprite.setOrigin(0.5, characterOriginY(spriteKey));
-    playState(sprite, spriteKey, 'idle');
+    const sprite = this.add.sprite(0, 0, key);
+    sprite.setOrigin(0.5, characterOriginY(key));
+    playState(sprite, key, 'idle');
     const hud = this.add.graphics().setDepth(1);
     const label = this.add
       .text(0, 0, 'ELITE', {

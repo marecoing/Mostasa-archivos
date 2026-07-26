@@ -481,3 +481,39 @@ export const ALL_ENCOUNTERS: Record<string, StageEncounters> = {
 export function encountersForStage(stageId: string): StageEncounters {
   return ALL_ENCOUNTERS[stageId] ?? ONCE_ENCOUNTERS;
 }
+
+/**
+ * Character sheets a stage actually needs, split by when they are needed
+ * (§ presupuesto de assets). Loading all eleven atlases up front costs
+ * ~148 MB of texture memory and ~23 MB of download before the title screen
+ * even appears, most of it for a cast the stage may never use, and for
+ * bosses that only appear minutes in.
+ *
+ * Derived from the encounters, so it can never drift from the actual script.
+ */
+export interface StageCast {
+  /** needed from the first zone — loaded before play starts */
+  upfront: string[];
+  /** only appear in mini-boss / boss zones — safe to stream in later */
+  deferred: string[];
+}
+
+export function castForStage(stageId: string): StageCast {
+  const enc = ALL_ENCOUNTERS[stageId];
+  if (!enc) return { upfront: ['mostasa'], deferred: [] };
+
+  const upfront = new Set<string>(['mostasa']);
+  const deferred = new Set<string>();
+  for (const zone of enc.zones) {
+    const late = zone.kind === 'mini_boss' || zone.kind === 'boss';
+    for (const wave of zone.waves) {
+      for (const e of wave.enemies) {
+        (late ? deferred : upfront).add(e.spriteKey);
+      }
+    }
+  }
+  // A sheet used in an early zone must be ready up front even if a boss zone
+  // reuses it as a reinforcement.
+  for (const key of upfront) deferred.delete(key);
+  return { upfront: [...upfront].sort(), deferred: [...deferred].sort() };
+}
