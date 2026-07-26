@@ -73,6 +73,8 @@ import {
 import { enemyTint } from '../systems/EnemyPalette';
 import { groundShadowRings } from '../systems/GroundShadow';
 import { encountersForStage, castForStage } from '../data/WaveManifest';
+import { handScreenPosition } from '../data/HandAnchors';
+import { weaponAngle } from '../data/WeaponPose';
 import { layoutForStage } from '../data/StageLayout';
 import { AudioSystem } from '../systems/audio/AudioSystem';
 import { variantForStage } from '../systems/audio/SoundBank';
@@ -560,14 +562,21 @@ export class GameScene extends Phaser.Scene {
       : this.playerFacing === -1;
     const gripX = visual ? (flipX ? 1 - visual.gripX : visual.gripX) : 0.5;
     const gripY = visual?.gripY ?? 0.5;
-    const angle = visual
-      ? (swinging ? visual.swingAngle : visual.idleAngle) * this.playerFacing
-      : (swinging ? -35 : 0) * this.playerFacing;
-    const handX = screenX + this.playerFacing * (swinging ? 48 : 28);
-    const handY = screenY - 118;
+    // Rotation derived from the art's measured long axis, not a fixed guess.
+    const angle = weaponAngle(this.equippedWeapon.def.id, swinging, flipX);
+    // Hand position comes from the per-pose anchor table, expressed as
+    // fractions of the rendered body height, so the weapon follows the pose and
+    // holds at any sprite scale.
+    const hand = handScreenPosition(
+      this.fsm.currentState,
+      screenX,
+      screenY,
+      PLAYER_TARGET_HEIGHT_PX,
+      this.playerFacing,
+    );
     this.heldWeaponSprite
       .setOrigin(gripX, gripY)
-      .setPosition(handX, handY)
+      .setPosition(hand.x, hand.y)
       .setFlipX(flipX)
       .setAngle(angle)
       .setDepth(this.playerPos.y + 1);
