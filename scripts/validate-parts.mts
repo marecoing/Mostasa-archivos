@@ -47,6 +47,20 @@ interface Report {
   warnings: string[];
 }
 
+function hasOpaqueNear(
+  png: Png,
+  anchorX: number,
+  anchorY: number,
+  radius = 5,
+): boolean {
+  for (let y = Math.max(0, anchorY - radius); y <= Math.min(png.height - 1, anchorY + radius); y++) {
+    for (let x = Math.max(0, anchorX - radius); x <= Math.min(png.width - 1, anchorX + radius); x++) {
+      if (png.rgba[(y * png.width + x) * 4 + 3]! >= ALPHA_THRESHOLD) return true;
+    }
+  }
+  return false;
+}
+
 function checkPart(dir: string, spec: (typeof PART_SPECS)[number]): Report {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -125,6 +139,30 @@ function checkPart(dir: string, spec: (typeof PART_SPECS)[number]): Report {
 
   if (spec.pivotX >= width || spec.pivotY >= height || spec.pivotX < 0 || spec.pivotY < 0) {
     errors.push(`el pivote (${spec.pivotX}, ${spec.pivotY}) cae fuera del lienzo`);
+  } else if (!hasOpaqueNear(png, spec.pivotX, spec.pivotY)) {
+    errors.push(`el dibujo no cubre el pivote (${spec.pivotX}, ${spec.pivotY})`);
+  }
+
+  if (
+    spec.childX !== null &&
+    spec.childY !== null &&
+    !hasOpaqueNear(png, spec.childX, spec.childY)
+  ) {
+    errors.push(`el dibujo no cubre la articulación hija (${spec.childX}, ${spec.childY})`);
+  }
+
+  if (spec.id === 'mano' || spec.id === 'borcegui') {
+    const expectedEndOffset =
+      spec.id === 'borcegui'
+        ? Math.round(0.09 * AUTHORING_PPM)
+        : Math.round((spec.boneLengthM ?? 0) * AUTHORING_PPM);
+    const actualEndOffset = maxY - spec.pivotY;
+    if (Math.abs(actualEndOffset - expectedEndOffset) > 4) {
+      errors.push(
+        `el extremo queda a ${actualEndOffset} px del pivote; ` +
+          `el pliego pide ${expectedEndOffset} px (tolerancia ±4)`,
+      );
+    }
   }
 
   const offRatio = offPalette / opaque;

@@ -1051,6 +1051,28 @@
   de gutter, duplicados, residuos cromáticos o clips que apunten a celdas
   vacías. Typecheck, lint y build de producción correctos.
 
+### HITO 068 — Entrega modular de Mostasa contra el pliego ✅
+
+- Generadas con ImageGen, una por una, las ocho piezas pedidas por
+  `docs/PLIEGO-DE-ARTE.md`: cabeza, torso, brazo, antebrazo, mano, muslo,
+  pantorrilla y borceguí.
+- Fuentes creativas y alfa extraído preservados en
+  `assets/source/mostasa-parts/`; prompts completos y cadena de corrección del
+  torso documentados.
+- Entrega final en `assets/entrega-mostasa/`: lienzos y pivotes exactos,
+  contorno cerrado de 13 px, 18 px de aire, transparencia RGBA y paleta
+  cerrada.
+- Pipeline determinista `npm run arte:procesar`: muestreo con alfa
+  premultiplicado, reconstrucción de tinta, limpieza de islotes cromáticos,
+  cuantización y manifiesto SHA-256.
+- El torso se normaliza pelvis→hombros, con inversión vertical de la fuente,
+  porque el pliego exige articulación padre arriba y hueso hacia abajo.
+- `npm run arte:validar -- assets/entrega-mostasa`: 8/8 piezas aceptadas sin
+  errores ni advertencias; además de formato, paleta y aire, ahora comprueba
+  cobertura real de pivotes, articulaciones y extremos de mano/borceguí.
+- `npm run check`: 45 archivos, 618 tests, validadores de assets, typecheck y
+  build de producción correctos; lint sin errores (4 advertencias heredadas).
+
 ## PRÓXIMAS PRIORIDADES
 
 1. Sustituir audio procedural por el banco final de música, SFX y voces.
@@ -1098,8 +1120,8 @@ Ver `docs/adr/` para Architecture Decision Records.
 
 ## ESTADO DEL TEST SUITE
 
-- 37 archivos de test.
-- 471 tests aprobados.
+- 45 archivos de test.
+- 618 tests aprobados.
 - Incluye contratos de atlas, ocupación de celdas, clips, metadatos visuales,
   escalas físicas, oclusión y geometría sin costuras de panel.
 
