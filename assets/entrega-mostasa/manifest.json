@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "artBrief": "docs/PLIEGO-DE-ARTE.md",
+  "pipeline": "scripts/process-mostasa-parts.mts",
+  "authoringPixelsPerMetre": 600,
+  "outlinePx": 13,
+  "minimumTransparentMarginPx": 18,
+  "entries": [
+    {
+      "id": "cabeza",
+      "source": "assets/source/mostasa-parts/alpha/cabeza.png",
+      "output": "assets/entrega-mostasa/cabeza.png",
+      "canvas": [
+        221,
+        219
+      ],
+      "pivot": [
+        113,
+        118
+      ],
+      "child": null,
+      "opaqueBounds": [
+        18,
+        18,
+        202,
+        200
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#8f6044",
+        "#c98d63",
+        "#e0a97d",
+        "#e8e4da"
+      ],
+      "sourceSha256": "9eafb411e2cdfe5393bd6d313c7a01401ea39060856ba81f682faaad55a7b101",
+      "outputSha256": "9c4384380b57fa3a79c44ac7f7324945d40c660e81c8f04c7bc8d85935e2a93c"
+    },
+    {
+      "id": "torso",
+      "source": "assets/source/mostasa-parts/alpha/torso.png",
+      "output": "assets/entrega-mostasa/torso.png",
+      "canvas": [
+        227,
+        480
+      ],
+      "pivot": [
+        114,
+        139
+      ],
+      "child": [
+        114,
+        427
+      ],
+      "opaqueBounds": [
+        18,
+        18,
+        208,
+        461
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#8f6044",
+        "#8f6510",
+        "#c98d63",
+        "#d9a21b",
+        "#e0a97d",
+        "#f0c247"
+      ],
+      "sourceSha256": "2c7e333eaf3a7368ff5acdb69f7c475a132f9731f91420d0f529a5bbf46a41a4",
+      "outputSha256": "bbf635e02c9210e35ebd2594c8966be5026cc285848ba448597c169830629720"
+    },
+    {
+      "id": "brazo",
+      "source": "assets/source/mostasa-parts/alpha/brazo.png",
+      "output": "assets/entrega-mostasa/brazo.png",
+      "canvas": [
+        145,
+        280
+      ],
+      "pivot": [
+        72,
+        53
+      ],
+      "child": [
+        72,
+        233
+      ],
+      "opaqueBounds": [
+        18,
+        18,
+        126,
+        261
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#8f6510",
+        "#d9a21b"
+      ],
+      "sourceSha256": "d98f9b835d73bdd93d4b447bbda445bf961edb48886b3936f4e70d4b06e5bcf6",
+      "outputSha256": "9b4fd9251a9f107ad1d7980e06fb41db18b56756cf1f546fea07cf7f105ff73b"
+    },
+    {
+      "id": "antebrazo",
+      "source": "assets/source/mostasa-parts/alpha/antebrazo.png",
+      "output": "assets/entrega-mostasa/antebrazo.png",
+      "canvas": [
+        113,
+        265
+      ],
+      "pivot": [
+        55,
+        45
+      ],
+      "child": [
+        55,
+        213
+      ],
+      "opaqueBounds": [
+        18,
+        18,
+        94,
+        246
+      ],
+      "colours": [
+        "#11141d",
+        "#8f6510",
+        "#d9a21b"
+      ],
+      "sourceSha256": "419616349af1f22f4de26c2d27dd20afef2320421517f0ca416836977aff53bb",
+      "outputSha256": "db8ad96a1bf0ea65f1162a9020795fe30b8b8caa125fd3c02849272252b170f6"
+    },
+    {
+      "id": "mano",
+      "source": "assets/source/mostasa-parts/alpha/mano.png",
+      "output": "assets/entrega-mostasa/mano.png",
+      "canvas": [
+        133,
+        102
+      ],
+      "pivot": [
+        64,
+        18
+      ],
+      "child": null,
+      "opaqueBounds": [
+        18,
+        18,
+        114,
+        83
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#8f6044",
+        "#c98d63",
+        "#e0a97d"
+      ],
+      "sourceSha256": "1e6e709441fe62188f869e7dd02a2e89fe4fb882c24b1bc4806ee4171898d0e6",
+      "outputSha256": "7388fe85ec2f6babca1a92decaeee3c9012dff38cded73ec504f1e32c5970c87"
+    },
+    {
+      "id": "muslo",
+      "source": "assets/source/mostasa-parts/alpha/muslo.png",
+      "output": "assets/entrega-mostasa/muslo.png",
+      "canvas": [
+        169,
+        386
+      ],
+      "pivot": [
+        84,
+        69
+      ],
+      "child": [
+        84,
+        339
+      ],
+      "opaqueBounds": [
+        18,
+        18,
+        150,
+        367
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#3a4a6b",
+        "#52658a"
+      ],
+      "sourceSha256": "7f8c2b236f5be9a73163c8f000d92f567e1f12e2c6becbccd932d201b0f106a1",
+      "outputSha256": "164c92856484dd039caa86e7998afabbc4075a713f9146baf79edd51114d3d0c"
+    },
+    {
+      "id": "pantorrilla",
+      "source": "assets/source/mostasa-parts/alpha/pantorrilla.png",
+      "output": "assets/entrega-mostasa/pantorrilla.png",
+      "canvas": [
+        136,
+        329
+      ],
+      "pivot": [
+        74,
+        47
+      ],
+      "child": [
+        74,
+        287
+      ],
+      "opaqueBounds": [
+        18,
+        18,
+        117,
+        310
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#3a4a6b",
+        "#52658a"
+      ],
+      "sourceSha256": "49df2f817e04e5197f17dc5750be83d901fd4d58fb0f2c302093ac3fab4ab2d7",
+      "outputSha256": "2fc8d0c1aa471cc3165bbd00a4804967a5733eeac055b85a03f807fed6d7593e"
+    },
+    {
+      "id": "borcegui",
+      "source": "assets/source/mostasa-parts/alpha/borcegui.png",
+      "output": "assets/entrega-mostasa/borcegui.png",
+      "canvas": [
+        205,
+        195
+      ],
+      "pivot": [
+        75,
+        120
+      ],
+      "child": null,
+      "opaqueBounds": [
+        18,
+        18,
+        186,
+        176
+      ],
+      "colours": [
+        "#11141d",
+        "#1d2231",
+        "#2b3242",
+        "#3d4659",
+        "#4d5460"
+      ],
+      "sourceSha256": "0de718d5f6b29e76930eef647c4c4e527ee36a6269eae978c92bad582449a8ff",
+      "outputSha256": "9f33588b431061752df59d2dbc6aaedf929d7d26e206cbc4b7b1783721967c36"
+    }
+  ]
+}
