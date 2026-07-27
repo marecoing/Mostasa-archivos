@@ -81,8 +81,8 @@ export const HEAD_RADIUS_M = HEAD_HEIGHT_M / 2;
  *
  *   pelvis 0.940 + torso 0.480 = hombros 1.420  (80.7 % de la estatura)
  *          + cuello 0.090      = 1.510
- *          + cuello→centro cabeza 0.115 = 1.625
- *          + radio de cabeza 0.135 = 1.760  ← coronilla
+ *          + cuello→centro cabeza 0.100 = 1.610
+ *          + radio de cabeza 0.147 = 1.757  ← coronilla
  *
  * y hacia abajo, muslo 0.45 + pantorrilla 0.40 = 0.85, que deja el tobillo en
  * 0.09. Un test verifica esta suma contra HERO_HEIGHT_M, así que la proporción
@@ -92,7 +92,7 @@ export const BONES: readonly Bone[] = [
   // Tronco
   { parent: null, joint: 'chest', lengthM: 0.48, restAngleDeg: -4, widthM: 0.36 },
   { parent: 'chest', joint: 'neck', lengthM: 0.09, restAngleDeg: 2, widthM: 0.14 },
-  { parent: 'neck', joint: 'head', lengthM: 0.115, restAngleDeg: 2, widthM: 0.22 },
+  { parent: 'neck', joint: 'head', lengthM: 0.1, restAngleDeg: 2, widthM: 0.22 },
 
   // Brazos. El reposo los deja separados del torso: es la regla de silueta —
   // si el brazo se funde con el cuerpo, el golpe no se lee.

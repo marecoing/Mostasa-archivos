@@ -19,29 +19,61 @@ import { skeletonToScreen, solveSkeleton } from '../src/game/art/Skeleton';
 const canvas = document.getElementById('proof') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 
-function paint(shape: Shape): void {
-  ctx.fillStyle = P.toCss(shape.fill);
-  ctx.strokeStyle = P.toCss(shape.fill);
-  switch (shape.kind) {
-    case 'capsule':
-      ctx.lineWidth = shape.width;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(shape.a.x, shape.a.y);
-      ctx.lineTo(shape.b.x, shape.b.y);
-      ctx.stroke();
-      break;
-    case 'circle':
-      ctx.beginPath();
-      ctx.arc(shape.c.x, shape.c.y, shape.r, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    case 'poly':
-      ctx.beginPath();
-      shape.points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-      ctx.closePath();
-      ctx.fill();
-      break;
+/** Traza un contorno cerrado, suavizado con spline de Catmull-Rom. */
+function trace(points: { x: number; y: number }[], smooth: boolean): void {
+  const n = points.length;
+  ctx.beginPath();
+  if (!smooth || n < 3) {
+    points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+    ctx.closePath();
+    return;
+  }
+  const at = (i: number): { x: number; y: number } => points[((i % n) + n) % n]!;
+  ctx.moveTo(at(0).x, at(0).y);
+  for (let i = 0; i < n; i++) {
+    const p0 = at(i - 1);
+    const p1 = at(i);
+    const p2 = at(i + 1);
+    const p3 = at(i + 2);
+    ctx.bezierCurveTo(
+      p1.x + (p2.x - p0.x) / 6,
+      p1.y + (p2.y - p0.y) / 6,
+      p2.x - (p3.x - p1.x) / 6,
+      p2.y - (p3.y - p1.y) / 6,
+      p2.x,
+      p2.y,
+    );
+  }
+  ctx.closePath();
+}
+
+/**
+ * Pinta un personaje en dos pasadas.
+ *
+ * Pasada 1: todas las piezas de silueta, engordadas y en tinta, se funden en
+ * un contorno externo único. Pasada 2: el color, sin contorno propio.
+ *
+ * Contornear cada pieza por separado es lo que convertía al personaje en un
+ * muñeco articulado de placas: se veían las juntas del hombro, del codo y de
+ * la rodilla como si fuera una armadura.
+ */
+function paintRig(parts: Shape[], outlineWidth: number, silhouetteOnly: boolean): void {
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.fillStyle = P.toCss(P.INK);
+  ctx.strokeStyle = P.toCss(P.INK);
+  ctx.lineWidth = outlineWidth * 2;
+  for (const part of parts) {
+    if (!part.outline) continue;
+    trace(part.points, part.smooth);
+    ctx.stroke();
+    ctx.fill();
+  }
+  if (silhouetteOnly) return;
+  for (const part of parts) {
+    trace(part.points, part.smooth);
+    ctx.fillStyle = P.toCss(part.fill);
+    ctx.fill();
   }
 }
 
@@ -55,9 +87,8 @@ function character(
 ): void {
   const skin = { ...MOSTASA_SKIN, heightM: HERO_HEIGHT_M * scale };
   const screen = skeletonToScreen(solveSkeleton(pose, facing), feetX, feetY, skin.heightM);
-  const { ink, fill } = drawRig(screen, skin, facing);
-  ink.forEach(paint);
-  if (!silhouetteOnly) fill.forEach(paint);
+  const { parts, outlineWidth } = drawRig(screen, skin, facing);
+  paintRig(parts, outlineWidth, silhouetteOnly);
 }
 
 /** Sombra de contacto: anillos concéntricos, el recurso ya validado del motor. */

@@ -70,12 +70,12 @@ export const HORIZON_Y_PX = 214;
 // ---------------------------------------------------------------------------
 
 /**
- * Cabezas de altura. 6.5 es la proporción de brawler cómico: más heroica que
- * la caricatura de 4 cabezas, más legible y con más carácter que el realismo
- * de 8. Todos los humanos del juego usan esta proporción salvo excepciones
- * declaradas (jefes grandes, el Trapito).
+ * Cabezas de altura. 6 es la proporción de brawler: más heroica que la
+ * caricatura de 4, y con la cabeza lo bastante grande como para que la cara
+ * se lea en pantalla, cosa que a 6.5 ya no pasaba. Todos los humanos del
+ * juego usan esta proporción salvo excepciones declaradas.
  */
-export const HEADS_TALL = 6.5;
+export const HEADS_TALL = 6.0;
 
 export const HEAD_HEIGHT_M = HERO_HEIGHT_M / HEADS_TALL;
 
