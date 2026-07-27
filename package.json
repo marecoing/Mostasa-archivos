@@ -23,10 +23,11 @@
     "sprites:v2:validate": "node scripts/validate-character-atlases.mjs",
     "objects:clean": "node scripts/clean-object-assets.mjs",
     "objects:validate": "node scripts/clean-object-assets.mjs --check",
-    "assets:check": "npm run sprites:v2:validate && npm run objects:validate",
+    "assets:check": "npm run sprites:v2:validate && npm run objects:validate && npm run arte:validar -- assets/entrega-mostasa",
     "check": "npm run typecheck && npm run lint && npm run assets:check && npm run test && npm run build",
-    "arte:pliego": "tsx scripts/build-art-brief.mts",
-    "arte:validar": "tsx scripts/validate-parts.mts"
+    "arte:pliego": "node scripts/run-process-mostasa-parts.mjs scripts/build-art-brief.mts",
+    "arte:procesar": "node scripts/run-process-mostasa-parts.mjs scripts/process-mostasa-parts.mts",
+    "arte:validar": "node scripts/run-process-mostasa-parts.mjs scripts/validate-parts.mts"
   },
   "dependencies": {
     "phaser": "4.2.1"
