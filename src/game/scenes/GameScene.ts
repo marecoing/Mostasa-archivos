@@ -93,8 +93,8 @@ import {
   WEAPON_VISUALS,
   characterOriginY,
   characterScaleForTarget,
+  realWorldScale,
   scaleForVisibleHeight,
-  visualScale,
 } from '../data/VisualMetrics';
 import type { ScreenRect } from '../data/VisualMetrics';
 
@@ -455,7 +455,7 @@ export class GameScene extends Phaser.Scene {
       const sprite = this.add
         .sprite(0, 0, breakableKey(item.id), 0)
         .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
-        .setScale(visual ? visualScale(visual) : 1);
+        .setScale(visual ? realWorldScale(item.id, visual) : 1);
       this.breakables.push(ent);
       this.breakableSprites.push(sprite);
     }
@@ -471,7 +471,7 @@ export class GameScene extends Phaser.Scene {
       const sprite = this.add
         .sprite(0, 0, itemKey(item.id))
         .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
-        .setScale(visual ? visualScale(visual) : 1);
+        .setScale(visual ? realWorldScale(item.id, visual) : 1);
       this.weapons.push(ent);
       this.weaponSprites.push(sprite);
     }
@@ -1787,7 +1787,7 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.add
       .sprite(0, 0, itemKey(itemId))
       .setOrigin(visual?.originX ?? 0.5, visual?.originY ?? 1)
-      .setScale(visual ? visualScale(visual) : 1);
+      .setScale(visual ? realWorldScale(itemId, visual) : 1);
     this.pickups.push(ent);
     this.pickupSprites.push(sprite);
   }

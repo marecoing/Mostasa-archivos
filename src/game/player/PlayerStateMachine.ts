@@ -38,6 +38,26 @@ export const DODGE_FRAMES = 18;
 export const DODGE_IFRAME_START = 1;
 export const DODGE_IFRAME_END = 11;
 
+/**
+ * Cuántos cuadros después de terminar los cuadros activos se abre la ventana
+ * de cancelación.
+ *
+ * Sin esto, la recuperación completa de cada golpe tenía que reproducirse
+ * antes de que saliera el siguiente, aunque el jugador ya hubiera apretado:
+ * el primer golpe tardaba 14 cuadros en encadenar y el combo entero 56, casi
+ * un segundo. Un brawler que se siente bien encadena en 8 a 12. Cancelar la
+ * recuperación con un golpe encadenado es la técnica estándar del género y es
+ * la diferencia entre un combate que responde y uno pegajoso.
+ */
+export const CANCEL_LINK_FRAMES = 2;
+
+/**
+ * Vida de un input encolado, en cuadros. Un botón apretado hace medio segundo
+ * no puede disparar un golpe ahora: eso produce golpes fantasma. 10 cuadros
+ * (167 ms) es la ventana de perdón habitual del género.
+ */
+export const INPUT_BUFFER_FRAMES = 10;
+
 export interface PlayerContext {
   isOnGround: boolean;
   velZ: number;
@@ -57,6 +77,9 @@ export class PlayerStateMachine {
   private frame = 0;
   private lightQueued = false;
   private heavyQueued = false;
+  /** Cuántos cuadros le quedan de vida a cada input encolado. */
+  private lightBuffer = 0;
+  private heavyBuffer = 0;
 
   get currentState(): PlayerStateId {
     return this.state;
@@ -138,12 +161,38 @@ export class PlayerStateMachine {
   }
 
   tick(input: InputSnapshot, ctx: PlayerContext): FSMResult {
-    if (input[INPUT_ACTIONS.LIGHT_ATTACK].justPressed) this.lightQueued = true;
-    if (input[INPUT_ACTIONS.HEAVY_ATTACK].justPressed) this.heavyQueued = true;
+    // El buffer envejece antes de leer el input nuevo, así que una pulsación
+    // dura exactamente INPUT_BUFFER_FRAMES cuadros.
+    if (this.lightBuffer > 0 && --this.lightBuffer === 0) this.lightQueued = false;
+    if (this.heavyBuffer > 0 && --this.heavyBuffer === 0) this.heavyQueued = false;
+
+    if (input[INPUT_ACTIONS.LIGHT_ATTACK].justPressed) {
+      this.lightQueued = true;
+      this.lightBuffer = INPUT_BUFFER_FRAMES;
+    }
+    if (input[INPUT_ACTIONS.HEAVY_ATTACK].justPressed) {
+      this.heavyQueued = true;
+      this.heavyBuffer = INPUT_BUFFER_FRAMES;
+    }
 
     const result = this.processCurrentState(input, ctx);
     this.frame++;
     return result;
+  }
+
+  /**
+   * Primer cuadro en el que un golpe encadenado puede cancelar la
+   * recuperación de éste.
+   */
+  private cancelFrame(def: AttackDef): number {
+    return def.startupFrames + def.activeFrames + CANCEL_LINK_FRAMES;
+  }
+
+  private clearBuffers(): void {
+    this.lightQueued = false;
+    this.heavyQueued = false;
+    this.lightBuffer = 0;
+    this.heavyBuffer = 0;
   }
 
   private enterState(next: PlayerStateId): void {
@@ -154,6 +203,7 @@ export class PlayerStateMachine {
   private consumeLight(): boolean {
     if (this.lightQueued) {
       this.lightQueued = false;
+      this.lightBuffer = 0;
       return true;
     }
     return false;
@@ -162,6 +212,7 @@ export class PlayerStateMachine {
   private consumeHeavy(): boolean {
     if (this.heavyQueued) {
       this.heavyQueued = false;
+      this.heavyBuffer = 0;
       return true;
     }
     return false;
@@ -301,8 +352,8 @@ export class PlayerStateMachine {
   private processLand(): FSMResult {
     const result = this.emptyResult();
     if (this.frame >= LAND_FRAMES) {
-      this.lightQueued = false;
-      this.heavyQueued = false;
+      // El aterrizaje NO limpia el buffer: si el jugador aprieta mientras cae,
+      // el golpe tiene que salir al tocar el piso.
       this.enterState(PLAYER_STATE.IDLE);
     }
     return result;
@@ -320,17 +371,27 @@ export class PlayerStateMachine {
       result.activeAttack = def;
     }
 
-    if (this.frame >= getTotalFrames(def)) {
-      const canChain = this.state !== PLAYER_STATE.LIGHT_3;
-      if (this.lightQueued && canChain) {
-        this.lightQueued = false;
-        const next = this.state === PLAYER_STATE.LIGHT_1 ? PLAYER_STATE.LIGHT_2 : PLAYER_STATE.LIGHT_3;
+    const canChain = this.state !== PLAYER_STATE.LIGHT_3;
+
+    // Cancelación: en cuanto pasan los cuadros activos, un golpe ya encolado
+    // corta la recuperación en vez de esperarla entera.
+    if (canChain && this.frame >= this.cancelFrame(def)) {
+      if (this.consumeLight()) {
+        const next =
+          this.state === PLAYER_STATE.LIGHT_1 ? PLAYER_STATE.LIGHT_2 : PLAYER_STATE.LIGHT_3;
         this.enterState(next);
-      } else {
-        this.lightQueued = false;
-        this.heavyQueued = false;
-        this.enterState(PLAYER_STATE.IDLE);
+        return result;
       }
+      // El fuerte también cancela el combo liviano: es el remate del género.
+      if (this.consumeHeavy()) {
+        this.enterState(PLAYER_STATE.HEAVY);
+        return result;
+      }
+    }
+
+    if (this.frame >= getTotalFrames(def)) {
+      this.clearBuffers();
+      this.enterState(PLAYER_STATE.IDLE);
     }
     return result;
   }
@@ -345,8 +406,7 @@ export class PlayerStateMachine {
     }
 
     if (this.frame >= getTotalFrames(def)) {
-      this.lightQueued = false;
-      this.heavyQueued = false;
+      this.clearBuffers();
       this.enterState(PLAYER_STATE.IDLE);
     }
     return result;

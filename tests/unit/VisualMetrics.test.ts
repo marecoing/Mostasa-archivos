@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { targetHeightPxFor } from '../../src/game/art/WorldScale';
 import { BREAKABLE_LIST } from '../../src/game/data/BreakableManifest';
 import { PICKUPS, REWARDS, WEAPONS } from '../../src/game/data/ItemManifest';
 import { allPropIds } from '../../src/game/data/PropManifest';
@@ -77,12 +78,18 @@ describe('asset visual manifests', () => {
     }
   });
 
-  it('covers every prop and resolves its canonical authored placement to target height', () => {
+  it('covers every prop and renders it at its declared real-world height', () => {
+    // La altura objetivo ya no es el número elegido a ojo del manifiesto: sale
+    // de la altura REAL en metros declarada en WorldScale. Ese cambio es el que
+    // corrige "los objetos son demasiado grandes comparados con los personajes".
     for (const id of allPropIds()) {
       const visual = PROP_VISUALS[id];
       expect(visual, `missing prop visual ${id}`).toBeDefined();
       const renderedHeight = visual!.referenceHeightPx * propScaleFor(id, visual!.authoredScale);
-      expect(renderedHeight).toBeCloseTo(visual!.targetHeightPx);
+      expect(renderedHeight, id).toBeCloseTo(
+        targetHeightPxFor(id, visual!.targetHeightPx),
+        1,
+      );
     }
   });
 });

@@ -9,6 +9,7 @@
  */
 
 import { CHARACTER_ASSET_MANIFEST } from './CharacterAssetManifest';
+import { targetHeightPxFor } from '../art/WorldScale';
 
 export interface SpriteVisualMetric {
   referenceHeightPx: number;
@@ -178,11 +179,25 @@ export function visualScale(metric: SpriteVisualMetric): number {
   return scaleForVisibleHeight(metric.targetHeightPx, metric.referenceHeightPx);
 }
 
+/**
+ * Escala de un asset a partir de su altura REAL declarada en metros.
+ *
+ * Sustituye a `visualScale` en todo lo que tiene medida del mundo real. La
+ * altura en píxeles que traía el manifiesto queda sólo como reserva para
+ * assets todavía sin medir, y hay un test que exige que no quede ninguno.
+ */
+export function realWorldScale(id: string, metric: SpriteVisualMetric): number {
+  return scaleForVisibleHeight(
+    targetHeightPxFor(id, metric.targetHeightPx),
+    metric.referenceHeightPx,
+  );
+}
+
 export function propScaleFor(propId: string, authoredPlacementScale: number): number {
   const visual = PROP_VISUALS[propId];
   if (!visual) return authoredPlacementScale;
   const placementMultiplier = authoredPlacementScale / visual.authoredScale;
-  return visualScale(visual) * placementMultiplier;
+  return realWorldScale(propId, visual) * placementMultiplier;
 }
 
 export function rectsIntersect(a: ScreenRect, b: ScreenRect): boolean {
